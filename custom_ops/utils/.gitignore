@@ -1,0 +1,16 @@
+tags
+__pycache__
+*.pyc
+test_data
+.vscode
+.DS_Store
+.pytest_cache/
+tmp
+*.lock
+*.log
+.polaris_cache
+trpc_python.yaml
+tools
+
+test/
+*.png

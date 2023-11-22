@@ -1,0 +1,11 @@
+server_config:
+        src_deque_conf:
+                url: "https://sqs.us-east-1.amazonaws.com/647854334008/Diffuser_ConstructRequestQueue_Normal"
+                region_name: "us-east-1"
+                max_number_of_mess: 1
+        sql_conf:
+                sql_type: "amazon"
+        dst_deque_conf:
+                url: ""
+                region_name: "us-east-1"
+                max_number_of_mess: 1

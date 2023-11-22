@@ -1,0 +1,69 @@
+'''
+Description: API for MDB implemented by pymysql
+Author: guoping
+Date: 2023-03-30 20:17:01
+Acknowledgements: TBD
+'''
+
+import os
+import re
+import time
+
+import pymysql
+
+from inferno.logger import logger
+
+
+class MysqlDB(object):
+    def __init__(self, target, retry=3, **kwargs):
+        sumeru_env = os.getenv('SUMERU_ENV', 'devnet')
+        connect_params = self.parse_args(target, sumeru_env)
+        self.db = pymysql.connect(charset='utf8', **connect_params)
+        self.retry = retry
+        logger.info(f'Successfully connected to {target}')
+
+    def parse_args(self, target, sumeru_env):
+        if isinstance(target, dict):
+            target = target['formal'] if sumeru_env == 'formal' else target['test']
+        reg = re.compile(
+            r'^mysql:\/\/(?P<user>\S*?):(?P<password>\S*@*\S*?)@(?P<host>\S*?):(?P<port>\d*?)\/(?P<database>\S*?)$'
+        )
+        connect_params = reg.fullmatch(target).groupdict()
+        connect_params['port'] = int(connect_params['port'])
+        return connect_params
+
+    def query(self, sql_cmd):
+        self.db.ping(reconnect=True)
+        for _ in range(self.retry):
+            try:
+                with self.db.cursor() as cursor:
+                    cursor.execute(sql_cmd)
+                    lines = cursor.fetchall()
+                    return lines
+            except (pymysql.err.Error, AssertionError, UnicodeDecodeError) as err:
+                logger.error(f'Mysql Error: {err}')
+                time.sleep(0.1)
+        return list()
+
+    def execute(self, sql_cmd):
+        self.db.ping(reconnect=True)
+        for _ in range(self.retry):
+            try:
+                with self.db.cursor() as cursor:
+                    cursor.execute(sql_cmd)
+                    self.db.commit()
+                    return True
+            except pymysql.err.Error as err:
+                self.db.rollback()
+                logger.error(f'Mysql Error: {err}')
+                time.sleep(0.1)
+        return False
+
+    def executemany(self, base_cmd, data_list):
+        failed_data = list()
+        for data in data_list:
+            sql_cmd = base_cmd % data
+            success = self.execute(sql_cmd)
+            if not success:
+                failed_data.append(data)
+        return failed_data
