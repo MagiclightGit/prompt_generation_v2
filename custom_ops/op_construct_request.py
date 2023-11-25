@@ -239,9 +239,9 @@ class OpConstructRequest(object):
         return people_prmp, lora_info_dict
     
     # layout: [{}]
-    def run(self, flow_id, fid, chid, para_id, ipbible, model_info, batch_size, layout, common_request_info):
+    def run(self, flow_id, project_id, chid, para_id, ipbible, model_info, batch_size, layout, common_request_info):
         # get from IP bible
-        inputs = [flow_id, fid, chid, para_id, ipbible, model_info, batch_size, layout, common_request_info]
+        inputs = [flow_id, project_id, chid, para_id, ipbible, model_info, batch_size, layout, common_request_info]
         logging.info(f"{inputs}")
 
         human_prompts = ""
@@ -250,7 +250,7 @@ class OpConstructRequest(object):
         lora_info_dict = {}
         sub_pos_prompts = {}
         debug_dict = {
-            "fid": fid,
+            "project_id": project_id,
             "chid": chid,
             "paraid": para_id,
             "flowid": flow_id,
@@ -280,14 +280,14 @@ class OpConstructRequest(object):
         # 生成设定
         if layout:
             layout = json.loads(layout)
-            logging.info(f"{flow_id}_{fid}_{chid}_{para_id} Layout info [0]: {layout}")
+            logging.info(f"{flow_id}_{project_id}_{chid}_{para_id} Layout info [0]: {layout}")
         else:
             layout = {}
             logging.info(f"Layout info is {layout}")
         
         # get prompt from layout
         env_prompt = layout.get("env_prompt", "")
-        person_prompt = layout.get("person_prompt", {})
+        person_prompt = layout.get("person_prompt", [])
         sub_pos_prompts = layout.get("sub_prompt", {})
         neg_prompts = layout.get("neg_prompt", "")
 
@@ -300,9 +300,9 @@ class OpConstructRequest(object):
             logging.info("Parse model_info error. model_info: {}".format(model_info))
             return [ret_call_dict, None, debug_dict]
         
-        # num_person = len(person_prompt)
+        num_person = len(person_prompt)
         prompts_data = layout.get("prompts_data", {})
-        num_person = prompts_data.get("num_person", 0)
+        # num_person = prompts_data.get("num_person", 0)
         # if len(layout) > 0:
         if num_person > 0:     # 新链路无人的情况也会有layout，此时判断人物数量
             # batch size
@@ -331,7 +331,7 @@ class OpConstructRequest(object):
         if self.gen_api_type == "diffusers":
             # for diffusers, 0: no controlnet, 1: openpose, 2: depth
             if len(layout) > 0 and layout["urls"]:
-                lo_img_key = layout["urls"][0].split("/")[-1]
+                lo_img_key = layout["urls"].split("/")[-1]
                 lo_openpose_url = os.path.join(self.lo_cosprefix["openpose"], lo_img_key)
                 lo_depth_url = os.path.join(self.lo_cosprefix["depth"], lo_img_key)
                 lo_lineart_url = os.path.join(self.lo_cosprefix["lineart"], lo_img_key)
@@ -339,7 +339,7 @@ class OpConstructRequest(object):
                 # debug上报lineart url
                 # {img_url: ['https://aigc-test-1258344701.cos.ap-nanjing.myqcloud.com/roles/fd0015lpra7/15/23088a864d3389c9/2_0.jpg']}
 
-                debug_dict["layout_img_url"] = json.dumps({"img_url": [lo_lineart_url]})
+                debug_dict["layout_img_url"] = json.dumps({"img_url": lo_lineart_url})
 
                 lo_idx = layout["idx"]
                 
@@ -392,7 +392,7 @@ class OpConstructRequest(object):
                         ctrl_type["cwr-type"] = []
                 
             else:
-                # 场景生成
+                # 无layout 场景生成
                 ctrl_type = {
                     "no-ctrl": []
                 }
@@ -414,82 +414,91 @@ class OpConstructRequest(object):
             # elif ipbible["num_person"] == 1:
             elif num_person == 1:
                 try:
-                    cur_role_info = ipbible["roles"][0]
-                    role_id = cur_role_info["id"]
+                    role_id = prompts_data["person_id"][0][0]
                     lora_info, _ = self.parse_lora_info(model_info[role_id])
                     lora_info_dict[role_id] = lora_info
                 except Exception:
                     pass
 
+                # 此逻辑在layout中完成
                 # TODO 增加prompts判断和shoot DONE
                 try:
                     lo_shoot = self.layout_map.get(layout["layout_scene"], "")
                 except:
                     logging.info("'layout_scene' Layout of {}_{}_{}_{} has ERROR. Layout: {}".format(
-                        flow_id, fid, chid, para_id, layout
+                        flow_id, project_id, chid, para_id, layout
                     ))
                     lo_shoot = ""
                 
-                try:
-                    lo_look = self.layout_map.get(json.loads(layout["prompt"])[0]["look"], "")
-                except:
-                    logging.info("'look' Layout of {}_{}_{}_{} ERROR. Layout: {}".format(
-                        flow_id, fid, chid, para_id, layout
-                    ))
-                    lo_look = ""
+                # try:
+                #     lo_look = self.layout_map.get(json.loads(layout["prompt"])[0]["look"], "")
+                # except:
+                #     logging.info("'look' Layout of {}_{}_{}_{} ERROR. Layout: {}".format(
+                #         flow_id, project_id, chid, para_id, layout
+                #     ))
+                #     lo_look = ""
                 
-                shoot_tech = lo_shoot
-                if len(shoot_tech) > 0:
-                    if len(lo_look) > 0:
-                        lo_shoot = "{}, {}".format(lo_shoot, lo_look)
-                else:
-                    if len(lo_look) > 0:
-                        shoot_tech = lo_look
-                if len(shoot_tech) > 0:
-                    prompts_list = ['{}, {},'.format(list(person_prompt[0].values())[0], shoot_tech)]
-                else: 
-                    prompts_list = list(person_prompt.values())
-                prompts_list.append(env_prompt)
-                pos_prompts = " ".join(prompts_list)
+                # shoot_tech = lo_shoot
+                # if len(shoot_tech) > 0:
+                #     if len(lo_look) > 0:
+                #         lo_shoot = "{}, {}".format(lo_shoot, lo_look)
+                # else:
+                #     if len(lo_look) > 0:
+                #         shoot_tech = lo_look
+                # if len(shoot_tech) > 0:
+                #     prompts_list = ['{}, {},'.format(list(person_prompt[0].values())[0], shoot_tech)]
+                # else: 
+                #     prompts_list = list(person_prompt.values())
+                # prompts_list.append(env_prompt)
+                # pos_prompts = " ".join(prompts_list)
+                pos_prompts = f"{person_prompt[0]['prompt']},{lo_shoot},{env_prompt}"
             # elif ipbible["num_person"] == 2:
             elif num_person == 2:
                 lo_shoot = ""
-                bb_look = ["", ""]
+                # bb_look = ["", ""]
                 rp_split_ratio = 0.5
                 try:
-                    _, lora_info_dict = self.pprmp_rank(
-                    model_info, ipbible["roles"], json.loads(layout["prompt"]))
+                    for person_id in prompts_data["person_id"]:
+                        role_id = person_id[0]
+                        lora_info, _ = self.parse_lora_info(model_info[role_id])
+                        # lora_prompts = self.add_action(lora_prompts, i_role)
+                        lora_info_dict[role_id] = lora_info
+
+                    # _, lora_info_dict = self.pprmp_rank(
+                    # model_info, ipbible["roles"], json.loads(layout["prompt"]))
                     # 拍摄手法
                     lo_shoot = self.layout_map.get(layout["layout_scene"], "")
                     # 人物朝向
-                    bb_look = [self.layout_map.get(item["look"], "") for item in json.loads(layout["prompt"])]
+                    # bb_look = [self.layout_map.get(item["look"], "") for item in json.loads(layout["prompt"])]
                     # 计算split_ratio
                     bb_0 = layout["bounding_box_info"][0]["bounding_box"]
                     bb_1 = layout["bounding_box_info"][1]["bounding_box"]
                     rp_split_ratio = 0.5 * (bb_0[0] + bb_1[0])
                 except Exception:
-                    for i, i_role in enumerate(ipbible["roles"]):
-                        role_id = i_role["id"]
+                    for item in person_prompt:
+                        role_id = item["entity_id"]
                         lora_info, lora_prompts = self.parse_lora_info(model_info[role_id])
-                        lora_prompts = self.add_action(lora_prompts, i_role)
+                        # lora_prompts = self.add_action(lora_prompts, i_role)
                         lora_info_dict[role_id] = lora_info
                 # 拼接pos prompt
-                prompts_list = ['{}, {}'.format(env_prompt, lo_shoot)]
-                person_prompt_list = list(person_prompt.values())
-                for i in range(ipbible["num_person"]):
-                    temp = []
+                pos_prompts = f"{env_prompt}, {lo_shoot}"
+                for item in person_prompt:
+                    pos_prompts = f"{pos_prompts} ADDCOL {item['prompt']}"
+                # person_prompt_list = list(person_prompt.values())
+                # for i in range(ipbible["num_person"]):
+                #     temp = []
 
-                    if len(person_prompt_list[i]) > 0:
-                        temp.append(person_prompt_list[i])
+                #     if len(person_prompt_list[i]) > 0:
+                #         temp.append(person_prompt_list[i])
 
-                    if len(bb_look[i]) > 0:
-                        temp.append(bb_look[i])
+                #     if len(bb_look[i]) > 0:
+                #         temp.append(bb_look[i])
 
-                    temp = ", ".join(temp)
+                #     temp = ", ".join(temp)
 
-                    prompts_list.append(temp)
+                #     prompts_list.append(temp)
                 
-                pos_prompts = " ADDCOL ".join(prompts_list)
+                # pos_prompts = " ADDCOL ".join(prompts_list)
 
             # TODO 根据ip bible中的人数，构建regional prompter DONE
             # if ipbible["num_person"] < 2:
@@ -505,7 +514,7 @@ class OpConstructRequest(object):
             # 轮询dict中的信息
             debug_prompt = {}
             for c_type, c_value in ctrl_type.items():
-                log_id = f"{flow_id}_{fid}_{chid}_{para_id}_{c_type}_lo{lo_idx}"
+                log_id = f"{flow_id}_{project_id}_{chid}_{para_id}_{c_type}_lo{lo_idx}"
                 input_data = {
                     "flow_id": log_id,
                     "infer_data": {
@@ -593,8 +602,8 @@ class OpConstructRequest(object):
 
                     if c_type in ["cwr-type"]:
                         for role_id, lora_info in lora_info_dict.items():
-                            logging.info("LoRA INFO. fid: {}, chid: {}, para_id: {}, role_id: {}, lora_info: {}, c_type: {}".format(
-                                fid, chid, para_id, role_id, lora_info, c_type))
+                            logging.info("LoRA INFO. project_id: {}, chid: {}, para_id: {}, role_id: {}, lora_info: {}, c_type: {}".format(
+                                project_id, chid, para_id, role_id, lora_info, c_type))
                             i_lora_info = {}
                             i_lora_info["model"] = lora_info["model_url"]
                             i_lora_info["weight"] = lora_info["weight"]
@@ -605,8 +614,8 @@ class OpConstructRequest(object):
                             input_data["infer_data"]["controlnet_configs"] = c_value
                 else:
                     for role_id, lora_info in lora_info_dict.items():
-                        logging.info("LoRA INFO. fid: {}, chid: {}, para_id: {}, role_id: {}, lora_info: {}, c_type: {}".format(
-                            fid, chid, para_id, role_id, lora_info, c_type))
+                        logging.info("LoRA INFO. project_id: {}, chid: {}, para_id: {}, role_id: {}, lora_info: {}, c_type: {}".format(
+                            project_id, chid, para_id, role_id, lora_info, c_type))
                         i_lora_info = {}
                         i_lora_info["model"] = lora_info["model_url"]
                         i_lora_info["weight"] = lora_info["weight"]
@@ -635,9 +644,9 @@ class OpConstructRequest(object):
 
                 role_id = ''
                 if num_person == 1:
-                    role_id = person_prompt[0]["role_id"]
+                    role_id = person_prompt[0]["entity_id"]
                 elif num_person == 2:
-                    role_id = person_prompt[-1]["role_id"]
+                    role_id = person_prompt[-1]["entity_id"]
                 logging.info("call diffuser: {}".format(json.dumps(df_req)))
 
                 aigc_generator_cmd = "insert into t_aigc_generator_prompt \
@@ -657,6 +666,7 @@ class OpConstructRequest(object):
                     res_url_list = res['url_list']
                     logging.info("{} with control type {}".format(res['flow_id'], res_url_list))
                     ret_call_dict[c_type] = res_url_list
+
                 
                 '''
                 req = self.df_client.create_request()

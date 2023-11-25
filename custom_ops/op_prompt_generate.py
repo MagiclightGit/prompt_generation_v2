@@ -12,7 +12,7 @@ class OpPromptGenerate(OpConstructRequest):
         timeout = 300):
         super(OpPromptGenerate, self).__init__(df_server_url, timeout)
 
-    def run(self, flow_id, fid, chid, para_id, ip_bible, model_info) :
+    def run(self, flow_id, project_id, chid, para_id, ip_bible, model_info) :
         human_prompts = ""
         env_prompt = ""
         lora_info_dict = {}
@@ -113,7 +113,7 @@ class OpPromptGenerate(OpConstructRequest):
                 role_id = str(ip_bible["roles"][0]["id"])
                 person_prompt = {
                     "index": 0,
-                    "role_id": role_id,
+                    "entity_id": role_id,
                     "prompt": human_prompts
                 }
                 pos_prompts['person_prompt'].append(person_prompt)
@@ -143,7 +143,7 @@ class OpPromptGenerate(OpConstructRequest):
                     
                     person_prompt = {
                         "index": i,
-                        "role_id": role_id,
+                        "entity_id": role_id,
                         "prompt": lora_prompts
                     }
                     pos_prompts['person_prompt'].append(person_prompt)

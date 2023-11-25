@@ -29,11 +29,11 @@ from shlex import quote
 class OPIpBibleObtain(object):
     def __init__(
             self,
-            fid: str,
+            project_id: str,
             chid: str,
             para_id: int
     ):
-        self.fid = fid
+        self.project_id = project_id
         self.chid = chid
         self.para_id = para_id
 
@@ -153,7 +153,7 @@ class OPIpBibleObtain(object):
         
         return prompts_data
 
-    def parse_fiction_info_for_layout(self, fiction_path, fid, chid, para_id):
+    def parse_fiction_info_for_layout(self, fiction_path, project_id, chid, para_id):
 
         # 解析prompt
         prompts_data = {}
@@ -167,7 +167,7 @@ class OPIpBibleObtain(object):
                 continue
 
             prompts_data["conversation_id"] = para.get("conversation_id", "c_-1")
-            prompts_data["fiction_id"] = fid
+            prompts_data["project_id"] = project_id
             prompts_data["chapter_id"] = chid
             prompts_data["para_id"] = para_id
 
@@ -199,7 +199,7 @@ class OPIpBibleObtain(object):
                 ret_msg = {
                     "ret": 0,
                     "num_person": num_person,
-                    "msg": f"no roles in fid {fid}, chid {chid}, para_id {para_id}",
+                    "msg": f"no roles in project_id {project_id}, chid {chid}, para_id {para_id}",
                 }
                 # raise ValueError(f"no roles in fid {fid}, chid {chid}, para_id {para_id}")
                 logging.info(f"{ret_msg}")
@@ -259,13 +259,13 @@ class OPIpBibleObtain(object):
         return prompts_data, ret_msg
 
     def run(self, inputs):
-        fiction_info_path, fid, chid, para_id, flow_id = inputs
+        fiction_info_path, project_id, chid, para_id, flow_id = inputs
         ret_msg = {"ret": 0, "msg": "succ"}
         prompts_data = {}
         layout_data = {}
         try:
             prompts_data = self.parse_fiction_info(fiction_info_path)
-            layout_data, _ = self.parse_fiction_info_for_layout(fiction_info_path, fid, chid, para_id)
+            layout_data, _ = self.parse_fiction_info_for_layout(fiction_info_path, project_id, chid, para_id)
         except Exception as err:
             ret_msg["ret"] = 1
             err_info = "fiction parser failed! err: {}".format(str(err)) 
