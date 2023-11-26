@@ -3,7 +3,7 @@
 @author  : yangel(fflyangel@foxmail.com)
 @brief   :
 -----
-Last Modified: 2023-11-25 10:03:35
+Last Modified: 2023-11-26 13:08:33
 Modified By: yangel(fflyangel@foxmail.com)
 -----
 @history :
@@ -63,16 +63,18 @@ if __name__ == "__main__":
             #input:
             #{"project_id": "5484043911170", "flow_id": "5484043911169", "chapter_id": "1", "para_id": "0", "user_id": "43315623606272"}
             try:
-                project_id = input["project_id"]
-                chid = input["chapter_id"]
-                para_id = input["para_id"]
-                flow_id = input["flow_id"]
-                user_id = input["user_id"]
+                project_id = input.get("project_id", "")
+                chapter_id = input.get("local_chapter_id", "")
+                para_id = input.get("local_para_id", "")
+                global_chapter_id = input.get("global_chapter_id", "")
+                global_para_id = input.get("global_para_id", "")
+                flow_id = input.get("flow_id", "")
+                user_id = input.get("user_id", "")
 
-                fiction_path, model_info = GetInputInfo(project_id, chid, para_id, flow_id, sql)
+                fiction_path, model_info = GetInputInfo(project_id, chapter_id, para_id, flow_id, sql)
                 logging.info(f"model_info: {model_info}")
-                fiction_parser = OPIpBibleObtain(project_id, chid, para_id)
-                ipbible, pompts_layout, ret_msg = fiction_parser.run([fiction_path, project_id, chid, para_id, flow_id])
+                fiction_parser = OPIpBibleObtain(project_id, chapter_id, para_id)
+                ipbible, pompts_layout, ret_msg = fiction_parser.run([fiction_path, project_id, chapter_id, para_id, flow_id])
 
                 logging.info(f"pompts_layout: {pompts_layout}")
                 # TODO 
@@ -81,15 +83,17 @@ if __name__ == "__main__":
 
                 op_prompt_generate = OpPromptGenerate()
                 op_prompt_generate.init()
-                pos_prompts, neg_prompts, sub_pos_prompts = op_prompt_generate.run(flow_id, project_id, chid, para_id, ipbible, model_info)
+                pos_prompts, neg_prompts, sub_pos_prompts = op_prompt_generate.run(flow_id, project_id, chapter_id, para_id, ipbible, model_info)
                 logging.info(f"pos_prompts: {pos_prompts}\nneg_prompts: {neg_prompts}\nsub_pos_prompts: {sub_pos_prompts}")
                 # res:
                 # {"project_id": "2158043", "flow_id": "db2udswkdtc", "fid": "0d5xjvdjyak", "chid": "1", "para_id": "0", "rtx": "_common", "prompt": ""}
 
                 res_req = {
                     "project_id":  project_id,
-                    "chapter_id": chid,
+                    "chapter_id": chapter_id,
                     "para_id": para_id,
+                    "global_chapter_id": global_chapter_id,
+                    "global_para_id": global_para_id,
                     "flow_id": flow_id,
                     "image_id": "",
                     "gpt_prompt": {
@@ -101,7 +105,7 @@ if __name__ == "__main__":
                 }
                 operator_type = "put"
                 res = SqsQueue(dst_deque_conf['url'], dst_deque_conf['region_name'], dst_deque_conf['max_number_of_mess'], operator_type, json.dumps(res_req, ensure_ascii=False))
-                logging.info(f"project_id: {project_id}, chid: {chid}, para_id: {para_id} sqs add task: {res}")
+                logging.info(f"project_id: {project_id}, chid: {chapter_id}, para_id: {para_id} sqs add task: {res}")
 
             except Exception as err:
                 logging.error("prompt generate failed, error: {}".format(err))

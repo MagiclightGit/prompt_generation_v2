@@ -6,6 +6,6 @@ server_config:
         sql_conf:
                 sql_type: "amazon"
         dst_deque_conf:
-                url: ""
+                url: "https://sqs.us-east-1.amazonaws.com/647854334008/DiffuserServer-Input-NormalDeque"
                 region_name: "us-east-1"
                 max_number_of_mess: 1

@@ -24,7 +24,8 @@ from tqdm import tqdm
 from custom_ops.utils.openai_chatgpt import TruboOpenaiGptClient
 #from custom_ops.utils.mysql import MysqlDB
 from custom_ops.utils.sql_operator import SQLOperator
-# import custom_ops.op_prompt_generate
+# import custom_ops.op_prompt_generate 
+
 
 class OpConstructRequest(object):
     def __init__(
@@ -513,10 +514,14 @@ class OpConstructRequest(object):
                 }
             # 轮询dict中的信息
             debug_prompt = {}
+            res = []
             for c_type, c_value in ctrl_type.items():
                 log_id = f"{flow_id}_{project_id}_{chid}_{para_id}_{c_type}_lo{lo_idx}"
                 input_data = {
-                    "flow_id": log_id,
+                    "project_id": project_id,
+                    "flow_id": flow_id,
+                    "task_type": "text2img",
+                    "task_key": log_id,
                     "infer_data": {
                         "base_config": {
                             "base_model": self.df_base_model,
@@ -630,7 +635,8 @@ class OpConstructRequest(object):
                 debug_prompt[c_type] = json.dumps(input_data, ensure_ascii=False)
 
                 df_req = {
-                    "input_data": json.dumps(input_data)
+                    # "input_data": json.dumps(input_data)
+                    "input_data": input_data
                 }
 
                 #print("input_data: {}".format(json.dumps(df_req)))
@@ -648,48 +654,47 @@ class OpConstructRequest(object):
                 elif num_person == 2:
                     role_id = person_prompt[-1]["entity_id"]
                 logging.info("call diffuser: {}".format(json.dumps(df_req)))
+                res.append(df_req)
 
-                aigc_generator_cmd = "insert into t_aigc_generator_prompt \
-                (img_fid, prompt) value \
-                ('{}','{}');".format(
-                    log_id,
-                    json.dumps(df_req, ensure_ascii = False).replace('\'','')
-                )
+            return res
+
+                # aigc_generator_cmd = "insert into t_aigc_generator_prompt \
+                # (img_fid, prompt) value \
+                # ('{}','{}');".format(
+                #     log_id,
+                #     json.dumps(df_req, ensure_ascii = False).replace('\'','')
+                # )
 
                 # self.mdb.WriteToTable(aigc_generator_cmd)
-                response = requests.post(url = self.diffuser_server_url, data = df_req, timeout = self.timeout)
-                res = json.loads(response.text)
-                logging.info("diffuser result: {}".format(res))
-                if res['code'] != 0:
-                    ret_call_dict[c_type] = 6
-                else:
-                    res_url_list = res['url_list']
-                    logging.info("{} with control type {}".format(res['flow_id'], res_url_list))
-                    ret_call_dict[c_type] = res_url_list
+                # response = requests.post(url = self.diffuser_server_url, data = df_req, timeout = self.timeout)
+                # res = json.loads(response.text)
+                # res = TaskCallback()
+                # logging.info("diffuser result: {}".format(res))
+                # if res['code'] != 0:
+                #     ret_call_dict[c_type] = 6
+                # else:
+                #     res_url_list = res['url_list']
+                #     logging.info("{} with control type {}".format(res['flow_id'], res_url_list))
+                #     ret_call_dict[c_type] = res_url_list
 
+                # req = self.df_client.create_request()
+                # req.log_id = log_id
+                # req.flow_name = "diffusers_engine"
+
+                # req = add_data_item(req, input_data)
+
+                # t_s = time.time()
+                # response = self.df_client.serve(req)
+                # logging.info("Control type {} cost time {}s".format(c_type, time.time() - t_s))
+                # logging.info("Response with control type {}: {}".format(c_type, response))
                 
-                '''
-                req = self.df_client.create_request()
-                req.log_id = log_id
-                req.flow_name = "diffusers_engine"
-
-                req = add_data_item(req, input_data)
-
-                t_s = time.time()
-                response = self.df_client.serve(req)
-                logging.info("Control type {} cost time {}s".format(c_type, time.time() - t_s))
-                logging.info("Response with control type {}: {}".format(c_type, response))
-                
-                if response.code != 0:
-                    ret_call_dict[c_type] = 6
-                else:
-                    for name, data in response.outputs.items():
-                        res_url_list = json.loads(data.data_ref.str_data)
-                        logging.info("{} with control type {}: {}".format(name, c_type, res_url_list))
+                # if response.code != 0:
+                #     ret_call_dict[c_type] = 6
+                # else:
+                #     for name, data in response.outputs.items():
+                #         res_url_list = json.loads(data.data_ref.str_data)
+                #         logging.info("{} with control type {}: {}".format(name, c_type, res_url_list))
                     
-                    ret_call_dict[c_type] = res_url_list
-                '''
-
             # end for loop
-            debug_dict["prompt"] = json.dumps(debug_prompt)
-            return [input_data, ret_call_dict, role_id, debug_dict]
+            # debug_dict["prompt"] = json.dumps(debug_prompt)
+            # return [input_data, ret_call_dict, role_id, debug_dict]

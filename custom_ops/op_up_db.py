@@ -3,7 +3,7 @@
 @author  : yangel(fflyangel@foxmail.com)
 @brief   :
 -----
-Last Modified: 2023-11-25 16:23:31
+Last Modified: 2023-11-26 14:31:35
 Modified By: yangel(fflyangel@foxmail.com)
 -----
 @history :
@@ -30,7 +30,7 @@ class OPUpDb(object):
 
 
     def run(self, inputs):
-        projectId, chapterId, paraId, image_url, idx = inputs
+        projectId, chapterId, paraId, localChapterId, localParaId, image_url, idx = inputs
 
         if not image_url:
             logging.error(f"generate img failed! msg: img url is empty.")
@@ -43,6 +43,8 @@ class OPUpDb(object):
                     "projectId": projectId,
                     "chapterId": chapterId,
                     "paraId": paraId,
+                    "localChapterId": localChapterId,
+                    "localParaId": localParaId,
                     "url": item,
                     "selectedLayoutId": idx,
                     # "envPrompt": prompt,

@@ -3,7 +3,7 @@
 @author  : yangel(fflyangel@foxmail.com)
 @brief   :
 -----
-Last Modified: 2023-11-25 16:18:54
+Last Modified: 2023-11-26 15:35:45
 Modified By: yangel(fflyangel@foxmail.com)
 -----
 @history :
@@ -21,7 +21,8 @@ import json
 import logging
 import argparse
 
-from custom_ops.utils.server_util import SqsQueue,YamlParse,SQLConfig,GetInputInfo,get_magiclight_api
+from custom_ops.utils.server_util import SqsQueue,YamlParse,SQLConfig,GetInputInfo,get_magiclight_api,TaskCallback
+
 from custom_ops.op_construct_request import OpConstructRequest
 from custom_ops.op_get_fiction_info import OPIpBibleObtain
 from custom_ops.op_up_db import OPUpDb
@@ -69,16 +70,19 @@ if __name__ == "__main__":
                 project_id = input.get("project_id", "")
                 chapter_id = input.get("chapter_id", "")
                 para_id = input.get("para_id", "")
+                global_chapter_id = input.get("global_chapter_id", "")
+                global_para_id = input.get("global_para_id", "")
                 flow_id = input.get("flow_id", "")
                 image_id = input.get("image_id", "")
 
                 # TODO 
                 # 1.get layout info from layout-select
-                reponse = get_magiclight_api(para_id, chapter_id, project_id, image_id)
+                reponse = get_magiclight_api(global_para_id, global_chapter_id, project_id, image_id)
 
                 # logging.info(f"reponse: {reponse}")
                 # for layout in reponse:
-                layout = reponse[0]
+                layout = reponse[0]["data"]
+                global_layout_id = reponse[0]["id"]
 
                 # layout = {"layout_type":"bbox","para_id":"0","idx":"0","layout_scene":"middle_scene","layout_view":"front_view","urls":"https://testdocsplitblobtrigger.blob.core.windows.net/layout-bbox/mzc00200qosiwxm_g0045e2ttim_2476320.jpg","bounding_box_info":[{"role_id":"","bounding_box":[0.469329,0.624486,0.179398,0.746914]},{"role_id":"","bounding_box":[0.351273,0.601852,0.179398,0.792181]}],"env_prompt":["best quality, ultra_detailed, 2people, , city park, outdoor, daytime, Can't determine, sunny, sunnyafternoon, bustlingcitypark, colorfulplayground, lushgreentrees, bloomingflowers, childrenplaying"],"person_prompt":[{"index":0,"gender":"男","look":"右向","pose":"用手拿（道具）","entity_id":"1","prompt":"1girl,gracefulandgentle,melonface,slender,theonlydaughterofateaowner,longhair,darkbluehair,purpleeyes, familytravelgameartwivside view"},{"index":1,"gender":"男","look":"正向","pose":"站","entity_id":"0","prompt":"1girl,gracefulandgentle,melonface,slender,theonlydaughterofateaowner,longhair,darkbluehair,purpleeyes, familytravelgameartwivlook at viewer"}],"sub_prompt":{"object":"best quality, ultra_detailed, anime(Kids having fun on a colorful playground), (close_up), no people, city park, outdoor, daytime, Can't determine, sunny","scenery":"best quality, ultra_detailed, anime(A bustling city park), (scenery), no people, city park, outdoor, daytime, Can't determine, sunny"},"neg_prompt":"EasyNegative, (same person: 2.0),(worst quality,low quality:2),(deformed iris:1.4),(deformed pupils:1.4),(poorly drawn face:1.21),(empty eyes:1.4),monochrome,ugly,disfigured,overexposure, watermark,text,bad anatomy,bad hand,extra hands,extra fingers, too many fingers,fused fingers,bad arm,distorted arm,(extra arms:2),fused arms,extra nipples, liquid hand,inverted hand,disembodied limb, oversized head","prompts_data":{"conversation_id":"c_-1","project_id":"5484043911170","chapter_id":"1","para_id":"0","para_content":["Zhang San and Li Si are good friends","two man "],"style":"无法确定","location":"室外","num_person":"2","person_id":[["1","male"],["0","male"]],"pose":["[]","[]"],"gender":{"male":2,"female":0}}}
                 
@@ -105,19 +109,28 @@ if __name__ == "__main__":
                 op_construct_request = OpConstructRequest()
                 op_construct_request.init()
 
-                input_data, ret_call_dict, role_id, debug_dict = op_construct_request.run(flow_id, project_id, chapter_id, para_id, ipbible, model_info, batch_size, layout, common_request_info)
-                logging.info(f"input_data: {input_data}\nret_call_dict: {ret_call_dict}\ndebug_dict: {debug_dict}")
+                # input_data, ret_call_dict, role_id, debug_dict = op_construct_request.run(flow_id, project_id, chapter_id, para_id, ipbible, model_info, batch_size, layout, common_request_info)
+                # 场景、单人和多人
+                input_data_list = op_construct_request.run(flow_id, project_id, chapter_id, para_id, ipbible, model_info, batch_size, layout, common_request_info)
 
+                logging.info(f"input_data: {input_data_list}\n")
+                res_list = []
+                for input_data in input_data_list:
+                    operator_type = "put"
+                    res = SqsQueue(dst_deque_conf['url'], dst_deque_conf['region_name'], dst_deque_conf['max_number_of_mess'], operator_type, json.dumps(input_data, ensure_ascii=False))
+
+                    # 回调结果查询
+                    task_key = input_data["task_key"]
+                    res = TaskCallback(key=task_key)
+                    res_list.append(res)
 
                 # write to db
-                img_url = []
-                for key in ret_call_dict.keys():
-                    if ret_call_dict[key]:
-                        img_url.extend(ret_call_dict[key])
-                
                 op_up_db = OPUpDb()
-                idx = layout.get("idx", "0")
-                op_up_db.run(project_id, chapter_id, para_id, img_url, idx)
+                for item in res_list:
+                    item = json.loads(item)
+                    url_list = item.get("url_list", [])
+                    for img_url in url_list:
+                        op_up_db.run(project_id, global_chapter_id, global_para_id, chapter_id, para_id, img_url, global_layout_id)
                 # res:
 
                 # res_req = {

@@ -6,6 +6,7 @@ import json
 import requests
 import yaml
 import boto3
+import time
 import pathlib
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -208,20 +209,19 @@ def GetInputInfo(project_id, chid, para_id, flow_id, sql, roles_list=[]):
     logging.info("\t\t model_info: {}".format(model_info))
     return ipbible_path, json.dumps(model_info, ensure_ascii = False)
 
-
-def get_magiclight_api(para_id, chapter_id, project_id, image_id, db="layout"):
+def get_select_layoutid(para_id, chapter_id, project_id, image_id):
     url = "http://test.magiclight.ai/api/"
     header = {
             'accept': 'application/json',
         }
-    (layout_type, image_id) = (1, image_id) if image_id else (0, "0")
+
+    db = "image" if image_id else "paragraph"
     params = {
-        'type': layout_type,
-        'paraId': para_id,
+        'id': image_id if image_id else para_id,
         'chapterId': chapter_id,
         'projectId': project_id,
-        "imgId": image_id,
     }
+
     response = requests.get(f"{url}{db}", params=params, headers=header)
     res = [] 
     if response.status_code != 200:
@@ -236,10 +236,94 @@ def get_magiclight_api(para_id, chapter_id, project_id, image_id, db="layout"):
         # logging.info(f"msg: {msg}")
         for info in msg:
             #获取数据
-            item = info['data']
+            item = info['selectedLayoutId']
             res.append(item)
 
     except:
         logging.info("db data len equal to 0")
 
     return res
+
+def get_magiclight_api(para_id, chapter_id, project_id, image_id):
+    url = "http://test.magiclight.ai/api/layout"
+    header = {
+            'accept': 'application/json',
+        }
+    # (layout_type, image_id) = (1, image_id) if image_id else (0, "0")
+    # params = {
+    #     'type': layout_type,
+    #     'paraId': para_id,
+    #     'chapterId': chapter_id,
+    #     'projectId': project_id,
+    #     "imgId": image_id,
+    # }
+    layoutid = get_select_layoutid(para_id, chapter_id, project_id, image_id)
+    params = {
+        # TODO 确认多个值的查询接口
+        'id': layoutid,
+        'paraId': para_id,
+        'chapterId': chapter_id,
+        'projectId': project_id,
+        # "imgId": image_id,
+    }
+    response = requests.get(f"{url}", params=params, headers=header)
+    res = [] 
+    if response.status_code != 200:
+        logging.error(f"msg: get api failed. projectId: {project_id}, chapterId: {chapter_id}, paraId: {para_id}")
+        return res
+    
+    # response.content
+    # logging.info(f"response.content: {response.content}")
+    try:
+        data = json.loads(response.content)
+        res = data['data']['data']
+        # logging.info(f"msg: {msg}")
+
+    except:
+        logging.info("db data len equal to 0")
+
+    return res
+
+def TaskCallback(
+    url = "https://sqs.us-east-1.amazonaws.com/647854334008/LoraTrain-TaskDeque-Normal", 
+    region_name_str = "us-east-1",
+    max_number_of_mess = 100000,
+    key = '',
+    timeout = 1200):
+
+    start = time.time()
+
+    sqs = boto3.client("sqs", region_name= region_name_str)
+
+    inputs = []
+    while True:
+        reponse = sqs.receive_message(
+            QueueUrl = url,
+            MaxNumberOfMessages = max_number_of_mess,
+            WaitTimeSeconds=10,
+        )
+        try:
+            msg = reponse['Messages']
+            for info in msg:
+                #获取数据
+                receipt_handle = info['ReceiptHandle']
+                body = info['Body']
+                logging.info("deque body: {}".format(body))
+
+                d = json.loads(body)
+                if d['key'] == key:
+                    inputs.append(body)
+                    #删除数据
+                    response = sqs.delete_message(
+                        QueueUrl = url,
+                        ReceiptHandle=receipt_handle,
+                    )
+                    break
+                end = time.time()
+                if end - start >= timeout:
+                    logging.error("the task timeout")
+                    break
+        except:
+            #logging.error("sqs queue len equal to 0")
+            time.sleep(1)
+    return inputs
