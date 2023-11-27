@@ -43,7 +43,7 @@ if __name__ == "__main__":
     
     yaml_file = args.yaml_config
     logging.info("yaml_file: {}".format(yaml_file))
-    src_deque_conf, sql_conf, dst_deque_conf = YamlParse(yaml_file)
+    src_deque_conf, sql_conf, dst_deque_conf, task_conf = YamlParse(yaml_file)
     logging.info("yaml: {}, sqs_deque_conf: {}, sql_conf: {}, dst_deque_conf: {}".format(yaml_file, src_deque_conf, sql_conf, dst_deque_conf))
     
     # init sql
@@ -53,7 +53,7 @@ if __name__ == "__main__":
         operator_type = "get"
         request = SqsQueue(src_deque_conf['url'], src_deque_conf['region_name'], src_deque_conf['max_number_of_mess'], operator_type)
         if len(request) == 0:
-            logging.info("sqs queue len equal to 0")
+            # logging.info("sqs queue len equal to 0")
             time.sleep(1)
             continue
 
@@ -62,14 +62,21 @@ if __name__ == "__main__":
             input = json.loads(req)
             #input:
             #{"project_id": "5484043911170", "flow_id": "5484043911169", "chapter_id": "1", "para_id": "0", "user_id": "43315623606272"}
+
+            project_id = input.get("project_id", "")
+            chapter_id = input.get("local_chapter_id", "")
+            para_id = input.get("local_para_id", "")
+            global_chapter_id = input.get("global_chapter_id", "")
+            global_para_id = input.get("global_para_id", "")
+            flow_id = input.get("flow_id", "")
+            user_id = input.get("user_id", "")
+
+            task_id = f"{flow_id}_{project_id}_{chapter_id}_{para_id}"
             try:
-                project_id = input.get("project_id", "")
-                chapter_id = input.get("local_chapter_id", "")
-                para_id = input.get("local_para_id", "")
-                global_chapter_id = input.get("global_chapter_id", "")
-                global_para_id = input.get("global_para_id", "")
-                flow_id = input.get("flow_id", "")
-                user_id = input.get("user_id", "")
+                # 任务监控
+                
+                # task_data = {"type":"prompt", "project_id": project_id, "flow_id": flow_id, "user_id": user_id, "task_id": task_id, "status":"start"}
+                # rsp = requests.post(task_conf["url"], headers = task_conf["headers"], data = json.dumps(task_data), timeout = 20)
 
                 fiction_path, model_info = GetInputInfo(project_id, chapter_id, para_id, flow_id, sql)
                 logging.info(f"model_info: {model_info}")
@@ -95,6 +102,7 @@ if __name__ == "__main__":
                     "global_chapter_id": global_chapter_id,
                     "global_para_id": global_para_id,
                     "flow_id": flow_id,
+                    "user_id": user_id,
                     "image_id": "",
                     "gpt_prompt": {
                         "pos_prompts": pos_prompts,
@@ -107,5 +115,11 @@ if __name__ == "__main__":
                 res = SqsQueue(dst_deque_conf['url'], dst_deque_conf['region_name'], dst_deque_conf['max_number_of_mess'], operator_type, json.dumps(res_req, ensure_ascii=False))
                 logging.info(f"project_id: {project_id}, chid: {chapter_id}, para_id: {para_id} sqs add task: {res}")
 
+                # task_data = {"type":"prompt", "project_id": project_id, "flow_id": flow_id, "user_id": user_id, "task_id": task_id, "status":"finish"}
+                # rsp = requests.post(task_conf["url"], headers = task_conf["headers"], data = json.dumps(task_data), timeout = 20)
+
             except Exception as err:
                 logging.error("prompt generate failed, error: {}".format(err))
+
+                # task_data = {"type":"prompt", "project_id": project_id, "flow_id": flow_id, "user_id": user_id, "task_id": task_id, "status":"error"}
+                # rsp = requests.post(task_conf["url"], headers = task_conf["headers"], data = json.dumps(task_data), timeout = 20)

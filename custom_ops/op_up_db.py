@@ -3,7 +3,7 @@
 @author  : yangel(fflyangel@foxmail.com)
 @brief   :
 -----
-Last Modified: 2023-11-26 14:31:35
+Last Modified: 2023-11-27 16:29:30
 Modified By: yangel(fflyangel@foxmail.com)
 -----
 @history :
@@ -37,23 +37,24 @@ class OPUpDb(object):
             return
         
         # up to db
+        requset_body = []
         for item in image_url:
-            requset_body = [
-                {
-                    "projectId": projectId,
-                    "chapterId": chapterId,
-                    "paraId": paraId,
-                    "localChapterId": localChapterId,
-                    "localParaId": localParaId,
-                    "url": item,
-                    "selectedLayoutId": idx,
-                    # "envPrompt": prompt,
-                    # "imgId": image_id,
-                    # "type": 1 if image_id else 0,  #类型，0： 段落，1： 图片
-                    # "data": json.dumps(item, ensure_ascii = False)
-                }
-            ]
-            response = requests.post(self.request_url, headers=self.header, json=requset_body)
+            body = {
+                "projectId": projectId,
+                "chapterId": chapterId,
+                "paraId": paraId,
+                "localChapterId": localChapterId,
+                "localParaId": localParaId,
+                "url": item,
+                "selectedLayoutId": idx,
+                # "envPrompt": prompt,
+                # "imgId": image_id,
+                # "type": 1 if image_id else 0,  #类型，0： 段落，1： 图片
+                # "data": json.dumps(item, ensure_ascii = False)
+            }
+            requset_body.append(body)
+            # logging.info(f"body: {body}")
+        response = requests.post(self.request_url, headers=self.header, json=requset_body)
         # logging.info(f"db upload result: {response}")
         # sleep?
 

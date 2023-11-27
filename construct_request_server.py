@@ -3,7 +3,7 @@
 @author  : yangel(fflyangel@foxmail.com)
 @brief   :
 -----
-Last Modified: 2023-11-26 15:35:45
+Last Modified: 2023-11-27 16:33:06
 Modified By: yangel(fflyangel@foxmail.com)
 -----
 @history :
@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
     yaml_file = args.yaml_config
     logging.info("yaml_file: {}".format(yaml_file))
-    src_deque_conf, sql_conf, dst_deque_conf = YamlParse(yaml_file)
+    src_deque_conf, sql_conf, dst_deque_conf, task_conf = YamlParse(yaml_file)
     logging.info("yaml: {}, sqs_deque_conf: {}, sql_conf: {}, dst_deque_conf: {}".format(yaml_file, src_deque_conf, sql_conf, dst_deque_conf))
     
     # init sql
@@ -63,8 +63,11 @@ if __name__ == "__main__":
         logging.info("get deque input: {}".format(request))
         for req in request:
             input = json.loads(req)
+            param = input["param"]
+            input = json.loads(param)
             #input:
-            #{"project_id": "5484043911170", "flow_id": "5484043911169", "chapter_id": "1", "para_id": "0", "image_id": ""}
+            #{"project_id": "5484043911170", "flow_id": "105945625601", "chapter_id": "1", "para_id": "0", "image_id": ""}
+            #{"project_id":"105945625602","flow_id":"2291183289344","user_id":"0","task_id":"0","param":"{\"project_id\":\"105945625602\",\"global_chapter_id\":\"1405903041536\",\"global_para_id\":\"1420612465664\",\"chapter_id\":\"1\",\"para_id\":\"2\",\"img_id\":\"\",\"flow_id\":\"105945625601\"}"}
             # try:
             if True:
                 project_id = input.get("project_id", "")
@@ -115,22 +118,24 @@ if __name__ == "__main__":
 
                 logging.info(f"input_data: {input_data_list}\n")
                 res_list = []
-                for input_data in input_data_list:
+                for item in input_data_list:
+                    input_data = item['input_data']
                     operator_type = "put"
-                    res = SqsQueue(dst_deque_conf['url'], dst_deque_conf['region_name'], dst_deque_conf['max_number_of_mess'], operator_type, json.dumps(input_data, ensure_ascii=False))
+                    req_data = {'input_data': json.dumps(input_data)}
+                    res = SqsQueue(dst_deque_conf['url'], dst_deque_conf['region_name'], dst_deque_conf['max_number_of_mess'], operator_type, json.dumps(req_data, ensure_ascii=False))
 
                     # 回调结果查询
+                    # TODO batch 生成结果获取
                     task_key = input_data["task_key"]
                     res = TaskCallback(key=task_key)
-                    res_list.append(res)
+                    res_list.extend(res)
 
                 # write to db
                 op_up_db = OPUpDb()
                 for item in res_list:
                     item = json.loads(item)
                     url_list = item.get("url_list", [])
-                    for img_url in url_list:
-                        op_up_db.run(project_id, global_chapter_id, global_para_id, chapter_id, para_id, img_url, global_layout_id)
+                    op_up_db.run([project_id, global_chapter_id, global_para_id, chapter_id, para_id, url_list, global_layout_id])
                 # res:
 
                 # res_req = {

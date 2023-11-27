@@ -59,7 +59,8 @@ def SqsQueue(
                 )
                 #print("删除队列: {}".format(response))
         except:
-            logging.info("sqs queue len equal to 0")
+            # logging.info("sqs queue len equal to 0")
+            pass
     elif operator_type == "put":
         try:
             reponse = sqs.send_message(
@@ -81,7 +82,8 @@ def YamlParse(yaml_file):
     src_deque_conf = server_conf['src_deque_conf']
     sql_conf = server_conf['sql_conf']
     dst_deque_conf = server_conf['dst_deque_conf']
-    return src_deque_conf, sql_conf, dst_deque_conf
+    task_conf = server_conf['task_conf']
+    return src_deque_conf, sql_conf, dst_deque_conf, task_conf
 
 #sql配置
 def SQLConfig(sql_type):
@@ -221,6 +223,7 @@ def get_select_layoutid(para_id, chapter_id, project_id, image_id):
         'chapterId': chapter_id,
         'projectId': project_id,
     }
+    # logging.info(f"params: {params}")
 
     response = requests.get(f"{url}{db}", params=params, headers=header)
     res = [] 
@@ -236,8 +239,9 @@ def get_select_layoutid(para_id, chapter_id, project_id, image_id):
         # logging.info(f"msg: {msg}")
         for info in msg:
             #获取数据
-            item = info['selectedLayoutId']
-            res.append(item)
+            item = info['selectedLayoutId'] if image_id else info['selectedLayoutIds']
+            tmp = item.split(",")
+            res.extend(tmp)
 
     except:
         logging.info("db data len equal to 0")
@@ -258,9 +262,10 @@ def get_magiclight_api(para_id, chapter_id, project_id, image_id):
     #     "imgId": image_id,
     # }
     layoutid = get_select_layoutid(para_id, chapter_id, project_id, image_id)
+    layoutid  = set(layoutid)
     params = {
         # TODO 确认多个值的查询接口
-        'id': layoutid,
+        # 'id': layoutid,
         'paraId': para_id,
         'chapterId': chapter_id,
         'projectId': project_id,
@@ -276,7 +281,10 @@ def get_magiclight_api(para_id, chapter_id, project_id, image_id):
     # logging.info(f"response.content: {response.content}")
     try:
         data = json.loads(response.content)
-        res = data['data']['data']
+        layout_list = data['data']['data']
+        for item in layout_list:
+            if item["id"] in layoutid:
+                res.append(item)
         # logging.info(f"msg: {msg}")
 
     except:
@@ -285,9 +293,9 @@ def get_magiclight_api(para_id, chapter_id, project_id, image_id):
     return res
 
 def TaskCallback(
-    url = "https://sqs.us-east-1.amazonaws.com/647854334008/LoraTrain-TaskDeque-Normal", 
+    url = "https://sqs.us-east-1.amazonaws.com/647854334008/DiffuserServer-GenImgTask-NornalDeque",
     region_name_str = "us-east-1",
-    max_number_of_mess = 100000,
+    max_number_of_mess = 10,
     key = '',
     timeout = 1200):
 
@@ -297,13 +305,17 @@ def TaskCallback(
 
     inputs = []
     while True:
-        reponse = sqs.receive_message(
+        response = sqs.receive_message(
             QueueUrl = url,
             MaxNumberOfMessages = max_number_of_mess,
             WaitTimeSeconds=10,
         )
         try:
-            msg = reponse['Messages']
+            msg = response.get('Messages',[])
+            if len(msg) == 0:
+                time.sleep(1)
+                continue
+            flag = False
             for info in msg:
                 #获取数据
                 receipt_handle = info['ReceiptHandle']
@@ -311,19 +323,25 @@ def TaskCallback(
                 logging.info("deque body: {}".format(body))
 
                 d = json.loads(body)
-                if d['key'] == key:
+                if d['task_key'] == key:
                     inputs.append(body)
                     #删除数据
                     response = sqs.delete_message(
                         QueueUrl = url,
                         ReceiptHandle=receipt_handle,
                     )
-                    break
+                    flag = True
                 end = time.time()
                 if end - start >= timeout:
                     logging.error("the task timeout")
-                    break
+                    flag = True
+            if flag:
+                break
         except:
             #logging.error("sqs queue len equal to 0")
             time.sleep(1)
+            end = time.time()
+            if end - start >= timeout:
+                break
+
     return inputs
