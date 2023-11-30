@@ -21,6 +21,7 @@ import sys
 import json
 import logging
 import argparse
+import requests
 
 from custom_ops.utils.server_util import SqsQueue,YamlParse,SQLConfig,GetInputInfo
 from custom_ops.op_prompt_generate import OpPromptGenerate
@@ -71,7 +72,7 @@ if __name__ == "__main__":
             flow_id = input.get("flow_id", "")
             user_id = input.get("user_id", "")
 
-            task_id = f"{flow_id}_{project_id}_{chapter_id}_{para_id}"
+            task_id = f"{chapter_id}_{para_id}"
             try:
                 # 任务监控
                 
@@ -111,9 +112,12 @@ if __name__ == "__main__":
                     },
                     "layout_prompt": pompts_layout
                 }
-                operator_type = "put"
-                res = SqsQueue(dst_deque_conf['url'], dst_deque_conf['region_name'], dst_deque_conf['max_number_of_mess'], operator_type, json.dumps(res_req, ensure_ascii=False))
-                logging.info(f"project_id: {project_id}, chid: {chapter_id}, para_id: {para_id} sqs add task: {res}")
+
+                add_task = {"type":"layout", "project_id": project_id, "flow_id": flow_id, "user_id": user_id, "task_id": task_id, "param": json.dumps(res_req, ensure_ascii = False)}
+                rsp = requests.post(task_conf["add_url"], headers = task_conf["headers"], data = json.dumps(add_task), timeout = 20)
+                # operator_type = "put"
+                # res = SqsQueue(dst_deque_conf['url'], dst_deque_conf['region_name'], dst_deque_conf['max_number_of_mess'], operator_type, json.dumps(res_req, ensure_ascii=False))
+                logging.info(f"project_id: {project_id}, chid: {chapter_id}, para_id: {para_id}  add task: {rsp}")
 
                 # task_data = {"type":"prompt", "project_id": project_id, "flow_id": flow_id, "user_id": user_id, "task_id": task_id, "status":"finish"}
                 # rsp = requests.post(task_conf["url"], headers = task_conf["headers"], data = json.dumps(task_data), timeout = 20)

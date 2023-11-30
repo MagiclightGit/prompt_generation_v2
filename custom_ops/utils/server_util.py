@@ -151,6 +151,7 @@ def GetInputInfo(project_id, chid, para_id, flow_id, sql, roles_list=[]):
         ipbible_path = ipbible_download_res['file_path']
     else:
         ipbible_path = ''
+        logging.error("get ipbible failed, path: {}".format(ipbible_path))
     logging.info("ipbible_path: {}".format(ipbible_path))
     
     with open(ipbible_path,'r') as frd:
@@ -184,9 +185,12 @@ def GetInputInfo(project_id, chid, para_id, flow_id, sql, roles_list=[]):
         else:
             lora_id = ''
         
+        # model_info_sql_cmd = "select lora_model_info, lora_model_url, config_url, demo_url \
+        #     from roles_lora where project_id = '{}' and id = '{}' \
+        #     order by update_time desc limit 1;".format(project_id, lora_id)
         model_info_sql_cmd = "select lora_model_info, lora_model_url, config_url, demo_url \
-            from roles_lora where project_id = '{}' and role_id = '{}' \
-            order by update_time desc limit 1;".format(project_id, lora_id)
+            from roles_lora where id = '{}' \
+            order by update_time desc limit 1;".format(lora_id)
 
         #增加重试
         logging.info("model_info_sql_cmd: {}".format(model_info_sql_cmd))   
@@ -223,7 +227,7 @@ def get_select_layoutid(para_id, chapter_id, project_id, image_id):
         'chapterId': chapter_id,
         'projectId': project_id,
     }
-    # logging.info(f"params: {params}")
+    logging.info(f"params: {params}")
 
     response = requests.get(f"{url}{db}", params=params, headers=header)
     res = [] 
@@ -232,7 +236,7 @@ def get_select_layoutid(para_id, chapter_id, project_id, image_id):
         return res
     
     # response.content
-    # logging.info(f"response.content: {response.content}")
+    logging.info(f"response.content: {response.content}")
     try:
         data = json.loads(response.content)
         msg = data['data']['data']
@@ -264,12 +268,11 @@ def get_magiclight_api(para_id, chapter_id, project_id, image_id):
     layoutid = get_select_layoutid(para_id, chapter_id, project_id, image_id)
     layoutid  = set(layoutid)
     params = {
-        # TODO 确认多个值的查询接口
         # 'id': layoutid,
         'paraId': para_id,
         'chapterId': chapter_id,
         'projectId': project_id,
-        # "imgId": image_id,
+        "imgId": image_id,
     }
     response = requests.get(f"{url}", params=params, headers=header)
     res = [] 
@@ -278,7 +281,7 @@ def get_magiclight_api(para_id, chapter_id, project_id, image_id):
         return res
     
     # response.content
-    # logging.info(f"response.content: {response.content}")
+    logging.info(f"response.content: {response.content}")
     try:
         data = json.loads(response.content)
         layout_list = data['data']['data']
@@ -297,7 +300,7 @@ def TaskCallback(
     region_name_str = "us-east-1",
     max_number_of_mess = 10,
     key = '',
-    timeout = 1200):
+    timeout = 45):
 
     start = time.time()
 
@@ -320,7 +323,7 @@ def TaskCallback(
                 #获取数据
                 receipt_handle = info['ReceiptHandle']
                 body = info['Body']
-                logging.info("deque body: {}".format(body))
+                # logging.info("deque body: {}".format(body))
 
                 d = json.loads(body)
                 if d['task_key'] == key:

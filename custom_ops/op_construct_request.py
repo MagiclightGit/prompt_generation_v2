@@ -13,6 +13,7 @@ import re
 import os
 import yaml
 import random
+import string
 import copy
 import requests
 from typing import Dict, NoReturn
@@ -168,18 +169,22 @@ class OpConstructRequest(object):
 
         if isinstance(lora_info_raw, str):
             lora_info_raw = json.loads(lora_info_raw) 
-        prefix, _ = lora_info_raw['style_model_prompts']['prompt'].rsplit(':', 1)
-        lora_info_raw['style_model_prompts']['prompt'] = f'{prefix}:{weight}>'
+        try:
+            prefix, _ = lora_info_raw['style_model_prompts']['prompt'].rsplit(':', 1)
+            lora_info_raw['style_model_prompts']['prompt'] = f'{prefix}:{weight}>'
 
-        lora_info = {}
-        lora_info["model_name"] = lora_info_raw["style_model_prompts"]["model_name"]
-        lora_info["model_version"] = lora_info_raw["style_model_prompts"]["model_version"]
-        lora_info["prompt"] = ", ".join([lora_info_raw["characteristic"],
-                                         lora_info_raw["trigger"],
-                                         lora_info_raw["style_model_prompts"]["prompt"]])
-        lora_info["model_url"] = lora_info_raw["lora_model_url"]
-        lora_info["weight"] = lora_info_raw["lora_weight"]
-        lora_prompts = [lora_info_raw["characteristic"], lora_info_raw["trigger"]]
+            lora_info = {}
+            lora_info["model_name"] = lora_info_raw["style_model_prompts"]["model_name"]
+            lora_info["model_version"] = lora_info_raw["style_model_prompts"]["model_version"]
+            lora_info["prompt"] = ", ".join([lora_info_raw["characteristic"],
+                                            lora_info_raw["trigger"],
+                                            lora_info_raw["style_model_prompts"]["prompt"]])
+            lora_info["model_url"] = lora_info_raw["lora_model_url"]
+            lora_info["weight"] = lora_info_raw["lora_weight"]
+            lora_prompts = [lora_info_raw["characteristic"], lora_info_raw["trigger"]]
+        except Exception as err:
+            logging.error("parse lora info failed, error: {}".format(err))
+            return {}, []
 
         return lora_info, lora_prompts
 
@@ -383,14 +388,16 @@ class OpConstructRequest(object):
                     ],
                 }
                 if lo_idx == "2":
-                    if "object" in ipbible["scene"]["subject_en"].keys():
-                        ctrl_type["object"] = []
+                    pass
+                    # 屏蔽有控制信号时 特写及环境的生成
+                    # if "object" in ipbible["scene"]["subject_en"].keys():
+                    #     ctrl_type["object"] = []
                     
-                    if "scenery" in ipbible["scene"]["subject_en"].keys():
-                        ctrl_type["scenery"] = []
+                    # if "scenery" in ipbible["scene"]["subject_en"].keys():
+                    #     ctrl_type["scenery"] = []
 
-                    if ipbible["scene"]["caption_with_roles_en"] != "":
-                        ctrl_type["cwr-type"] = []
+                    # if ipbible["scene"]["caption_with_roles_en"] != "":
+                    #     ctrl_type["cwr-type"] = []
                 
             else:
                 # 无layout 场景生成
@@ -516,7 +523,9 @@ class OpConstructRequest(object):
             debug_prompt = {}
             res = []
             for c_type, c_value in ctrl_type.items():
-                log_id = f"{flow_id}_{project_id}_{chid}_{para_id}_{c_type}_lo{lo_idx}"
+                # 随机key保证重复生成不会被覆盖
+                random_key = "".join(random.sample(string.ascii_letters, 4))
+                log_id = f"{flow_id}_{project_id}_{chid}_{para_id}_{random_key}_{c_type}_lo{lo_idx}"
                 input_data = {
                     "project_id": project_id,
                     "flow_id": flow_id,
@@ -610,8 +619,8 @@ class OpConstructRequest(object):
                             logging.info("LoRA INFO. project_id: {}, chid: {}, para_id: {}, role_id: {}, lora_info: {}, c_type: {}".format(
                                 project_id, chid, para_id, role_id, lora_info, c_type))
                             i_lora_info = {}
-                            i_lora_info["model"] = lora_info["model_url"]
-                            i_lora_info["weight"] = lora_info["weight"]
+                            i_lora_info["model"] = lora_info.get("model_url", "")
+                            i_lora_info["weight"] = lora_info.get("weight", "")
 
                             # 这里可能后期改成由调度层配置
                             i_lora_info["type"] = "role"
@@ -622,8 +631,8 @@ class OpConstructRequest(object):
                         logging.info("LoRA INFO. project_id: {}, chid: {}, para_id: {}, role_id: {}, lora_info: {}, c_type: {}".format(
                             project_id, chid, para_id, role_id, lora_info, c_type))
                         i_lora_info = {}
-                        i_lora_info["model"] = lora_info["model_url"]
-                        i_lora_info["weight"] = lora_info["weight"]
+                        i_lora_info["model"] = lora_info.get("model_url", "")
+                        i_lora_info["weight"] = lora_info.get("weight", "")
 
                         # 这里可能后期改成由调度层配置
                         i_lora_info["type"] = "role"
