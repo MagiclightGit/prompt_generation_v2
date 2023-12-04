@@ -1,0 +1,15 @@
+server_config:
+        src_deque_conf:
+                url: "https://sqs.us-east-1.amazonaws.com/647854334008/Diffuser_ConstructRequestQueue_Normal"
+                region_name: "us-east-1"
+                max_number_of_mess: 1
+        sql_conf:
+                sql_type: "amazon"
+        dst_deque_conf:
+                url: "https://sqs.us-east-1.amazonaws.com/647854334008/DiffuserServer-Input-NormalDeque"
+                region_name: "us-east-1"
+                max_number_of_mess: 1
+
+        task_conf:
+                url: "https://s48xjwf523.execute-api.us-east-1.amazonaws.com/update_task_status"
+                headers: {'Content-Type':'application/json'}

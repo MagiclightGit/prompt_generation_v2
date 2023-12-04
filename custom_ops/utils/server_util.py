@@ -227,7 +227,7 @@ def get_select_layoutid(para_id, chapter_id, project_id, image_id):
         'chapterId': chapter_id,
         'projectId': project_id,
     }
-    logging.info(f"params: {params}")
+    # logging.info(f"params: {params}")
 
     response = requests.get(f"{url}{db}", params=params, headers=header)
     res = [] 
@@ -236,7 +236,7 @@ def get_select_layoutid(para_id, chapter_id, project_id, image_id):
         return res
     
     # response.content
-    logging.info(f"response.content: {response.content}")
+    # logging.info(f"response.content: {response.content}")
     try:
         data = json.loads(response.content)
         msg = data['data']['data']
@@ -246,7 +246,6 @@ def get_select_layoutid(para_id, chapter_id, project_id, image_id):
             item = info['selectedLayoutId'] if image_id else info['selectedLayoutIds']
             tmp = item.split(",")
             res.extend(tmp)
-
     except:
         logging.info("db data len equal to 0")
 
@@ -272,7 +271,7 @@ def get_magiclight_api(para_id, chapter_id, project_id, image_id):
         'paraId': para_id,
         'chapterId': chapter_id,
         'projectId': project_id,
-        "imgId": image_id,
+        # "imgId": image_id,
     }
     response = requests.get(f"{url}", params=params, headers=header)
     res = [] 
@@ -281,7 +280,7 @@ def get_magiclight_api(para_id, chapter_id, project_id, image_id):
         return res
     
     # response.content
-    logging.info(f"response.content: {response.content}")
+    # logging.info(f"response.content: {response.content}")
     try:
         data = json.loads(response.content)
         layout_list = data['data']['data']
@@ -300,7 +299,7 @@ def TaskCallback(
     region_name_str = "us-east-1",
     max_number_of_mess = 10,
     key = '',
-    timeout = 45):
+    timeout = 300):
 
     start = time.time()
 

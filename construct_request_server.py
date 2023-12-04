@@ -65,6 +65,7 @@ if __name__ == "__main__":
             input = json.loads(req)
             param = input["param"]
             input = json.loads(param)
+            # logging.info(f"input param: {input}")
             #input:
             #{"project_id": "5484043911170", "flow_id": "105945625601", "chapter_id": "1", "para_id": "0", "image_id": ""}
             #{"project_id":"105945625602","flow_id":"2291183289344","user_id":"0","task_id":"0","param":"{\"project_id\":\"105945625602\",\"global_chapter_id\":\"1405903041536\",\"global_para_id\":\"1420612465664\",\"chapter_id\":\"1\",\"para_id\":\"2\",\"img_id\":\"\",\"flow_id\":\"105945625601\"}"}
@@ -106,7 +107,7 @@ if __name__ == "__main__":
                     fiction_path, model_info = GetInputInfo(project_id, chapter_id, para_id, flow_id, sql, roles_list)
                     fiction_parser = OPIpBibleObtain(project_id, chapter_id, para_id)
                     ipbible, pompts_layout, ret_msg = fiction_parser.run([fiction_path, project_id, chapter_id, para_id, flow_id])
-
+                    logging.info(f"ipbible: {ipbible}\pompts_layout: {pompts_layout}\ret_msg: {ret_msg}")
 
                     op_construct_request = OpConstructRequest()
                     op_construct_request.init()
@@ -119,6 +120,19 @@ if __name__ == "__main__":
                     res_list = []
                     for item in input_data_list:
                         input_data = item['input_data']
+                        task_key = item.get("task_key", "")
+                        if  task_key[-10:]=="object_lo2" or task_key[-11:] == "scenery_lo2":
+                            layout_id = ""
+                        else:
+                            layout_id = global_layout_id
+
+                        input_data["global_chapter_id"] = global_chapter_id
+                        input_data["global_para_id"] = global_para_id
+                        input_data["para_id"] = para_id
+                        input_data["chapter_id"] = chapter_id
+                        input_data["layout_id"] = layout_id
+                        input_data["image_id"] = image_id
+
                         operator_type = "put"
                         req_data = {'input_data': json.dumps(input_data)}
                         res = SqsQueue(dst_deque_conf['url'], dst_deque_conf['region_name'], dst_deque_conf['max_number_of_mess'], operator_type, json.dumps(req_data, ensure_ascii=False))

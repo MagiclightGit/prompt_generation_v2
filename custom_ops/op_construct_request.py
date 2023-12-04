@@ -639,7 +639,7 @@ class OpConstructRequest(object):
                         input_data["infer_data"]["lora_configs"].append(i_lora_info)
                         input_data["infer_data"]["controlnet_configs"] = c_value
 
-                logging.info("Input_data for diffusers server: {}".format(input_data))
+                # logging.info("Input_data for diffusers server: {}".format(input_data))
                 # 新增调用字段在debug_prompt
                 debug_prompt[c_type] = json.dumps(input_data, ensure_ascii=False)
 
@@ -662,7 +662,7 @@ class OpConstructRequest(object):
                     role_id = person_prompt[0]["entity_id"]
                 elif num_person == 2:
                     role_id = person_prompt[-1]["entity_id"]
-                logging.info("call diffuser: {}".format(json.dumps(df_req)))
+                # logging.info("call diffuser: {}".format(json.dumps(df_req)))
                 res.append(df_req)
 
             return res
