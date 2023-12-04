@@ -77,17 +77,14 @@ if __name__ == "__main__":
                 flow_id = input.get("flow_id", "")
                 layout_id = input.get("layout_id", "")
                 image_id = input.get("image_id", "")
-                res_list = input.get("url_list", [])
+                url_list = input.get("url_list", [])
 
                 if not global_chapter_id:
                     continue
 
                 # TODO 
                 op_up_db = OPUpDb()
-                for item in res_list:
-                    item = json.loads(item)
-                    url_list = item.get("url_list", [])                   
-                    op_up_db.run([project_id, global_chapter_id, global_para_id, chapter_id, para_id, url_list, layout_id, image_id])
+                op_up_db.run([project_id, global_chapter_id, global_para_id, chapter_id, para_id, url_list, layout_id, image_id])
 
 
             except Exception as err:

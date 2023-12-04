@@ -116,7 +116,7 @@ if __name__ == "__main__":
                     # 场景、单人和多人
                     input_data_list = op_construct_request.run(flow_id, project_id, chapter_id, para_id, ipbible, model_info, batch_size, layout, common_request_info)
 
-                    logging.info(f"input_data: {input_data_list}\n")
+                    # logging.info(f"input_data: {input_data_list}\n")
                     res_list = []
                     for item in input_data_list:
                         input_data = item['input_data']
@@ -135,6 +135,7 @@ if __name__ == "__main__":
 
                         operator_type = "put"
                         req_data = {'input_data': json.dumps(input_data)}
+                        logging.info(f"input_data: {req_data}\n")
                         res = SqsQueue(dst_deque_conf['url'], dst_deque_conf['region_name'], dst_deque_conf['max_number_of_mess'], operator_type, json.dumps(req_data, ensure_ascii=False))
 
                     #     # 回调结果查询
