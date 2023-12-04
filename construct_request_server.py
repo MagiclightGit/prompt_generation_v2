@@ -137,26 +137,26 @@ if __name__ == "__main__":
                         req_data = {'input_data': json.dumps(input_data)}
                         res = SqsQueue(dst_deque_conf['url'], dst_deque_conf['region_name'], dst_deque_conf['max_number_of_mess'], operator_type, json.dumps(req_data, ensure_ascii=False))
 
-                        # 回调结果查询
-                        # TODO batch 生成结果获取
-                        task_key = input_data["task_key"]
-                        batch_size = 1
-                        res = TaskCallback(key=task_key)
-                        res_list.extend(res)
-                        logging.info(f"diffuser res: {res}")
+                    #     # 回调结果查询
+                    #     # TODO batch 生成结果获取
+                    #     task_key = input_data["task_key"]
+                    #     batch_size = 1
+                    #     res = TaskCallback(key=task_key)
+                    #     res_list.extend(res)
+                    #     logging.info(f"diffuser res: {res}")
 
-                    # write to db
-                    op_up_db = OPUpDb()
-                    for item in res_list:
-                        item = json.loads(item)
-                        url_list = item.get("url_list", [])
-                        task_key = item.get("task_key", "")
-                        if  task_key[-10:]=="object_lo2" or task_key[-11:] == "scenery_lo2":
-                            layout_id = ""
-                        else:
-                            layout_id = global_layout_id
+                    # # write to db
+                    # op_up_db = OPUpDb()
+                    # for item in res_list:
+                    #     item = json.loads(item)
+                    #     url_list = item.get("url_list", [])
+                    #     task_key = item.get("task_key", "")
+                    #     if  task_key[-10:]=="object_lo2" or task_key[-11:] == "scenery_lo2":
+                    #         layout_id = ""
+                    #     else:
+                    #         layout_id = global_layout_id
                         
-                        op_up_db.run([project_id, global_chapter_id, global_para_id, chapter_id, para_id, url_list, layout_id, image_id])
+                    #     op_up_db.run([project_id, global_chapter_id, global_para_id, chapter_id, para_id, url_list, layout_id, image_id])
                     # res:
 
                     # res_req = {
