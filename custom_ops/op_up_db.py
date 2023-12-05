@@ -23,11 +23,27 @@ class OPUpDb(object):
             self
         ):
         self.request_url = "http://test.magiclight.ai/api/image"
+        self.request_img_info_url = "http://test.magiclight.ai/api/image-info"
         self.header = {
             'accept': 'application/json',
             'Content-Type': 'application/json',
         }
 
+    def img_info_run(self, inputs):
+        projectId, data = inputs
+        # up to db
+        requset_body = []
+        for item in data:
+            body = {
+                "projectId": projectId,
+                "imageId": item[0],
+                "data": item[1],
+            }
+            requset_body.append(body)
+        response = requests.post(self.request_img_info_url, headers=self.header, json=requset_body)
+        logging.info(f"db upload result: {response}")
+        logging.info(f"db upload result code: {response.status_code}, {response.content}")
+        return 
 
     def run(self, inputs):
         projectId, chapterId, paraId, localChapterId, localParaId, image_url, idx, image_id = inputs
@@ -38,6 +54,7 @@ class OPUpDb(object):
         
         # up to db
         requset_body = []
+
         if image_id: #PUT
             for item in image_url:
                 body = {
@@ -63,16 +80,16 @@ class OPUpDb(object):
                     "localParaId": localParaId,
                     "url": item,
                     "selectedLayoutId": idx,
-                    "taskType": 0,
+                    # "taskType": 0,
                     # "envPrompt": prompt,
                     # "imgId": image_id,
                     # "type": 1 if image_id else 0,  #类型，0： 段落，1： 图片
                     # "data": json.dumps(item, ensure_ascii = False)
                 }
                 requset_body.append(body)
-                # logging.info(f"body: {body}")
+                logging.info(f"body: {body}")
             response = requests.post(self.request_url, headers=self.header, json=requset_body)
-        logging.info(f"db upload result: {response}")
+            logging.info(f"db upload result code: {response.status_code}, {response.content}")
         # sleep?
 
         return 

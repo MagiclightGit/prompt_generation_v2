@@ -416,6 +416,7 @@ class OpConstructRequest(object):
                     ctrl_type["cwr-type"] = []
                 # TODO 根据ip bible中的人数，构建regional prompter DONE
 
+            rp_split_ratio = 0.5
             # if ipbible["num_person"] < 1:
             if num_person < 1:
                 pos_prompts = env_prompt
@@ -428,8 +429,9 @@ class OpConstructRequest(object):
                 except Exception:
                     pass
 
-                # 此逻辑在layout中完成
-                # TODO 增加prompts判断和shoot DONE
+                # 此逻辑在layout中完成（）
+
+                # TODO 增加prompts判断和shoot 
                 try:
                     lo_shoot = self.layout_map.get(layout["layout_scene"], "")
                 except:
@@ -459,7 +461,8 @@ class OpConstructRequest(object):
                 #     prompts_list = list(person_prompt.values())
                 # prompts_list.append(env_prompt)
                 # pos_prompts = " ".join(prompts_list)
-                pos_prompts = f"{person_prompt[0]['prompt']},{lo_shoot},{env_prompt}"
+                trigger = lora_info_dict[role_id].get('prompt', "")
+                pos_prompts = f"{person_prompt[0]['prompt']},{trigger},{lo_shoot},{env_prompt}"
             # elif ipbible["num_person"] == 2:
             elif num_person == 2:
                 lo_shoot = ""
@@ -490,12 +493,49 @@ class OpConstructRequest(object):
                         lora_info_dict[role_id] = lora_info
                 # 拼接pos prompt
                 pos_prompts = f"{env_prompt}, {lo_shoot}"
+                # logging.info(f"person_prompt: {person_prompt}")
+                # for index, person_id in enumerate(prompts_data["person_id"]):
+                #     role_id = person_id[0]
+                #     trigger = lora_info_dict[role_id].get('prompt', "")
+                # 冗余分配
+                trigger_list = []
+                assgin_id = set()
                 for item in person_prompt:
-                    pos_prompts = f"{pos_prompts} ADDCOL {item['prompt']}"
+                    role_id = item.get("entity_id")                    
+                    if not role_id:
+                        trigger = ""
+                        prompt = ""
+                    else:
+                        trigger = lora_info_dict[role_id].get('prompt', "")
+                        prompt = item.get('prompt', '')
+                        assgin_id.add(role_id)
+                    trigger_list.append([trigger, prompt])
+                # 查找未找到entity_id的数据,再次分配
+                for item in trigger_list:
+                    if not item[0]:
+                        for person_id in prompts_data["person_id"]:
+                            role_id = person_id[0]
+                            if role_id in assgin_id:
+                                continue
+                            item[0] = lora_info_dict[role_id].get('prompt', "")
+                            assgin_id.add(role_id)
+                            break
+                # 拼接pos prompt
+                for item in trigger_list:
+                    pos_prompts = f"{pos_prompts} ADDCOL {item[0]}, {item[1]}"
+
+                # for item in person_prompt:
+                #     role_id = item.get("entity_id")                    
+                #     if not role_id:
+                #         trigger = ""
+                #     else:
+                #         trigger = lora_info_dict[role_id].get('prompt', "")
+                #     pos_prompts = f"{pos_prompts} ADDCOL {trigger}, {item.get('prompt', '')}"
+                    # pos_prompts = f"{pos_prompts} ADDCOL {trigger}, {person_prompt[index]['prompt']}"
+                    # pos_prompts = f"{pos_prompts} ADDCOL {trigger}"
                 # person_prompt_list = list(person_prompt.values())
                 # for i in range(ipbible["num_person"]):
                 #     temp = []
-
                 #     if len(person_prompt_list[i]) > 0:
                 #         temp.append(person_prompt_list[i])
 
@@ -661,7 +701,7 @@ class OpConstructRequest(object):
                 if num_person == 1:
                     role_id = person_prompt[0]["entity_id"]
                 elif num_person == 2:
-                    role_id = person_prompt[-1]["entity_id"]
+                    role_id = prompts_data["person_id"][-1][0]
                 # logging.info("call diffuser: {}".format(json.dumps(df_req)))
                 res.append(df_req)
 

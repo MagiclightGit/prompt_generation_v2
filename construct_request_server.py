@@ -3,7 +3,7 @@
 @author  : yangel(fflyangel@foxmail.com)
 @brief   :
 -----
-Last Modified: 2023-11-28 02:36:13
+Last Modified: 2023-12-05 16:59:26
 Modified By: yangel(fflyangel@foxmail.com)
 -----
 @history :
@@ -65,7 +65,7 @@ if __name__ == "__main__":
             input = json.loads(req)
             param = input["param"]
             input = json.loads(param)
-            # logging.info(f"input param: {input}")
+            logging.info(f"input param: {input}")
             #input:
             #{"project_id": "5484043911170", "flow_id": "105945625601", "chapter_id": "1", "para_id": "0", "image_id": ""}
             #{"project_id":"105945625602","flow_id":"2291183289344","user_id":"0","task_id":"0","param":"{\"project_id\":\"105945625602\",\"global_chapter_id\":\"1405903041536\",\"global_para_id\":\"1420612465664\",\"chapter_id\":\"1\",\"para_id\":\"2\",\"img_id\":\"\",\"flow_id\":\"105945625601\"}"}
@@ -118,6 +118,7 @@ if __name__ == "__main__":
 
                     # logging.info(f"input_data: {input_data_list}\n")
                     res_list = []
+                    debug_list = []
                     for item in input_data_list:
                         input_data = item['input_data']
                         task_key = item.get("task_key", "")
@@ -137,7 +138,11 @@ if __name__ == "__main__":
                         req_data = {'input_data': json.dumps(input_data)}
                         logging.info(f"input_data: {req_data}\n")
                         res = SqsQueue(dst_deque_conf['url'], dst_deque_conf['region_name'], dst_deque_conf['max_number_of_mess'], operator_type, json.dumps(req_data, ensure_ascii=False))
-
+                        debug_list.append((task_key, input_data))
+                    
+                    # 上报debug日志
+                    op_up_db = OPUpDb()
+                    op_up_db.img_info_run([project_id, debug_list])
                     #     # 回调结果查询
                     #     # TODO batch 生成结果获取
                     #     task_key = input_data["task_key"]
