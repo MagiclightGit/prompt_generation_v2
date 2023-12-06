@@ -69,7 +69,7 @@ class OPIpBibleObtain(object):
             if para["para_id"] != self.para_id:
                 continue
 
-            logging.info("para_id: {}, para: {}".format(para['para_id'], para))
+            # logging.info("para_id: {}, para: {}".format(para['para_id'], para))
 
             prompts_data["para_content_en"] = para["para_content_en"]
 
@@ -149,7 +149,7 @@ class OPIpBibleObtain(object):
             # add caption
             prompts_data["para_content"] = para["para_content_cn"]
 
-        logging.info("Parsed ip_bible is {}".format(prompts_data))
+        # logging.info("Parsed ip_bible is {}".format(prompts_data))
         
         return prompts_data
 

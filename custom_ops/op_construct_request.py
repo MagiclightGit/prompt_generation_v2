@@ -248,7 +248,7 @@ class OpConstructRequest(object):
     def run(self, flow_id, project_id, chid, para_id, ipbible, model_info, batch_size, layout, common_request_info):
         # get from IP bible
         inputs = [flow_id, project_id, chid, para_id, ipbible, model_info, batch_size, layout, common_request_info]
-        logging.info(f"{inputs}")
+        # logging.info(f"{inputs}")
 
         human_prompts = ""
         scene_prompts = ""
@@ -418,6 +418,7 @@ class OpConstructRequest(object):
 
             rp_split_ratio = 0.5
             # if ipbible["num_person"] < 1:
+            pos_prompts = ""
             if num_person < 1:
                 pos_prompts = env_prompt
             # elif ipbible["num_person"] == 1:
@@ -486,8 +487,11 @@ class OpConstructRequest(object):
                     bb_1 = layout["bounding_box_info"][1]["bounding_box"]
                     rp_split_ratio = 0.5 * (bb_0[0] + bb_1[0])
                 except Exception:
+                    # logging.error(f"get lora info failed.")
                     for item in person_prompt:
-                        role_id = item["entity_id"]
+                        role_id = item.get("entity_id", "")
+                        if not role_id:
+                            continue
                         lora_info, lora_prompts = self.parse_lora_info(model_info[role_id])
                         # lora_prompts = self.add_action(lora_prompts, i_role)
                         lora_info_dict[role_id] = lora_info

@@ -3,7 +3,7 @@
 @author  : yangel(fflyangel@foxmail.com)
 @brief   :
 -----
-Last Modified: 2023-12-05 16:59:26
+Last Modified: 2023-12-06 14:58:20
 Modified By: yangel(fflyangel@foxmail.com)
 -----
 @history :
@@ -70,6 +70,7 @@ if __name__ == "__main__":
             #{"project_id": "5484043911170", "flow_id": "105945625601", "chapter_id": "1", "para_id": "0", "image_id": ""}
             #{"project_id":"105945625602","flow_id":"2291183289344","user_id":"0","task_id":"0","param":"{\"project_id\":\"105945625602\",\"global_chapter_id\":\"1405903041536\",\"global_para_id\":\"1420612465664\",\"chapter_id\":\"1\",\"para_id\":\"2\",\"img_id\":\"\",\"flow_id\":\"105945625601\"}"}
             try:
+
                 project_id = input.get("project_id", "")
                 chapter_id = input.get("chapter_id", "")
                 para_id = input.get("para_id", "")
@@ -121,7 +122,7 @@ if __name__ == "__main__":
                     debug_list = []
                     for item in input_data_list:
                         input_data = item['input_data']
-                        task_key = item.get("task_key", "")
+                        task_key = input_data.get("task_key", "")
                         if  task_key[-10:]=="object_lo2" or task_key[-11:] == "scenery_lo2":
                             layout_id = ""
                         else:
@@ -136,9 +137,12 @@ if __name__ == "__main__":
 
                         operator_type = "put"
                         req_data = {'input_data': json.dumps(input_data)}
-                        logging.info(f"input_data: {req_data}\n")
+                        # logging.info(f"input_data: {req_data}\n")
                         res = SqsQueue(dst_deque_conf['url'], dst_deque_conf['region_name'], dst_deque_conf['max_number_of_mess'], operator_type, json.dumps(req_data, ensure_ascii=False))
-                        debug_list.append((task_key, input_data))
+                        debug_list.append((task_key, json.dumps(input_data["infer_data"], ensure_ascii=False)))
+
+                        # TODO 调用磊哥接口上报数据
+                        
                     
                     # 上报debug日志
                     op_up_db = OPUpDb()

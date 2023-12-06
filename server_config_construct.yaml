@@ -12,4 +12,5 @@ server_config:
 
         task_conf:
                 url: "https://s48xjwf523.execute-api.us-east-1.amazonaws.com/update_task_status"
+                add_url: "https://s48xjwf523.execute-api.us-east-1.amazonaws.com/add_task"
                 headers: {'Content-Type':'application/json'}

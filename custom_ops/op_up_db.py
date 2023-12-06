@@ -23,7 +23,7 @@ class OPUpDb(object):
             self
         ):
         self.request_url = "http://test.magiclight.ai/api/image"
-        self.request_img_info_url = "http://test.magiclight.ai/api/image-info"
+        self.request_img_info_url = "https://test.magiclight.ai/api/image-info"
         self.header = {
             'accept': 'application/json',
             'Content-Type': 'application/json',
@@ -40,9 +40,15 @@ class OPUpDb(object):
                 "data": item[1],
             }
             requset_body.append(body)
+        # logging.info(f"requset_body: {requset_body}")
         response = requests.post(self.request_img_info_url, headers=self.header, json=requset_body)
-        logging.info(f"db upload result: {response}")
-        logging.info(f"db upload result code: {response.status_code}, {response.content}")
+        # logging.info(f"db upload result: {response}")
+        try:
+            response_msg = json.loads(response.text).get("msg", "")
+        except Exception as err:
+            response_msg = "get response msg error"
+        logging.info(f"db upload prompt info code: {response.status_code}, response msg: {response_msg}")
+
         return 
 
     def run(self, inputs):
@@ -70,6 +76,11 @@ class OPUpDb(object):
                 }
                 requset_body.append(body)
             response = requests.put(self.request_url, headers=self.header, json=requset_body)
+            try:
+                response_msg = json.loads(response.text).get("msg", "")
+            except Exception as err:
+                response_msg = "get response msg error"
+            logging.info(f"db upload result code: {response.status_code}, response msg: {response_msg}")
         else:
             for item in image_url:
                 body = {
@@ -89,7 +100,11 @@ class OPUpDb(object):
                 requset_body.append(body)
                 logging.info(f"body: {body}")
             response = requests.post(self.request_url, headers=self.header, json=requset_body)
-            logging.info(f"db upload result code: {response.status_code}, {response.content}")
+            try:
+                response_msg = json.loads(response.text).get("msg", "")
+            except Exception as err:
+                response_msg = "get response msg error"
+            logging.info(f"db upload result code: {response.status_code}, response msg: {response_msg}")
         # sleep?
 
         return 
