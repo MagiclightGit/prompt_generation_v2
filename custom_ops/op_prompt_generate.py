@@ -154,14 +154,14 @@ class OpPromptGenerate(OpConstructRequest):
                     # lora_info_dict[role_id] = lora_info
 
                 # 拼接pos prompt
-                env_prompt = ["best quality, ultra_detailed, 2people, {}, {}".format(lo_shoot, env_prompt)]
+                env_prompt = "best quality, ultra_detailed, 2people, {}, {}".format(lo_shoot, env_prompt)
                 pos_prompts['env_prompt'] = env_prompt
                 # pos_prompts['person_prompt'] = people_prmp
 
                 # 多人链路原文兜底图片
                 if ip_bible["scene"]["caption_with_roles_en"] != "":
-                    cwr_p_prompts = ["best quality, ultra_detailed, 2people, {}, {}".format(
-                        ip_bible["scene"]["caption_with_roles_en"], ip_bible["scene"].get("environments_en", ""))]
+                    cwr_p_prompts = "best quality, ultra_detailed, 2people, {}, {}".format(
+                        ip_bible["scene"]["caption_with_roles_en"], ip_bible["scene"].get("environments_en", ""))
                     
                     sub_pos_prompts["cwr-type"] = cwr_p_prompts
 
