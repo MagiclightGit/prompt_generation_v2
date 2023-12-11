@@ -71,6 +71,7 @@ if __name__ == "__main__":
             global_para_id = input.get("global_para_id", "")
             flow_id = input.get("flow_id", "")
             user_id = input.get("user_id", "")
+            force_add = input.get("force_add", "no")
 
             task_id = f"{chapter_id}_{para_id}"
             try:
@@ -113,7 +114,7 @@ if __name__ == "__main__":
                     "layout_prompt": pompts_layout
                 }
 
-                add_task = {"type":"layout", "project_id": project_id, "flow_id": flow_id, "user_id": user_id, "task_id": task_id, "param": json.dumps(res_req, ensure_ascii = False)}
+                add_task = {"type":"layout", "project_id": project_id, "flow_id": flow_id, "user_id": user_id, "task_id": task_id, "force_add": force_add, "param": json.dumps(res_req, ensure_ascii = False)}
                 rsp = requests.post(task_conf["add_url"], headers = task_conf["headers"], data = json.dumps(add_task), timeout = 20)
                 # operator_type = "put"
                 # res = SqsQueue(dst_deque_conf['url'], dst_deque_conf['region_name'], dst_deque_conf['max_number_of_mess'], operator_type, json.dumps(res_req, ensure_ascii=False))

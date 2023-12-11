@@ -3,7 +3,7 @@
 @author  : yangel(fflyangel@foxmail.com)
 @brief   :
 -----
-Last Modified: 2023-12-06 14:58:20
+Last Modified: 2023-12-06 15:37:56
 Modified By: yangel(fflyangel@foxmail.com)
 -----
 @history :
@@ -20,6 +20,7 @@ import sys
 import json
 import logging
 import argparse
+import requests
 
 from custom_ops.utils.server_util import SqsQueue,YamlParse,SQLConfig,GetInputInfo,get_magiclight_api,TaskCallback
 
@@ -63,9 +64,12 @@ if __name__ == "__main__":
         logging.info("get deque input: {}".format(request))
         for req in request:
             input = json.loads(req)
+            user_id = input.get("user_id", "")
+            task_id = input.get("task_id", "")
             param = input["param"]
             input = json.loads(param)
             logging.info(f"input param: {input}")
+            subtast_index = 0
             #input:
             #{"project_id": "5484043911170", "flow_id": "105945625601", "chapter_id": "1", "para_id": "0", "image_id": ""}
             #{"project_id":"105945625602","flow_id":"2291183289344","user_id":"0","task_id":"0","param":"{\"project_id\":\"105945625602\",\"global_chapter_id\":\"1405903041536\",\"global_para_id\":\"1420612465664\",\"chapter_id\":\"1\",\"para_id\":\"2\",\"img_id\":\"\",\"flow_id\":\"105945625601\"}"}
@@ -83,7 +87,9 @@ if __name__ == "__main__":
                 # 1.get layout info from layout-select
                 reponse_list = get_magiclight_api(global_para_id, global_chapter_id, project_id, image_id)
                 if not reponse_list:
-                    logging.error(f"get layout info failed")        
+                    logging.error(f"get layout info failed")
+                
+                # 多个layout        
                 for reponse in reponse_list:
                     layout = reponse["data"]
                     global_layout_id = reponse["id"]
@@ -120,6 +126,7 @@ if __name__ == "__main__":
                     # logging.info(f"input_data: {input_data_list}\n")
                     res_list = []
                     debug_list = []
+                    # 每个layout有1~多个任务
                     for item in input_data_list:
                         input_data = item['input_data']
                         task_key = input_data.get("task_key", "")
@@ -135,15 +142,20 @@ if __name__ == "__main__":
                         input_data["layout_id"] = layout_id
                         input_data["image_id"] = image_id
 
-                        operator_type = "put"
-                        req_data = {'input_data': json.dumps(input_data)}
-                        # logging.info(f"input_data: {req_data}\n")
-                        res = SqsQueue(dst_deque_conf['url'], dst_deque_conf['region_name'], dst_deque_conf['max_number_of_mess'], operator_type, json.dumps(req_data, ensure_ascii=False))
                         debug_list.append((task_key, json.dumps(input_data["infer_data"], ensure_ascii=False)))
 
-                        # TODO 调用磊哥接口上报数据
+                        operator_type = "put"
+                        req_data = {'input_data': json.dumps(input_data)}
+                        logging.info(f"input_data: {req_data}\n")
+                        # res = SqsQueue(dst_deque_conf['url'], dst_deque_conf['region_name'], dst_deque_conf['max_number_of_mess'], operator_type, json.dumps(req_data, ensure_ascii=False))
                         
-                    
+                        # TODO 调用磊哥接口上报数据
+                        sub_task_id = f"{task_id}_{chapter_id}_{para_id}_{subtast_index}"
+                        subtast_index += 1
+                        add_task = {"type":"generation_subtask", "project_id": project_id, "flow_id": flow_id, "user_id": user_id, "task_id": sub_task_id, "param": json.dumps(req_data, ensure_ascii = False)}
+                        rsp = requests.post(task_conf["add_url"], headers = task_conf["headers"], data = json.dumps(add_task), timeout = 20)
+                        logging.info(f"project_id: {project_id}, chid: {chapter_id}, para_id: {para_id}, task_id: {sub_task_id}, add task: {rsp}")
+
                     # 上报debug日志
                     op_up_db = OPUpDb()
                     op_up_db.img_info_run([project_id, debug_list])

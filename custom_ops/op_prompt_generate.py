@@ -86,15 +86,17 @@ class OpPromptGenerate(OpConstructRequest):
                 try:
                     cur_role_info = ip_bible["roles"][0]
 
-                    # lora 
-                    role_id = cur_role_info["id"]
+                    # lora 此时不读取lora信息
+                    # role_id = cur_role_info["id"]
 
-                    lora_info, lora_prompts = self.parse_lora_info(model_info[role_id])
+                    # lora_info, lora_prompts = self.parse_lora_info(model_info[role_id])
                     
-                    lora_info_dict[role_id] = lora_info
+                    # lora_info_dict[role_id] = lora_info
 
-                    # human prompts 用于强化人物的prompts
-                    human_prompts += f"{', '.join(lora_prompts)}, "
+                    # # human prompts 用于强化人物的prompts
+                    # human_prompts += f"{', '.join(lora_prompts)}, "
+
+                    human_prompts = ""
 
                     # add some person descriptions from IP bible
                     need_info_keys = ['emoji_en', 'actions_en']
@@ -137,8 +139,9 @@ class OpPromptGenerate(OpConstructRequest):
                 people_prmp = {}
                 for i, i_role in enumerate(ip_bible["roles"]):
                     role_id = i_role["id"]
-                    lora_info, lora_prompts = self.parse_lora_info(model_info[role_id])
-
+                    # 不读取lora信息
+                    # lora_info, lora_prompts = self.parse_lora_info(model_info[role_id])
+                    lora_prompts = []
                     lora_prompts = self.add_action(lora_prompts, i_role)
                     
                     person_prompt = {
@@ -148,7 +151,7 @@ class OpPromptGenerate(OpConstructRequest):
                     }
                     pos_prompts['person_prompt'].append(person_prompt)
 
-                    lora_info_dict[role_id] = lora_info
+                    # lora_info_dict[role_id] = lora_info
 
                 # 拼接pos prompt
                 env_prompt = ["best quality, ultra_detailed, 2people, {}, {}".format(lo_shoot, env_prompt)]

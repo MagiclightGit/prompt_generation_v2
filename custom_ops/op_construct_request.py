@@ -176,9 +176,11 @@ class OpConstructRequest(object):
             lora_info = {}
             lora_info["model_name"] = lora_info_raw["style_model_prompts"]["model_name"]
             lora_info["model_version"] = lora_info_raw["style_model_prompts"]["model_version"]
+            # lora_info["prompt"] = ", ".join([lora_info_raw["characteristic"],
+            #                                 lora_info_raw["trigger"],
+            #                                 lora_info_raw["style_model_prompts"]["prompt"]])
             lora_info["prompt"] = ", ".join([lora_info_raw["characteristic"],
-                                            lora_info_raw["trigger"],
-                                            lora_info_raw["style_model_prompts"]["prompt"]])
+                                            lora_info_raw["trigger"]])
             lora_info["model_url"] = lora_info_raw["lora_model_url"]
             lora_info["weight"] = lora_info_raw["lora_weight"]
             lora_prompts = [lora_info_raw["characteristic"], lora_info_raw["trigger"]]
@@ -314,7 +316,8 @@ class OpConstructRequest(object):
             # batch size
             tmp_batch_size = 1  # 有layout时的batch size
         else:
-            tmp_batch_size = 4  # 没有layout时的batch size
+            # tmp_batch_size = 4  # 没有layout时的batch size
+            tmp_batch_size = 1  # 没有layout时的batch size
         
         batch_size = tmp_batch_size
 
@@ -373,14 +376,14 @@ class OpConstructRequest(object):
                     "multi-ctrl": [
                         {
                             "model": "https://testdocsplitblobtrigger.blob.core.windows.net/controlnet-model/openpose/diffusion_pytorch_model.safetensors",
-                            "weight": ctrl_pose_weight,
+                            "weight": ctrl_pose_weight, #if num_person == 2 else 0.5,
                             "img_url": lo_openpose_url,
                             "config": "https://testdocsplitblobtrigger.blob.core.windows.net/controlnet-model/openpose/config.json",
                             "name": "openpose",
                         },
                         {
                             "model": "https://testdocsplitblobtrigger.blob.core.windows.net/controlnet-model/depth/diffusion_pytorch_model.safetensors",
-                            "weight": ctrl_depth_weight,
+                            "weight": ctrl_depth_weight, #if num_person == 2 else 0.4,
                             "img_url": lo_depth_url,
                             "config": "https://testdocsplitblobtrigger.blob.core.windows.net/controlnet-model/depth/config.json",
                             "name": "depth",
@@ -463,7 +466,13 @@ class OpConstructRequest(object):
                 # prompts_list.append(env_prompt)
                 # pos_prompts = " ".join(prompts_list)
                 trigger = lora_info_dict[role_id].get('prompt', "")
-                pos_prompts = f"{person_prompt[0]['prompt']},{trigger},{lo_shoot},{env_prompt}"
+                # pos_prompts = f"{person_prompt[0]['prompt']},{lo_shoot},{trigger},{env_prompt}"
+                # 完全对其旧版本prompt
+                if "(solo:2.0)," in  person_prompt[0]['prompt']:
+                    pos_prompts = person_prompt[0]['prompt'].replace("(solo:2.0),", f"(solo:2.0), {lo_shoot}, {trigger}") + f",{env_prompt}"
+                else:
+                    pos_prompts = f"{person_prompt[0]['prompt']},{lo_shoot},{trigger},{env_prompt}"
+                # pos_prompts = f"{trigger},{lo_shoot},{env_prompt}"
             # elif ipbible["num_person"] == 2:
             elif num_person == 2:
                 lo_shoot = ""
