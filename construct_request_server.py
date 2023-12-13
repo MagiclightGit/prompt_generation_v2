@@ -53,6 +53,13 @@ if __name__ == "__main__":
     sql_type = sql_conf["sql_type"]
     sql = SQLConfig(sql_type)
 
+    # init sd version
+    sd_version_map = {
+        0: "sd15",
+        1: "sdxl",
+        2: "sd15"
+    }
+
     while True:
         operator_type = "get"
         request = SqsQueue(src_deque_conf['url'], src_deque_conf['region_name'], src_deque_conf['max_number_of_mess'], operator_type)
@@ -63,17 +70,17 @@ if __name__ == "__main__":
 
         logging.info("get deque input: {}".format(request))
         for req in request:
-            input = json.loads(req)
-            user_id = input.get("user_id", "")
-            task_id = input.get("task_id", "")
-            param = input["param"]
-            input = json.loads(param)
-            logging.info(f"input param: {input}")
-            subtast_index = 0
-            #input:
-            #{"project_id": "5484043911170", "flow_id": "105945625601", "chapter_id": "1", "para_id": "0", "image_id": ""}
-            #{"project_id":"105945625602","flow_id":"2291183289344","user_id":"0","task_id":"0","param":"{\"project_id\":\"105945625602\",\"global_chapter_id\":\"1405903041536\",\"global_para_id\":\"1420612465664\",\"chapter_id\":\"1\",\"para_id\":\"2\",\"img_id\":\"\",\"flow_id\":\"105945625601\"}"}
             try:
+                input = json.loads(req)
+                user_id = input.get("user_id", "")
+                task_id = input.get("task_id", "")
+                param = input["param"]
+                input = json.loads(param)
+                logging.info(f"input param: {input}")
+                subtast_index = 0
+                #input:
+                #{"project_id": "5484043911170", "flow_id": "105945625601", "chapter_id": "1", "para_id": "0", "image_id": ""}
+                #{"project_id":"105945625602","flow_id":"2291183289344","user_id":"0","task_id":"0","param":"{\"project_id\":\"105945625602\",\"global_chapter_id\":\"1405903041536\",\"global_para_id\":\"1420612465664\",\"chapter_id\":\"1\",\"para_id\":\"2\",\"img_id\":\"\",\"flow_id\":\"105945625601\"}"}
 
                 project_id = input.get("project_id", "")
                 chapter_id = input.get("chapter_id", "")
@@ -104,9 +111,11 @@ if __name__ == "__main__":
                     #2. get model info
                     # TODO user add roles should get new model info
                     roles_list = []
-                    if image_id:
-                        tmp = json.loads(layout)
-                        person_prompt = tmp.get("person_prompt", [])
+                    tmp = json.loads(layout)
+                    person_prompt = tmp.get("person_prompt", [])
+                    # 获取人物数量
+                    num_person = len(person_prompt)
+                    if image_id: 
                         for item in person_prompt:
                             roles = {"id": item["entity_id"]} 
                             roles_list.append(roles)
@@ -145,7 +154,8 @@ if __name__ == "__main__":
                         debug_list.append((task_key, json.dumps(input_data["infer_data"], ensure_ascii=False)))
 
                         operator_type = "put"
-                        req_data = {'input_data': json.dumps(input_data)}
+                        req_data = {'input_data': json.dumps(input_data),
+                                    'sd_version': sd_version_map.get(num_person, "sd15")}
                         logging.info(f"input_data: {req_data}\n")
                         # res = SqsQueue(dst_deque_conf['url'], dst_deque_conf['region_name'], dst_deque_conf['max_number_of_mess'], operator_type, json.dumps(req_data, ensure_ascii=False))
                         
