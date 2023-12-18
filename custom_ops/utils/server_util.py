@@ -71,6 +71,7 @@ def SqsQueue(
             QueueUrl = url,
             MaxNumberOfMessages = 3,
             WaitTimeSeconds=10,
+            AttributeNames=['All'],
         )
         #print("接收信息: {}".format(reponse))
         try:
