@@ -79,8 +79,7 @@ def SqsQueue(
                 #获取数据
                 receipt_handle = info['ReceiptHandle']
                 body = info['Body']
-
-                if dropout and is_project_dropout(body, msg):
+                if dropout and is_project_dropout(body, info):
                     response = sqs.delete_message(
                         QueueUrl=url,
                         ReceiptHandle=receipt_handle,
