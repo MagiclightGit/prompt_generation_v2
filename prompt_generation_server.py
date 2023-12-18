@@ -61,6 +61,14 @@ if __name__ == "__main__":
         logging.info("get deque input: {}".format(request))
         for req in request:
             input = json.loads(req)
+            user_id = input.get("user_id", "")
+            force_add = input.get("force_add", "no")
+            # 
+            # task_id = f"{chapter_id}_{para_id}"
+            task_id = input.get("task_id", "")
+            if "param" in input.keys(): 
+                input = json.loads(input["param"])
+
             #input:
             #{"project_id": "5484043911170", "flow_id": "5484043911169", "chapter_id": "1", "para_id": "0", "user_id": "43315623606272"}
 
@@ -70,15 +78,14 @@ if __name__ == "__main__":
             global_chapter_id = input.get("global_chapter_id", "")
             global_para_id = input.get("global_para_id", "")
             flow_id = input.get("flow_id", "")
-            user_id = input.get("user_id", "")
-            force_add = input.get("force_add", "no")
-
-            task_id = f"{chapter_id}_{para_id}"
+            if not task_id:
+                task_id = f"{chapter_id}_{para_id}"  
+            
             try:
                 # 任务监控
-                
-                # task_data = {"type":"prompt", "project_id": project_id, "flow_id": flow_id, "user_id": user_id, "task_id": task_id, "status":"start"}
-                # rsp = requests.post(task_conf["url"], headers = task_conf["headers"], data = json.dumps(task_data), timeout = 20)
+                logging.info(f"{project_id}_{chapter_id}_{para_id}")
+                task_data = {"type":"promptgpt", "project_id": project_id, "flow_id": flow_id, "user_id": user_id, "task_id": task_id, "status":"start"}
+                rsp = requests.post(task_conf["url"], headers = task_conf["headers"], data = json.dumps(task_data), timeout = 20)
 
                 fiction_path, model_info = GetInputInfo(project_id, chapter_id, para_id, flow_id, sql)
                 logging.info(f"model_info: {model_info}")
@@ -120,11 +127,11 @@ if __name__ == "__main__":
                 # res = SqsQueue(dst_deque_conf['url'], dst_deque_conf['region_name'], dst_deque_conf['max_number_of_mess'], operator_type, json.dumps(res_req, ensure_ascii=False))
                 logging.info(f"project_id: {project_id}, chid: {chapter_id}, para_id: {para_id}  add task: {rsp}")
 
-                # task_data = {"type":"prompt", "project_id": project_id, "flow_id": flow_id, "user_id": user_id, "task_id": task_id, "status":"finish"}
-                # rsp = requests.post(task_conf["url"], headers = task_conf["headers"], data = json.dumps(task_data), timeout = 20)
+                task_data = {"type":"promptgpt", "project_id": project_id, "flow_id": flow_id, "user_id": user_id, "task_id": task_id, "status":"finish"}
+                rsp = requests.post(task_conf["url"], headers = task_conf["headers"], data = json.dumps(task_data), timeout = 20)
 
             except Exception as err:
                 logging.error("prompt generate failed, error: {}".format(err))
 
-                # task_data = {"type":"prompt", "project_id": project_id, "flow_id": flow_id, "user_id": user_id, "task_id": task_id, "status":"error"}
-                # rsp = requests.post(task_conf["url"], headers = task_conf["headers"], data = json.dumps(task_data), timeout = 20)
+                task_data = {"type":"promptgpt", "project_id": project_id, "flow_id": flow_id, "user_id": user_id, "task_id": task_id, "status":"error"}
+                rsp = requests.post(task_conf["url"], headers = task_conf["headers"], data = json.dumps(task_data), timeout = 20)

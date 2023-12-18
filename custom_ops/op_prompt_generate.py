@@ -48,8 +48,8 @@ class OpPromptGenerate(OpConstructRequest):
             
             # 场景链路原文兜底图片
             if ip_bible["scene"]["caption_with_roles_en"] != "":
-                sub_pos_prompts["cwr-type"] = "best quality, ultra-detailed, (solo), {}, {}".format(
-                    ip_bible["scene"]["caption_with_roles_en"], ip_bible["scene"].get("environments_en", ""))
+                sub_pos_prompts["cwr-type"] = "best quality, ultra-detailed, (solo), {}, {}, {}".format(
+                    ip_bible["scene"]["caption_with_roles_en"], ip_bible["scene"].get("environments_en", "")+ip_bible["scene"].get("prompt", ""))
             neg_prompts = base_neg_prompts
         else:
             # # 生成设定
@@ -79,7 +79,7 @@ class OpPromptGenerate(OpConstructRequest):
             env_prompt = ','.join(response.split(',')[0:20])
             
             # add environments_en
-            env_prompt = ip_bible["scene"].get("environments_en", "") + ", " + env_prompt
+            env_prompt = ip_bible["scene"].get("environments_en", "") + ", " + ip_bible["scene"].get("prompt", "")+ "," +env_prompt
             # TODO 新增判断逻辑，修改prompt的组成，增加用layout的信息
             # TODO 新增判断逻辑，修改prompt的组成，增加用layout的信息
             if ip_bible["num_person"] == 1:
@@ -123,10 +123,19 @@ class OpPromptGenerate(OpConstructRequest):
                 # 单人链路原文兜底图片
                 if ip_bible["scene"]["caption_with_roles_en"] != "":
 
-                    sub_pos_prompts["cwr-type"] = "best quality, ultra-detailed, (solo), {}, {}, {}".format(human_prompts,
-                            ip_bible["scene"]["caption_with_roles_en"], ip_bible["scene"].get("environments_en", ""))
+                    sub_pos_prompts["cwr-type"] = "best quality, ultra-detailed, (solo), {}, {}, {},{}".format(human_prompts,
+                            ip_bible["scene"]["caption_with_roles_en"], ip_bible["scene"].get("environments_en", ""),ip_bible["scene"].get("prompt", ""))
                 
                 single_limit_words = "(2people:2.0), (duplicate:1.2), tiling, multiple people, multiple face"
+                if self.neg_prompt_style == "bright":
+                    # mengyang neg prompt；效果更加明亮
+                    base_neg_prompts = "EasyNegativeV2,FastNegativeV2,bad-hands-5,easynegative,negative_hand-neg,ng_deepnegative_v1_75t,(same person: 2.0),(worst quality,low quality:2),(deformed iris:1.4),(deformed pupils:1.4),(poorly drawn face:1.21),(empty eyes:1.4),monochrome,ugly,disfigured,overexposure, watermark,text,bad anatomy,extra hands,extra fingers, too many fingers,fused fingers,bad arm,distorted arm,(extra arms:2),fused arms,extra nipples, liquid hand,inverted hand,disembodied limb, oversized head"
+                elif self.neg_prompt_style == "dark":
+                    base_neg_prompts = "nsfw,EasyNegativeV2,FastNegativeV2,bad-hands-5,easynegative,negative_hand-neg,ng_deepnegative_v1_75t, lowres, bad anatomy, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry"
+                elif self.neg_prompt_style == "test":
+                    base_neg_prompts = "nsfw,EasyNegativeV2,FastNegativeV2,bad-hands-5,easynegative,negative_hand-neg,ng_deepnegative_v1_75t, text, watermark, (EasyNegativeV2:1.3), extra fingers,(bad feet:2.0), fewer fingers, low quality, worst quality, watermark,sketch, duplicate, ugly, huge eyes, text, logo, monochrome, worst face, (bad and mutated hands:1.3), (worst quality:2.0), (low quality:2.0), (blurry:2.0), (bad-hands-5), (missing fingers), (multiple limbs:1.2), bad anatomy, (interlocked fingers:1.2), Ugly Fingers, (extra digit and hands and fingers and legs and arms:1.4), (deformed fingers:1.2), (long fingers:1.2),(bad-artist-anime)"
+                else:
+                    base_neg_prompts = "nsfw,EasyNegativeV2,FastNegativeV2,bad-hands-5,easynegative,negative_hand-neg,ng_deepnegative_v1_75t, lowres, bad anatomy, bad-hands-5, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry"
                 
                 neg_prompts = base_neg_prompts + single_limit_words
 
@@ -160,8 +169,8 @@ class OpPromptGenerate(OpConstructRequest):
 
                 # 多人链路原文兜底图片
                 if ip_bible["scene"]["caption_with_roles_en"] != "":
-                    cwr_p_prompts = "best quality, ultra_detailed, 2people, {}, {}".format(
-                        ip_bible["scene"]["caption_with_roles_en"], ip_bible["scene"].get("environments_en", ""))
+                    cwr_p_prompts = "best quality, ultra_detailed, 2people, {}, {}, {}".format(
+                        ip_bible["scene"]["caption_with_roles_en"], ip_bible["scene"].get("environments_en", ""),ip_bible["scene"].get("prompt", ""))
                     
                     sub_pos_prompts["cwr-type"] = cwr_p_prompts
 
@@ -175,6 +184,7 @@ class OpPromptGenerate(OpConstructRequest):
         if "scenery" in ip_bible["scene"]["subject_en"].keys():
             sub_pos_prompts["scenery"] = "best quality, ultra_detailed, anime" + \
                 "({}), (scenery), no people, ".format(ip_bible["scene"]["subject_en"]["scenery"]) + \
-                ip_bible["scene"].get("environments_en", "")
+                ip_bible["scene"].get("environments_en", "") + \
+                    ip_bible["scene"].get("prompt", "")
         return [pos_prompts, neg_prompts, sub_pos_prompts] 
     

@@ -86,6 +86,8 @@ class OPIpBibleObtain(object):
             num_person = len(para["roles"]) # + len(para["minor_roles"])
             
             max_num_person = 2  # 设定每段中的最大人数
+            # logging.info(f"max_num_person: {max_num_person}, {num_person}")
+
             prompts_data["num_person"] = min(max_num_person, num_person)
 
             # 加载需要的人物信息
@@ -130,11 +132,14 @@ class OPIpBibleObtain(object):
                                                           load_scene_info["time_cn"],
                                                           load_scene_info["style_cn"],
                                                           load_scene_info["weather_cn"]])
-                cur_scene["environments_en"] = ", ".join([load_scene_info["location_en"],
-                                                          load_scene_info["interior_exterior_en"],
-                                                          load_scene_info["time_en"],
-                                                          load_scene_info["style_en"],
-                                                          load_scene_info["weather_en"]])
+                # cur_scene["environments_en"] = ", ".join([load_scene_info["location_en"],
+                #                                           load_scene_info["interior_exterior_en"],
+                #                                           load_scene_info["time_en"],
+                #                                           load_scene_info["style_en"],
+                #                                           load_scene_info["weather_en"]])
+                cur_scene["environments_en"] = ",".join([load_scene_info["weather_en"],
+                                                        load_scene_info["location_en"]])
+
                 cur_scene["prompt"] = load_scene_info["prompt"]
                 cur_scene["caption_with_roles_en"] = load_scene_info.get("caption_with_roles_en", "")
 

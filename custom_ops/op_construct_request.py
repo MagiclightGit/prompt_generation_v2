@@ -78,6 +78,13 @@ class OpConstructRequest(object):
             "女": "female"
         }
 
+        # rp weight
+        self.rp_weight = {
+            0: 0,
+            1: 0,
+            2: 0.8
+        }
+
         # layout
         self.lo_cosprefix = {
             "bbox": "https://testdocsplitblobtrigger.blob.core.windows.net/layout-bbox/",
@@ -85,6 +92,7 @@ class OpConstructRequest(object):
             "segement":  "https://testdocsplitblobtrigger.blob.core.windows.net/layout-segement/",
             "lineart": "https://testdocsplitblobtrigger.blob.core.windows.net/layout-lineart/",
             "openpose": "https://testdocsplitblobtrigger.blob.core.windows.net/layout-openpose/",
+            "instance": "s3://layout-data/layout-instance/",
         }
 
         # mdb
@@ -179,10 +187,12 @@ class OpConstructRequest(object):
             # lora_info["prompt"] = ", ".join([lora_info_raw["characteristic"],
             #                                 lora_info_raw["trigger"],
             #                                 lora_info_raw["style_model_prompts"]["prompt"]])
-            lora_info["prompt"] = ", ".join([lora_info_raw["characteristic"],
-                                            lora_info_raw["trigger"]])
+            lora_info["prompt"] = ", ".join([lora_info_raw["trigger"],
+                                            lora_info_raw["characteristic"]])
+            lora_info["trigger"] = lora_info_raw["trigger"]
             lora_info["model_url"] = lora_info_raw["lora_model_url"]
             lora_info["weight"] = lora_info_raw["lora_weight"]
+            
             lora_prompts = [lora_info_raw["characteristic"], lora_info_raw["trigger"]]
         except Exception as err:
             logging.error("parse lora info failed, error: {}".format(err))
@@ -247,9 +257,9 @@ class OpConstructRequest(object):
         return people_prmp, lora_info_dict
     
     # layout: [{}]
-    def run(self, flow_id, project_id, chid, para_id, ipbible, model_info, batch_size, layout, common_request_info):
+    def run(self, flow_id, project_id, chid, para_id, ipbible, model_info, batch_size, layout, style_info):
         # get from IP bible
-        inputs = [flow_id, project_id, chid, para_id, ipbible, model_info, batch_size, layout, common_request_info]
+        inputs = [flow_id, project_id, chid, para_id, ipbible, model_info, batch_size, layout, style_info]
         # logging.info(f"{inputs}")
 
         human_prompts = ""
@@ -344,6 +354,7 @@ class OpConstructRequest(object):
                 lo_openpose_url = os.path.join(self.lo_cosprefix["openpose"], lo_img_key)
                 lo_depth_url = os.path.join(self.lo_cosprefix["depth"], lo_img_key)
                 lo_lineart_url = os.path.join(self.lo_cosprefix["lineart"], lo_img_key)
+                lo_instance_url = os.path.join(self.lo_cosprefix["instance"], lo_img_key)
 
                 # debug上报lineart url
                 # {img_url: ['https://aigc-test-1258344701.cos.ap-nanjing.myqcloud.com/roles/fd0015lpra7/15/23088a864d3389c9/2_0.jpg']}
@@ -420,10 +431,12 @@ class OpConstructRequest(object):
                 # TODO 根据ip bible中的人数，构建regional prompter DONE
 
             rp_split_ratio = 0.5
+            rp_bbox = []
             # if ipbible["num_person"] < 1:
             pos_prompts = ""
             if num_person < 1:
-                pos_prompts = env_prompt
+                # pos_prompts = env_prompt
+                pos_prompts = env_prompt + "," + style_info.get('trigger', '')
             # elif ipbible["num_person"] == 1:
             elif num_person == 1:
                 try:
@@ -434,6 +447,11 @@ class OpConstructRequest(object):
                     pass
 
                 # 此逻辑在layout中完成（）
+                # 获取bbox info 并计算rp_split_ratio
+                for item in layout["bounding_box_info"]:
+                    bbox = item.get("bounding_box", [0.5, 0.5, 1, 1])
+                    rp_bbox.append(bbox)
+                    break
 
                 # TODO 增加prompts判断和shoot 
                 try:
@@ -469,9 +487,13 @@ class OpConstructRequest(object):
                 # pos_prompts = f"{person_prompt[0]['prompt']},{lo_shoot},{trigger},{env_prompt}"
                 # 完全对其旧版本prompt
                 if "(solo:2.0)," in  person_prompt[0]['prompt']:
-                    pos_prompts = person_prompt[0]['prompt'].replace("(solo:2.0),", f"(solo:2.0), {lo_shoot}, {trigger}") + f",{env_prompt}"
+                    # pos_prompts = person_prompt[0]['prompt'].replace("(solo:2.0),", f"(solo:2.0), {lo_shoot}, {trigger}") + f",{env_prompt}"
+                    # 增加风格trigger，后续需要在prompt中写入
+                    pos_prompts = person_prompt[0]['prompt'].replace("(solo:2.0),", f"(solo:2.0), {style_info.get('trigger', '')}, {lo_shoot}, {trigger}") + f",{env_prompt}"
+
                 else:
-                    pos_prompts = f"{person_prompt[0]['prompt']},{lo_shoot},{trigger},{env_prompt}"
+                    # pos_prompts = f"{person_prompt[0]['prompt']},{lo_shoot},{trigger},{env_prompt}"
+                    pos_prompts = f"{person_prompt[0]['prompt']},{style_info.get('trigger', '')},{lo_shoot},{trigger},{env_prompt}"
                 # pos_prompts = f"{trigger},{lo_shoot},{env_prompt}"
             # elif ipbible["num_person"] == 2:
             elif num_person == 2:
@@ -491,6 +513,10 @@ class OpConstructRequest(object):
                     lo_shoot = self.layout_map.get(layout["layout_scene"], "")
                     # 人物朝向
                     # bb_look = [self.layout_map.get(item["look"], "") for item in json.loads(layout["prompt"])]
+                    # 获取bbox info 
+                    for item in layout["bounding_box_info"]:
+                        bbox = item.get("bounding_box", [])
+                        rp_bbox.append(bbox)
                     # 计算split_ratio
                     bb_0 = layout["bounding_box_info"][0]["bounding_box"]
                     bb_1 = layout["bounding_box_info"][1]["bounding_box"]
@@ -505,7 +531,7 @@ class OpConstructRequest(object):
                         # lora_prompts = self.add_action(lora_prompts, i_role)
                         lora_info_dict[role_id] = lora_info
                 # 拼接pos prompt
-                pos_prompts = f"{env_prompt}, {lo_shoot}"
+                pos_prompts = f"{env_prompt}, {style_info.get('trigger', '')}, {lo_shoot}"
                 # logging.info(f"person_prompt: {person_prompt}")
                 # for index, person_id in enumerate(prompts_data["person_id"]):
                 #     role_id = person_id[0]
@@ -563,15 +589,21 @@ class OpConstructRequest(object):
 
             # TODO 根据ip bible中的人数，构建regional prompter DONE
             # if ipbible["num_person"] < 2:
-            if num_person < 2:
-                rp_config = {
-                    "rp_weight": 0,
-                }
-            else:
-                rp_config = {
-                    "rp_weight": 0.8,
-                    "rp_split_ratio": rp_split_ratio  # 由输入的bbox计算，默认0.5
-                }
+            # if num_person < 2:
+            #     rp_config = {
+            #         "rp_weight": 0,
+            #     }
+            # else:
+            #     rp_config = {
+            #         "rp_weight": 0.8,
+            #         "rp_split_ratio": rp_split_ratio  # 由输入的bbox计算，默认0.5
+            #     }
+            rp_config = {
+                "rp_weight": self.rp_weight.get(num_person, 0),
+                "rp_split_ratio": rp_split_ratio,  # 由输入的bbox计算，默认0.5
+                "rp_bbox": rp_bbox,
+                "rp_instance": lo_instance_url,
+            }
             # 轮询dict中的信息
             debug_prompt = {}
             res = []
@@ -618,10 +650,16 @@ class OpConstructRequest(object):
                             "callback_cos_key": "",
                         },
                         "lora_configs": [
+                            # {
+                            #     "model": "https://testdocsplitblobtrigger.blob.core.windows.net/lora-model/add_detail.safetensors",
+                            #     "weight": 0.5,
+                            #     "type": "base",
+                            # }
                             {
-                                "model": "https://testdocsplitblobtrigger.blob.core.windows.net/lora-model/add_detail.safetensors",
-                                "weight": 0.5,
-                                "type": "base",
+                                "model": style_info.get("lora_model_url", ""),
+                                "weight": style_info.get("lora_weight", 0.5),
+                                "trigger": style_info.get("trigger", ""),
+                                "type": "style",
                             }
                         ],
                         "text_inversions": [
@@ -674,6 +712,7 @@ class OpConstructRequest(object):
                             i_lora_info = {}
                             i_lora_info["model"] = lora_info.get("model_url", "")
                             i_lora_info["weight"] = lora_info.get("weight", "")
+                            i_lora_info["trigger"] = lora_info.get("trigger", "")
 
                             # 这里可能后期改成由调度层配置
                             i_lora_info["type"] = "role"
@@ -686,6 +725,7 @@ class OpConstructRequest(object):
                         i_lora_info = {}
                         i_lora_info["model"] = lora_info.get("model_url", "")
                         i_lora_info["weight"] = lora_info.get("weight", "")
+                        i_lora_info["trigger"] = lora_info.get("trigger", "")
 
                         # 这里可能后期改成由调度层配置
                         i_lora_info["type"] = "role"

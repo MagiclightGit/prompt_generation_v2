@@ -24,6 +24,7 @@ class OPUpDb(object):
         ):
         self.request_url = "http://test.magiclight.ai/api/image"
         self.request_img_info_url = "https://test.magiclight.ai/api/image-info"
+        self.request_style = "https://test.magiclight.ai/api/project/style/"
         self.header = {
             'accept': 'application/json',
             'Content-Type': 'application/json',
@@ -108,3 +109,29 @@ class OPUpDb(object):
         # sleep?
 
         return 
+
+    def get_style(self, project_id):
+
+        response = requests.get(self.request_style+project_id, headers=self.header)
+        # 默认 style 
+        default = {
+            "lora_id": "add_detail",
+            "source": "civitai",
+            "lora_weight": 0.5,
+            "trigger": "add_detail",
+            "characteristic": "",
+            "lora_model_url": "https://testdocsplitblobtrigger.blob.core.windows.net/lora-model/add_detail.safetensors"
+        }
+
+        if response.status_code != 200:
+            logging.error(f"msg: get stytle failed. projectId: {project_id}")
+            return default
+        try:
+            data = json.loads(response.content)
+            res = data['data']['data'].get("styleModel")
+            res = json.loads(res)
+        except:
+            logging.info("db data len equal to 0")
+            res = default
+        
+        return res

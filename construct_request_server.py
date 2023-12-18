@@ -3,7 +3,7 @@
 @author  : yangel(fflyangel@foxmail.com)
 @brief   :
 -----
-Last Modified: 2023-12-06 15:37:56
+Last Modified: 2023-12-16 12:10:06
 Modified By: yangel(fflyangel@foxmail.com)
 -----
 @history :
@@ -74,6 +74,7 @@ if __name__ == "__main__":
                 input = json.loads(req)
                 user_id = input.get("user_id", "")
                 task_id = input.get("task_id", "")
+                force_add = input.get("force_add", "no")
                 param = input["param"]
                 input = json.loads(param)
                 logging.info(f"input param: {input}")
@@ -90,11 +91,18 @@ if __name__ == "__main__":
                 flow_id = input.get("flow_id", "")
                 image_id = input.get("image_id", "")
 
+                # TODO 获取风格lora
+                op_up_db = OPUpDb()
+                style_info = op_up_db.get_style(project_id)
+                # logging.info(f"style_info: {style_info}")
+
                 # TODO 
                 # 1.get layout info from layout-select
                 reponse_list = get_magiclight_api(global_para_id, global_chapter_id, project_id, image_id)
                 if not reponse_list:
                     logging.error(f"get layout info failed")
+                    task_data = {"type":"generation", "project_id": project_id, "flow_id": flow_id, "user_id": user_id, "task_id": task_id, "status":"error"}
+                    rsp = requests.post(task_conf["url"], headers = task_conf["headers"], data = json.dumps(task_data), timeout = 20)
                 
                 # 多个layout        
                 for reponse in reponse_list:
@@ -130,7 +138,7 @@ if __name__ == "__main__":
 
                     # input_data, ret_call_dict, role_id, debug_dict = op_construct_request.run(flow_id, project_id, chapter_id, para_id, ipbible, model_info, batch_size, layout, common_request_info)
                     # 场景、单人和多人
-                    input_data_list = op_construct_request.run(flow_id, project_id, chapter_id, para_id, ipbible, model_info, batch_size, layout, common_request_info)
+                    input_data_list = op_construct_request.run(flow_id, project_id, chapter_id, para_id, ipbible, model_info, batch_size, layout, style_info)
 
                     # logging.info(f"input_data: {input_data_list}\n")
                     res_list = []
@@ -162,12 +170,12 @@ if __name__ == "__main__":
                         # TODO 调用磊哥接口上报数据
                         sub_task_id = f"{task_id}_{chapter_id}_{para_id}_{subtast_index}"
                         subtast_index += 1
-                        add_task = {"type":"generation_subtask", "project_id": project_id, "flow_id": flow_id, "user_id": user_id, "task_id": sub_task_id, "param": json.dumps(req_data, ensure_ascii = False)}
+                        add_task = {"type":"generation_subtask", "project_id": project_id, "flow_id": flow_id, "user_id": user_id, "task_id": sub_task_id, "force_add": force_add, "param": json.dumps(req_data, ensure_ascii = False)}
                         rsp = requests.post(task_conf["add_url"], headers = task_conf["headers"], data = json.dumps(add_task), timeout = 20)
                         logging.info(f"project_id: {project_id}, chid: {chapter_id}, para_id: {para_id}, task_id: {sub_task_id}, add task: {rsp}")
 
                     # 上报debug日志
-                    op_up_db = OPUpDb()
+                    
                     op_up_db.img_info_run([project_id, debug_list])
                     #     # 回调结果查询
                     #     # TODO batch 生成结果获取
@@ -201,7 +209,12 @@ if __name__ == "__main__":
                     # operator_type = "put"
                     # res = SqsQueue(dst_deque_conf['url'], dst_deque_conf['region_name'], dst_deque_conf['max_number_of_mess'], operator_type, json.dumps(res_req, ensure_ascii=False))
                     # logging.info(f"fid: {fid}, chid: {chid}, para_id: {para_id} sqs add task: {res}")
-
+                
+                # 上报任务总数
+                num_task = {"type":"generation", "project_id": project_id, "flow_id": flow_id, "task_id": task_id, "task_num": subtast_index}
+                rsp = requests.post(task_conf["task_num_url"], headers = task_conf["headers"], data = json.dumps(num_task), timeout = 20)
 
             except Exception as err:
                 logging.error("construct request failed, error: {}".format(err))
+                task_data = {"type":"generation", "project_id": project_id, "flow_id": flow_id, "user_id": user_id, "task_id": task_id, "status":"error"}
+                rsp = requests.post(task_conf["url"], headers = task_conf["headers"], data = json.dumps(task_data), timeout = 20)
