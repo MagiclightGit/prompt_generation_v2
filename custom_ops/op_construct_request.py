@@ -349,12 +349,14 @@ class OpConstructRequest(object):
             ctrl_depth_weight = 0
         if self.gen_api_type == "diffusers":
             # for diffusers, 0: no controlnet, 1: openpose, 2: depth
+            lo_instance_url = ""
             if len(layout) > 0 and layout["urls"]:
                 lo_img_key = layout["urls"].split("/")[-1]
                 lo_openpose_url = os.path.join(self.lo_cosprefix["openpose"], lo_img_key)
                 lo_depth_url = os.path.join(self.lo_cosprefix["depth"], lo_img_key)
                 lo_lineart_url = os.path.join(self.lo_cosprefix["lineart"], lo_img_key)
-                lo_instance_url = os.path.join(self.lo_cosprefix["instance"], lo_img_key)
+                lo_instance_url = os.path.join(self.lo_cosprefix["instance"], lo_img_key) 
+                lo_instance_url = lo_instance_url[:-3] + "png"
 
                 # debug上报lineart url
                 # {img_url: ['https://aigc-test-1258344701.cos.ap-nanjing.myqcloud.com/roles/fd0015lpra7/15/23088a864d3389c9/2_0.jpg']}

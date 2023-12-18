@@ -211,8 +211,9 @@ if __name__ == "__main__":
                     # logging.info(f"fid: {fid}, chid: {chid}, para_id: {para_id} sqs add task: {res}")
                 
                 # 上报任务总数
-                num_task = {"type":"generation", "project_id": project_id, "flow_id": flow_id, "task_id": task_id, "task_num": subtast_index}
+                num_task = {"type":"generation", "project_id": project_id, "flow_id": flow_id, "task_id": task_id, "task_num": str(subtast_index)}
                 rsp = requests.post(task_conf["task_num_url"], headers = task_conf["headers"], data = json.dumps(num_task), timeout = 20)
+                logging.info(f"project_id: {project_id}, chid: {chapter_id}, para_id: {para_id}, task_id: {task_id}, task_num: {str(subtast_index)}, report task: {rsp}")
 
             except Exception as err:
                 logging.error("construct request failed, error: {}".format(err))
