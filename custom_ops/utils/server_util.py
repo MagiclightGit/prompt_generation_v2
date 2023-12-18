@@ -15,6 +15,31 @@ sys.path.insert(0, dir_path)
 # from op_sql_operator import SQLOperator
 from custom_ops.utils.sql_operator import SQLOperator
 
+
+DROPOUT_TASK_CHECK_URL = 'https://s48xjwf523.execute-api.us-east-1.amazonaws.com/task_eligible_check'
+
+
+def is_project_dropout(body, raw_msg):
+    try:
+        project_id = body.get('project_id')
+        raw_enqueue_timestamp = raw_msg.get('Attributes', {}).get('SentTimestamp')
+        if not raw_enqueue_timestamp:
+            return True
+
+        enqueue_timestamp = int(raw_enqueue_timestamp) / 1000
+        resp = requests.post(
+            DROPOUT_TASK_CHECK_URL,
+            json={
+                'project_id': project_id,
+                'enqueue_time': str(enqueue_timestamp),
+            }
+        )
+        return resp.status_code == 200
+    except Exception:
+        logging.exception(f'Failed to handle is_project_dropout')
+        return False
+
+
 #函数名：sqs队列
 #输入参数1: 队列url
 #输入参数2: 类型
@@ -25,7 +50,9 @@ def SqsQueue(
     region_name_str = "us-east-1",
     max_number_of_mess = 3,
     operator_type = "get",
-    mess = ''):
+    mess = '',
+    dropout=True,
+):
     sqs = boto3.client("sqs", region_name= region_name_str)
     #url = 'https://sqs.us-east-1.amazonaws.com/647854334008/IPBible_TaskQueue_Normal'
     '''
@@ -51,6 +78,11 @@ def SqsQueue(
                 #获取数据
                 receipt_handle = info['ReceiptHandle']
                 body = info['Body']
+
+                if dropout and is_project_dropout(body, msg):
+                    logging.warning(f'Drop task: {msg["Body"]}')
+                    continue
+
                 inputs.append(body)
                 #删除数据
                 response = sqs.delete_message(
