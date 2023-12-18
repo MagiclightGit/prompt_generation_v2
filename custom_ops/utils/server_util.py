@@ -81,6 +81,10 @@ def SqsQueue(
                 body = info['Body']
 
                 if dropout and is_project_dropout(body, msg):
+                    response = sqs.delete_message(
+                        QueueUrl=url,
+                        ReceiptHandle=receipt_handle,
+                    )
                     logging.warning(f'Drop task: {msg["Body"]}')
                     continue
 
