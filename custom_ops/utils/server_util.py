@@ -21,6 +21,7 @@ DROPOUT_TASK_CHECK_URL = 'https://s48xjwf523.execute-api.us-east-1.amazonaws.com
 
 def is_project_dropout(body, raw_msg):
     try:
+        body = json.loads(body)
         project_id = body.get('project_id')
         raw_enqueue_timestamp = raw_msg.get('Attributes', {}).get('SentTimestamp')
         if not raw_enqueue_timestamp:
@@ -34,7 +35,7 @@ def is_project_dropout(body, raw_msg):
                 'enqueue_time': str(enqueue_timestamp),
             }
         )
-        return resp.status_code == 200
+        return resp.status_code != 200
     except Exception:
         logging.exception(f'Failed to handle is_project_dropout')
         return False
