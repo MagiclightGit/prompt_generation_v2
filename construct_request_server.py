@@ -91,6 +91,8 @@ if __name__ == "__main__":
                 flow_id = input.get("flow_id", "")
                 image_id = input.get("image_id", "")
 
+                logging.info(f"{project_id}_{chapter_id}_{para_id}")
+
                 # TODO 获取风格lora
                 op_up_db = OPUpDb()
                 style_info = op_up_db.get_style(project_id)

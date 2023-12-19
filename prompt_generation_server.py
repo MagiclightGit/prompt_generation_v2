@@ -60,28 +60,29 @@ if __name__ == "__main__":
 
         logging.info("get deque input: {}".format(request))
         for req in request:
-            input = json.loads(req)
-            user_id = input.get("user_id", "")
-            force_add = input.get("force_add", "no")
-            # 
-            # task_id = f"{chapter_id}_{para_id}"
-            task_id = input.get("task_id", "")
-            if "param" in input.keys(): 
-                input = json.loads(input["param"])
-
-            #input:
-            #{"project_id": "5484043911170", "flow_id": "5484043911169", "chapter_id": "1", "para_id": "0", "user_id": "43315623606272"}
-
-            project_id = input.get("project_id", "")
-            chapter_id = input.get("local_chapter_id", "")
-            para_id = input.get("local_para_id", "")
-            global_chapter_id = input.get("global_chapter_id", "")
-            global_para_id = input.get("global_para_id", "")
-            flow_id = input.get("flow_id", "")
-            if not task_id:
-                task_id = f"{chapter_id}_{para_id}"  
-            
             try:
+                input = json.loads(req)
+                user_id = input.get("user_id", "")
+                force_add = input.get("force_add", "no")
+                # 
+                # task_id = f"{chapter_id}_{para_id}"
+                task_id = input.get("task_id", "")
+                if "param" in input.keys(): 
+                    input = json.loads(input["param"])
+
+                #input:
+                #{"project_id": "5484043911170", "flow_id": "5484043911169", "chapter_id": "1", "para_id": "0", "user_id": "43315623606272"}
+
+                project_id = input.get("project_id", "")
+                chapter_id = input.get("local_chapter_id", "")
+                para_id = input.get("local_para_id", "")
+                global_chapter_id = input.get("global_chapter_id", "")
+                global_para_id = input.get("global_para_id", "")
+                flow_id = input.get("flow_id", "")
+                if not task_id:
+                    task_id = f"{chapter_id}_{para_id}"  
+                    
+            # try:
                 # 任务监控
                 logging.info(f"{project_id}_{chapter_id}_{para_id}")
                 task_data = {"type":"promptgpt", "project_id": project_id, "flow_id": flow_id, "user_id": user_id, "task_id": task_id, "status":"start"}
