@@ -210,39 +210,41 @@ def GetInputInfo(project_id, chid, para_id, flow_id, sql, roles_list=[]):
     
     for role in roles:
         role_id = role['id']
-        lora_sql_cmd = "select lora_id from world_view \
-            where project_id = '{}' and entity_id='{}' \
-            order by update_time desc limit 1".format(
-                project_id, role_id)
-        logging.info("lora_sql_cmd: {}".format(lora_sql_cmd))
+        # lora_sql_cmd = "select lora_id from world_view \
+        #     where project_id = '{}' and entity_id='{}' \
+        #     order by update_time desc limit 1".format(
+        #         project_id, role_id)
+        # logging.info("lora_sql_cmd: {}".format(lora_sql_cmd))
     
-        flag, query_res = sql.ReadFromTable(lora_sql_cmd)
-        if flag == True and len(query_res) >0:
-            lora_id = query_res[0][0]
-        else:
-            lora_id = ''
+        # flag, query_res = sql.ReadFromTable(lora_sql_cmd)
+        # if flag == True and len(query_res) >0:
+        #     lora_id = query_res[0][0]
+        # else:
+        #     lora_id = ''
         
+        # # model_info_sql_cmd = "select lora_model_info, lora_model_url, config_url, demo_url \
+        # #     from roles_lora where project_id = '{}' and id = '{}' \
+        # #     order by update_time desc limit 1;".format(project_id, lora_id)
         # model_info_sql_cmd = "select lora_model_info, lora_model_url, config_url, demo_url \
-        #     from roles_lora where project_id = '{}' and id = '{}' \
-        #     order by update_time desc limit 1;".format(project_id, lora_id)
-        model_info_sql_cmd = "select lora_model_info, lora_model_url, config_url, demo_url \
-            from roles_lora where id = '{}' \
-            order by update_time desc limit 1;".format(lora_id)
+        #     from roles_lora where id = '{}' \
+        #     order by update_time desc limit 1;".format(lora_id)
 
-        #增加重试
-        logging.info("model_info_sql_cmd: {}".format(model_info_sql_cmd))   
-        flag, query_res = sql.ReadFromTable(model_info_sql_cmd)
+        # #增加重试
+        # logging.info("model_info_sql_cmd: {}".format(model_info_sql_cmd))   
+        # flag, query_res = sql.ReadFromTable(model_info_sql_cmd)
         
-        if flag == True and len(query_res) >0:
-            lora_model_info = query_res[0][0]
-            lora_model_url = query_res[0][1]
-            config_url = query_res[0][2]
-            demo_url = query_res[0][3]
-        else:
-            lora_model_info = '{}'
-            lora_model_url = ''
-            config_url = ''
-            demo_url = ''
+        # if flag == True and len(query_res) >0:
+        #     lora_model_info = query_res[0][0]
+        #     lora_model_url = query_res[0][1]
+        #     config_url = query_res[0][2]
+        #     demo_url = query_res[0][3]
+        # else:
+        #     lora_model_info = '{}'
+        #     lora_model_url = ''
+        #     config_url = ''
+        #     demo_url = ''
+        lora_id = get_lora_id(project_id, role_id)
+        lora_model_info = get_lora_info(lora_id)
         '''
         if id not in model_info:
             model_info[id] = json.dumps(lora_model_info, ensure_ascii = False)
@@ -251,6 +253,65 @@ def GetInputInfo(project_id, chid, para_id, flow_id, sql, roles_list=[]):
             model_info[role_id] = json.dumps(lora_model_info, ensure_ascii = False)
     logging.info("\t\t model_info: {}".format(model_info))
     return ipbible_path, json.dumps(model_info, ensure_ascii = False)
+
+def get_lora_id(project_id, entity_id):
+    url = "http://test.magiclight.ai/api/world-view"
+    header = {
+            'accept': 'application/json',
+        }
+    params = {
+        'projectId': project_id,
+        "entityId": entity_id,
+    }
+    response = requests.get(f"{url}", params=params, headers=header)
+    res = '' 
+    if response.status_code != 200:
+        logging.error(f"msg: get role id failed. projectId: {project_id}, entity_id: {entity_id}")
+        return res
+    
+    # response.content
+    # logging.info(f"response.content: {response.content}")
+    try:
+        data = json.loads(response.content)
+        lora_list = data['data']['data']
+        for item in lora_list:
+            res = item.get("loraId", "")
+            break
+        # logging.info(f"msg: {msg}")
+
+    except:
+        logging.info("db data len equal to 0")
+
+    return res
+
+def get_lora_info(lora_id):
+    url = "http://test.magiclight.ai/api/roles-lora"
+    header = {
+            'accept': 'application/json',
+        }
+    params = {
+        'id': lora_id,
+    }
+    response = requests.get(f"{url}", params=params, headers=header)
+    res = '' 
+    if response.status_code != 200:
+        logging.error(f"msg: get role info failed. lora_id: {lora_id}")
+        return res
+    
+    # response.content
+    # logging.info(f"response.content: {response.content}")
+    try:
+        data = json.loads(response.content)
+        lora_list = data['data']['data']
+        for item in lora_list:
+            res = item.get("loraModelInfo", "{}")
+            break
+        # logging.info(f"msg: {msg}")
+
+    except:
+        logging.info("db data len equal to 0")
+
+    return res
 
 def get_select_layoutid(para_id, chapter_id, project_id, image_id):
     url = "http://test.magiclight.ai/api/"

@@ -81,7 +81,7 @@ class OpConstructRequest(object):
         # rp weight
         self.rp_weight = {
             0: 0,
-            1: 0,
+            1: 0.8,
             2: 0.8
         }
 
@@ -487,16 +487,17 @@ class OpConstructRequest(object):
                 # pos_prompts = " ".join(prompts_list)
                 trigger = lora_info_dict[role_id].get('prompt', "")
                 # pos_prompts = f"{person_prompt[0]['prompt']},{lo_shoot},{trigger},{env_prompt}"
+                # 单人链路采用多人链路生成
+                pos_prompts = f"{person_prompt[0]['prompt']}, {lo_shoot}, {env_prompt}, {style_info.get('trigger', '')} ADDCOL {trigger} ADDCOL no humans"
                 # 完全对其旧版本prompt
-                if "(solo:2.0)," in  person_prompt[0]['prompt']:
-                    # pos_prompts = person_prompt[0]['prompt'].replace("(solo:2.0),", f"(solo:2.0), {lo_shoot}, {trigger}") + f",{env_prompt}"
-                    # 增加风格trigger，后续需要在prompt中写入
-                    pos_prompts = person_prompt[0]['prompt'].replace("(solo:2.0),", f"(solo:2.0), {style_info.get('trigger', '')}, {lo_shoot}, {trigger}") + f",{env_prompt}"
-
-                else:
-                    # pos_prompts = f"{person_prompt[0]['prompt']},{lo_shoot},{trigger},{env_prompt}"
-                    pos_prompts = f"{person_prompt[0]['prompt']},{style_info.get('trigger', '')},{lo_shoot},{trigger},{env_prompt}"
-                # pos_prompts = f"{trigger},{lo_shoot},{env_prompt}"
+                # if "(solo:2.0)," in  person_prompt[0]['prompt']:
+                #     # pos_prompts = person_prompt[0]['prompt'].replace("(solo:2.0),", f"(solo:2.0), {lo_shoot}, {trigger}") + f",{env_prompt}"
+                #     # 增加风格trigger，后续需要在prompt中写入
+                #     pos_prompts = person_prompt[0]['prompt'].replace("(solo:2.0),", f"(solo:2.0), {style_info.get('trigger', '')}, {lo_shoot}, {trigger}") + f",{env_prompt}"
+                # else:
+                #     # pos_prompts = f"{person_prompt[0]['prompt']},{lo_shoot},{trigger},{env_prompt}"
+                #     pos_prompts = f"{person_prompt[0]['prompt']},{style_info.get('trigger', '')},{lo_shoot},{trigger},{env_prompt}"
+                # # pos_prompts = f"{trigger},{lo_shoot},{env_prompt}"
             # elif ipbible["num_person"] == 2:
             elif num_person == 2:
                 lo_shoot = ""
@@ -601,6 +602,7 @@ class OpConstructRequest(object):
             #         "rp_split_ratio": rp_split_ratio  # 由输入的bbox计算，默认0.5
             #     }
             rp_config = {
+                "rp_num": num_person,
                 "rp_weight": self.rp_weight.get(num_person, 0),
                 "rp_split_ratio": rp_split_ratio,  # 由输入的bbox计算，默认0.5
                 "rp_bbox": rp_bbox,
@@ -734,6 +736,16 @@ class OpConstructRequest(object):
                         input_data["infer_data"]["lora_configs"].append(i_lora_info)
                         input_data["infer_data"]["controlnet_configs"] = c_value
 
+                # 单人走多人链路，增加lora兼容多人链路（后续需要去掉）
+                if num_person == 1:
+                    tmp = {
+                        "model": "https://testdocsplitblobtrigger.blob.core.windows.net/lora-model/add_detail.safetensors",
+                        "weight": 0,
+                        "trigger": "add_detail",
+                        "type": "role",
+                    }
+                    input_data["infer_data"]["lora_configs"].append(tmp)
+                        
                 # logging.info("Input_data for diffusers server: {}".format(input_data))
                 # 新增调用字段在debug_prompt
                 debug_prompt[c_type] = json.dumps(input_data, ensure_ascii=False)

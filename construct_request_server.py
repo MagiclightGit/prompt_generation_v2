@@ -56,7 +56,8 @@ if __name__ == "__main__":
     # init sd version
     sd_version_map = {
         0: "sd15",
-        1: "sdxl",
+        # 1: "sdxl",
+        1: "sd15",
         2: "sd15"
     }
 
