@@ -6,11 +6,16 @@ Description:
 import time
 import json
 from custom_ops.op_construct_request import OpConstructRequest
+from custom_ops.translator import translate_fromCh2Eng_raw, translate_fromEng2Ch_raw
+import re
 class OpPromptGenerate(OpConstructRequest):
     def __init__(self,
         df_server_url = 'http://0.0.0.0:7001/sd_generator',
         timeout = 300):
         super(OpPromptGenerate, self).__init__(df_server_url, timeout)
+    def contains_chinese(self, text):
+        pattern = re.compile(r'[\u4e00-\u9fff]')  # Unicode range for Chinese characters
+        return bool(re.search(pattern, text))
 
     def run(self, flow_id, project_id, chid, para_id, ip_bible, model_info) :
         human_prompts = ""
@@ -41,7 +46,8 @@ class OpPromptGenerate(OpConstructRequest):
                 
             role_id = ""
             single_limit_words = ""
-
+            if self.contains_chinese(env_prompt):
+                env_prompt = translate_fromCh2Eng_raw(env_prompt)
             # add environments_en
             env_prompt = env_prompt + ", " + ip_bible["scene"].get("environments_en", "")
             pos_prompts["env_prompt"] = env_prompt
@@ -77,7 +83,7 @@ class OpPromptGenerate(OpConstructRequest):
                 response = ip_bible["scene"].get("simple_caption_en_new", ip_bible["para_content"])
             
             env_prompt = ','.join(response.split(',')[0:20])
-            
+
             # add environments_en
             env_prompt = ip_bible["scene"].get("environments_en", "") + ", " + ip_bible["scene"].get("prompt", "")+ "," +env_prompt
             # TODO 新增判断逻辑，修改prompt的组成，增加用layout的信息
