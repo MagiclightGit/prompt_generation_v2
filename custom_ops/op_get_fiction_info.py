@@ -36,7 +36,7 @@ class OPIpBibleObtain(object):
         self.project_id = project_id
         self.chid = chid
         self.para_id = para_id
-
+        
         self.subject_map = {
             "20": "two man",
             "21": "two man",
@@ -46,6 +46,17 @@ class OPIpBibleObtain(object):
             "12": "a man and a woman",
             "10": "a man",
             "01": "a woman"
+        }
+        self.style_map = {
+            '现代都市': "现代",
+            '末世悬疑': "现代",
+            '未来科幻': "现代",
+            "中国现代": "现代",
+            "古代": "中国古代",
+            "西式古代":"西式古代",
+            "中国古代":"中国古代",
+            "现代":"现代",
+            "科幻&未来":"科幻&未来"
         }
 
     def load_list_field(self, field):
@@ -186,12 +197,17 @@ class OPIpBibleObtain(object):
             # 查找场景id
             scene_id = para["scene_id"]
             scene = chapter_info["scenes"][scene_id]
-            prompts_data["style"] = scene.get("style_cn", "未知")
+            # prompts_data["style"] = scene.get("style_cn", "未知")
             # ipbible 风格映射
-            if(prompts_data["style"]=="中国现代"):
-                prompts_data["style"] = "现代"
-            if(prompts_data["style"]=="古代"):
-                prompts_data["style"] = "中国古代"
+            # if(prompts_data["style"]=="中国现代"):
+            #     prompts_data["style"] = "现代"
+            # if(prompts_data["style"]=="古代"):
+            #     prompts_data["style"] = "中国古代"
+            ipbible_style = scene.get("style_cn", "未知")
+            prompts_data["style"] = self.style_map.get(ipbible_style,"现代")
+
+            
+
                 
             prompts_data["location"] = scene.get("interior_exterior_cn", "室外")
 
