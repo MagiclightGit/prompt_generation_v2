@@ -17,11 +17,11 @@ Copyright (c) 2023 - 2023 All Right Reserved, MagicLight
 
 import os
 import pathlib
-import sys
 import json
 import logging
 import argparse
 import requests
+import yaml
 
 from custom_ops.utils.server_util import SqsQueue,YamlParse,SQLConfig,GetInputInfo
 from custom_ops.op_prompt_generate import OpPromptGenerate
@@ -31,6 +31,16 @@ import time
 
 pathlib.Path('./logs/').mkdir(exist_ok=True)
 logging.basicConfig(level= logging.INFO, filename='./logs/prompt_generate.log', filemode= 'a', format='%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s')
+
+
+def inject_os_envs_from_yaml_config(yaml_file):
+    with open(yaml_file, 'r') as file:
+        data = yaml.load(file, Loader=yaml.FullLoader)
+    envs = data.get('envs')
+    for k, v in envs.items():
+        logging.info(f'Inject environment variable: {k} = {v}')
+        os.environ[k] = v
+
 
 def parse_option():
     parser = argparse.ArgumentParser('prompt generation server', add_help=False)
@@ -43,6 +53,7 @@ if __name__ == "__main__":
     #main()
     
     yaml_file = args.yaml_config
+    inject_os_envs_from_yaml_config(yaml_file)
     logging.info("yaml_file: {}".format(yaml_file))
     src_deque_conf, sql_conf, dst_deque_conf, task_conf = YamlParse(yaml_file)
     logging.info("yaml: {}, sqs_deque_conf: {}, sql_conf: {}, dst_deque_conf: {}".format(yaml_file, src_deque_conf, sql_conf, dst_deque_conf))
