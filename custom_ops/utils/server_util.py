@@ -14,6 +14,7 @@ sys.path.insert(0, dir_path)
 
 # from op_sql_operator import SQLOperator
 from custom_ops.utils.sql_operator import SQLOperator
+from magic_common.magic.storage.s3 import default_s3_client
 
 
 DROPOUT_TASK_CHECK_URL = 'https://s48xjwf523.execute-api.us-east-1.amazonaws.com/task_eligible_check'
@@ -141,7 +142,27 @@ def SQLConfig(sql_type):
     sql = SQLOperator(host, user, password, database)
     return sql
 
-def DownloadByUrl(ipbible_url, type):
+
+def download_fiction_from_s3(ipbible_url, type_):
+    # FIXME
+    pathlib.Path('./tmp/').mkdir(exist_ok=True)
+    if type_ == 1:
+        fic_path = "./tmp/ipbible_" + ipbible_url.split('/')[-1]
+    elif type_ == 2:
+        fic_path = "./tmp/layout_" + ipbible_url.split('/')[-1]
+    if os.path.exists(fic_path):
+        return fic_path
+
+    file_key = ipbible_url.replace('https://testdocsplitblobtrigger.blob.core.windows.net/layout-in/', 'ipbible/')
+    ipbible_output_bucket = os.environ.get('IPBIBLE_OUTPUT_BUCKET', 'magic-ipbible-outputs-test')
+    try:
+        return default_s3_client.download_to_file(file_key, fic_path, bucket=ipbible_output_bucket)
+    except Exception:
+        logging.exception(f'Failed to download from s3')
+        return None
+
+
+def DownloadByUrl_legacy(ipbible_url, type):
     pathlib.Path('./tmp/').mkdir(exist_ok=True)
     if type == 1:
         fic_path = "./tmp/ipbible_" + ipbible_url.split('/')[-1]
@@ -160,7 +181,6 @@ def DownloadByUrl(ipbible_url, type):
 
     r = requests.get(ipbible_url)
 
-    
     if r.status_code != 200:
         msg = "download file failed, fic_path: {}".format(ipbible_url)
         logging.error("msg: {}".format(msg))
@@ -175,6 +195,19 @@ def DownloadByUrl(ipbible_url, type):
      
     res["file_path"] = fic_path
     return res
+
+
+def DownloadByUrl(ipbible_url, type_):
+    # FIXME
+    filepath = download_fiction_from_s3(ipbible_url, type_)
+    if filepath:
+        return {
+            "code": 0,
+            "msg": 'succ',
+            'file_path': filepath,
+        }
+    return DownloadByUrl_legacy(ipbible_url, type_)
+
 
 def GetInputInfo(project_id, chid, para_id, flow_id, sql, roles_list=[]):
     # ipbible_url = "https://testdocsplitblobtrigger.blob.core.windows.net/layout-in/fiction_{}_{}_{}.json".format(fid, chid, flow_id)
