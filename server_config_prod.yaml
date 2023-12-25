@@ -15,4 +15,4 @@ server_config:
                 headers: {'Content-Type':'application/json'}
                 add_url: "https://3z56twwc4f.execute-api.us-east-1.amazonaws.com/add_task"
 envs:
-        IPBIBLE_OUTPUT_BUCKET: "magic-ipbible-outputs-test"
+        IPBIBLE_OUTPUT_BUCKET: "magic-ipbible-outputs"

@@ -154,7 +154,9 @@ def download_fiction_from_s3(ipbible_url, type_):
         return fic_path
 
     file_key = ipbible_url.replace('https://testdocsplitblobtrigger.blob.core.windows.net/layout-in/', 'ipbible/')
-    ipbible_output_bucket = os.environ.get('IPBIBLE_OUTPUT_BUCKET', 'magic-ipbible-outputs-test')
+    ipbible_output_bucket = os.environ.get(
+        'IPBIBLE_OUTPUT_BUCKET', 'magic-ipbible-outputs-test'
+    )
     try:
         return default_s3_client.download_to_file(file_key, fic_path, bucket=ipbible_output_bucket)
     except Exception:

@@ -15,7 +15,12 @@ Copyright (c) 2023 - 2023 All Right Reserved, MagicLight
 '''
 
 
+import sys
 import os
+dir_path = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0, dir_path)
+sys.path.insert(1, os.path.join(dir_path, "magic_common"))
+
 import pathlib
 import json
 import logging
@@ -137,7 +142,7 @@ if __name__ == "__main__":
                 rsp = requests.post(task_conf["add_url"], headers = task_conf["headers"], data = json.dumps(add_task), timeout = 20)
                 # operator_type = "put"
                 # res = SqsQueue(dst_deque_conf['url'], dst_deque_conf['region_name'], dst_deque_conf['max_number_of_mess'], operator_type, json.dumps(res_req, ensure_ascii=False))
-                logging.info(f"project_id: {project_id}, chid: {chapter_id}, para_id: {para_id}  add task: {rsp}")
+                logging.info(f"project_id: {project_id}, chid: {chapter_id}, para_id: {para_id}  add task: [{rsp.status_code}] {rsp.content}")
 
                 task_data = {"type":"promptgpt", "project_id": project_id, "flow_id": flow_id, "user_id": user_id, "task_id": task_id, "status":"finish"}
                 rsp = requests.post(task_conf["url"], headers = task_conf["headers"], data = json.dumps(task_data), timeout = 20)
