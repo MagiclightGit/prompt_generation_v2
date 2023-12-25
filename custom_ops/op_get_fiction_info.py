@@ -239,10 +239,12 @@ class OPIpBibleObtain(object):
             #     prompts_data["pose"] = res['姿态']
             # except:
             #     logging.error("get chatgpt result err = {}".format(traceback.format_exc()))
-
+            gender_set = {"male","female","unknown"}
             for role in para["roles"]:
                 prompts_data["pose"].append(role.get("actions_cn", ""))
                 gender_en = role.get("gender_en", "unknown").lower()
+                if gender_en not in gender_set:
+                    gender_en = "unknown"
                 prompts_data["person_id"].append((role["id"],gender_en))
                 if gender_en in prompts_data["gender"].keys():
                     prompts_data["gender"][gender_en] += 1
