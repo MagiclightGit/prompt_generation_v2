@@ -116,12 +116,8 @@ class OpPromptGenerate(OpConstructRequest):
 
                 # # TODO 增加prompts判断和shoot DONE
                 # human_prompts = f"best quality, ultra_detailed, anime, detailed_face, (solo:2.0), {human_prompts}"
-                base_prompt = "best quality, ultra_detailed, anime, "
-                per_prompt = f"detailed_face, (solo:2.0), {human_prompts}"
-                human_prompts = {
-                    "base_prompt": base_prompt,
-                    "per_prompt": per_prompt,
-                }
+                # base_prompt = "best quality, ultra_detailed, anime"
+                human_prompts = f"detailed_face, (solo:2.0), {human_prompts}"
 
                 pos_prompts['env_prompt'] = env_prompt
                 role_id = str(ip_bible["roles"][0]["id"])
@@ -164,15 +160,11 @@ class OpPromptGenerate(OpConstructRequest):
                     # lora_info, lora_prompts = self.parse_lora_info(model_info[role_id])
                     lora_prompts = []
                     lora_prompts = self.add_action(lora_prompts, i_role)
-                    human_prompts = {
-                        "base_prompt": "",
-                        "per_prompt": lora_prompts,
-                    }
                     
                     person_prompt = {
                         "index": i,
                         "entity_id": role_id,
-                        "prompt": human_prompts
+                        "prompt": lora_prompts
                     }
                     pos_prompts['person_prompt'].append(person_prompt)
 
