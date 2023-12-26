@@ -15,13 +15,18 @@ Copyright (c) 2023 - 2023 All Right Reserved, MagicLight
 '''
 
 
-import os
-import pathlib
 import sys
+import os
+dir_path = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0, dir_path)
+sys.path.insert(1, os.path.join(dir_path, "magic_common"))
+
+import pathlib
 import json
 import logging
 import argparse
 import requests
+import yaml
 
 from custom_ops.utils.server_util import SqsQueue,YamlParse,SQLConfig,GetInputInfo
 from custom_ops.op_prompt_generate import OpPromptGenerate
@@ -31,6 +36,16 @@ import time
 
 pathlib.Path('./logs/').mkdir(exist_ok=True)
 logging.basicConfig(level= logging.INFO, filename='./logs/prompt_generate.log', filemode= 'a', format='%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s')
+
+
+def inject_os_envs_from_yaml_config(yaml_file):
+    with open(yaml_file, 'r') as file:
+        data = yaml.load(file, Loader=yaml.FullLoader)
+    envs = data.get('envs')
+    for k, v in envs.items():
+        logging.info(f'Inject environment variable: {k} = {v}')
+        os.environ[k] = v
+
 
 def parse_option():
     parser = argparse.ArgumentParser('prompt generation server', add_help=False)
@@ -43,6 +58,7 @@ if __name__ == "__main__":
     #main()
     
     yaml_file = args.yaml_config
+    inject_os_envs_from_yaml_config(yaml_file)
     logging.info("yaml_file: {}".format(yaml_file))
     src_deque_conf, sql_conf, dst_deque_conf, task_conf = YamlParse(yaml_file)
     logging.info("yaml: {}, sqs_deque_conf: {}, sql_conf: {}, dst_deque_conf: {}".format(yaml_file, src_deque_conf, sql_conf, dst_deque_conf))
@@ -126,7 +142,7 @@ if __name__ == "__main__":
                 rsp = requests.post(task_conf["add_url"], headers = task_conf["headers"], data = json.dumps(add_task), timeout = 20)
                 # operator_type = "put"
                 # res = SqsQueue(dst_deque_conf['url'], dst_deque_conf['region_name'], dst_deque_conf['max_number_of_mess'], operator_type, json.dumps(res_req, ensure_ascii=False))
-                logging.info(f"project_id: {project_id}, chid: {chapter_id}, para_id: {para_id}  add task: {rsp}")
+                logging.info(f"project_id: {project_id}, chid: {chapter_id}, para_id: {para_id}  add task: [{rsp.status_code}] {rsp.content}")
 
                 task_data = {"type":"promptgpt", "project_id": project_id, "flow_id": flow_id, "user_id": user_id, "task_id": task_id, "status":"finish"}
                 rsp = requests.post(task_conf["url"], headers = task_conf["headers"], data = json.dumps(task_data), timeout = 20)
