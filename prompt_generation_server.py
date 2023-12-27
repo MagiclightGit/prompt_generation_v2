@@ -89,7 +89,7 @@ if __name__ == "__main__":
                 rsp = requests.post(task_conf["url"], headers = task_conf["headers"], data = json.dumps(task_data), timeout = 20)
 
                 fiction_path, model_info = GetInputInfo(project_id, chapter_id, para_id, flow_id, sql)
-                logging.info(f"model_info: {model_info}")
+                # logging.info(f"model_info: {model_info}")
                 fiction_parser = OPIpBibleObtain(project_id, chapter_id, para_id)
                 ipbible, pompts_layout, ret_msg = fiction_parser.run([fiction_path, project_id, chapter_id, para_id, flow_id])
 
