@@ -1,0 +1,18 @@
+server_config:
+        src_deque_conf:
+                url: "https://sqs.us-east-1.amazonaws.com/241764070795/PromptGPT-Deque-Normal"
+                region_name: "us-east-1"
+                max_number_of_mess: 1
+        sql_conf:
+                sql_type: "amazon"
+        dst_deque_conf:
+                url: "https://sqs.us-east-1.amazonaws.com/241764070795/PromptGPT_ResultDeque_Normal"
+                region_name: "us-east-1"
+                max_number_of_mess: 1
+
+        task_conf:
+                url: "https://3z56twwc4f.execute-api.us-east-1.amazonaws.com/update_task_status"
+                headers: {'Content-Type':'application/json'}
+                add_url: "https://3z56twwc4f.execute-api.us-east-1.amazonaws.com/add_task"
+envs:
+        IPBIBLE_OUTPUT_BUCKET: "magic-ipbible-outputs"

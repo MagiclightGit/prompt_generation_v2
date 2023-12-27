@@ -14,3 +14,5 @@ server_config:
                 url: "https://s48xjwf523.execute-api.us-east-1.amazonaws.com/update_task_status"
                 headers: {'Content-Type':'application/json'}
                 add_url: "https://s48xjwf523.execute-api.us-east-1.amazonaws.com/add_task"
+envs:
+        IPBIBLE_OUTPUT_BUCKET: "magic-ipbible-outputs-test"
