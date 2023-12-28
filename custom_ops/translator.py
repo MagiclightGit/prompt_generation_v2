@@ -1,14 +1,7 @@
-import json
-import yaml
-import os
-
-import ssl
-import time
-from threading import Lock
-import pinyin
-from copy import deepcopy
-import requests
 import logging
+from copy import deepcopy
+
+import pinyin
 import boto3
 
 

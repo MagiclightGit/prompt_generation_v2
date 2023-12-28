@@ -14,17 +14,13 @@ Modified By: yangel(fflyangel@foxmail.com)
 Copyright (c) 2023 - 2023 All Right Reserved, MagicLight
 '''
 
-import os
 import pathlib
-import sys
 import json
 import logging
 import argparse
 
-from custom_ops.utils.server_util import SqsQueue,YamlParse,SQLConfig,GetInputInfo,get_magiclight_api,TaskCallback
+from custom_ops.utils.server_util import SqsQueue, YamlParse, SQLConfig
 
-from custom_ops.op_construct_request import OpConstructRequest
-from custom_ops.op_get_fiction_info import OPIpBibleObtain
 from custom_ops.op_up_db import OPUpDb
 
 import time
@@ -38,6 +34,7 @@ def parse_option():
     parser.add_argument("--yaml_config", type=str, default="server_config_result.yaml", help="yaml config")
     args = parser.parse_args()
     return args
+
 
 if __name__ == "__main__":
     args = parse_option()
