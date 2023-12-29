@@ -33,6 +33,7 @@ class TruboOpenaiGptClient(object):
                 resp = requests.post(self.url, data = json.dumps(gpt_request_data), timeout= self.timeout, headers = header)
                 resp.raise_for_status()  # 这将在遇到 4xx 或 5xx 响应时抛出 HTTPError
                 res = resp.text
+                res = json.loads(res)
                 flag = True
                 # logging.info("req: {} \n \t\t res: {}".format(gpt_request_data, res))
             except requests.exceptions.HTTPError as http_err:

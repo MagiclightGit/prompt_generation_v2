@@ -149,6 +149,6 @@ if __name__ == "__main__":
 
             except Exception as err:
                 logging.error("prompt generate failed, error: {}".format(err))
-
+                logging.exception("error:")
                 task_data = {"type":"promptgpt", "project_id": project_id, "flow_id": flow_id, "user_id": user_id, "task_id": task_id, "status":"error"}
                 rsp = requests.post(task_conf["url"], headers = task_conf["headers"], data = json.dumps(task_data), timeout = 20)

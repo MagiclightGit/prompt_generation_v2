@@ -68,35 +68,33 @@ class OpPromptGenerate(OpConstructRequest):
             # # make scene_prompts with ChatGPT
             set_prompt = '根据以下设定回答问题："StableDiffusion是一款利用深度学习的文生图模型，支持通过使用提示词来产生新的图像，描述要包含或省略的元素。 我在这里引入StableDiffusion算法中的Prompt概念，又被称为提示符，每个提示符通常1个单词，有时2到3个单词。 下面的prompt是用来指导AI绘画模型创作图像的。它们包含了图像的各种细节，如人物的外观、背景、颜色和光线效果，以及图像的主题和风格。 以下是用prompt帮助AI模型生成图像的例子：cold , solo, 1girl, detailedeyes, shinegoldeneyes, longliverhair, expressionles, long sleeves, puffy sleeves, white wings, shinehalo, heavymetal, metaljewelry, cross-lacedfootwear, Whitedoves。"'
             trigger_prompt = '问题如下：给出一套详细prompt描述场景"{}"。注意：每个提示符由1-2个单词组成，prompt至少有3个，至多有6个。直接开始给出prompt，不需要用自然语言描述。'.format(
-                ip_bible["scene"].get("simple_caption_en_new", ip_bible["para_content"])
+                ip_bible["scene"].get("simple_caption_en_new", ip_bible["para_content"]) + '\n 请采用以下json格式返回：{"prompt": [ "diminterior", "dampinterior", "oldhouse", "stormynight" ] }'
             )
             final_prompt = set_prompt + "/n" + trigger_prompt
             chatgpt_try = 0
             while chatgpt_try < 3:
                 s = time.time()
                 response = self.chatgpt_api_func.ask_question(final_prompt)
+                logging.info(f"response: {response}")
                 if response != '':
                     break
                 else:
                     chatgpt_try += 1
-            response = json.loads(response)
-
-            # logging.info(f"response: {response}")
 
             if response == '':
                 response = ip_bible["scene"].get("simple_caption_en_new", ip_bible["para_content"])
-            
-            env_prompt = ','.join(response["prompt"][0:20])
 
+            if isinstance(response,dict):
+                env_prompt = ','.join(response.get("prompt",[])[0:20])
             # add environments_en
+            if len(env_prompt) ==0:
+                logging.info(f"env_prompt is EMPTY")
             env_prompt = ip_bible["scene"].get("environments_en", "") + ", " + ip_bible["scene"].get("prompt", "")+ "," +env_prompt
-
+            env_prompt = env_prompt.lower()
             # remove gender information
             words_to_remove = ["girl's","girls'","girl","boy's","boys'","boy","males'","male's","male","females'","female's","female","man's","man","woman's","woman"]
             for phrase in words_to_remove:
                 env_prompt = env_prompt.replace(phrase, '')
-            # filtered_words = [word for word in words if word not in words_to_remove]
-            # env_prompt = ' '.join(filtered_words)
 
             # TODO 新增判断逻辑，修改prompt的组成，增加用layout的信息
             # TODO 新增判断逻辑，修改prompt的组成，增加用layout的信息
