@@ -90,12 +90,13 @@ class OpPromptGenerate(OpConstructRequest):
 
             # add environments_en
             env_prompt = ip_bible["scene"].get("environments_en", "") + ", " + ip_bible["scene"].get("prompt", "")+ "," +env_prompt
-            
+
             # remove gender information
-            words_to_remove = {"girl", "girl's", "girls'","boy","boy's","boys'","male","males'","male's","female","females'","female's","man","man's","woman","woman's"}
-            words = env_prompt.split()
-            filtered_words = [word for word in words if word not in words_to_remove]
-            env_prompt = ' '.join(filtered_words)
+            words_to_remove = ["girl's","girls'","girl","boy's","boys'","boy","males'","male's","male","females'","female's","female","man's","man","woman's","woman"]
+            for phrase in words_to_remove:
+                env_prompt = env_prompt.replace(phrase, '')
+            # filtered_words = [word for word in words if word not in words_to_remove]
+            # env_prompt = ' '.join(filtered_words)
 
             # TODO 新增判断逻辑，修改prompt的组成，增加用layout的信息
             # TODO 新增判断逻辑，修改prompt的组成，增加用layout的信息
