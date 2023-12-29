@@ -8,6 +8,7 @@ import json
 from custom_ops.op_construct_request import OpConstructRequest
 from custom_ops.translator import translate_fromCh2Eng_raw, translate_fromEng2Ch_raw
 import re
+import logging
 class OpPromptGenerate(OpConstructRequest):
     def __init__(self,
         df_server_url = 'http://0.0.0.0:7001/sd_generator',
@@ -78,14 +79,24 @@ class OpPromptGenerate(OpConstructRequest):
                     break
                 else:
                     chatgpt_try += 1
-            
+            response = json.loads(response)
+
+            # logging.info(f"response: {response}")
+
             if response == '':
                 response = ip_bible["scene"].get("simple_caption_en_new", ip_bible["para_content"])
             
-            env_prompt = ','.join(response.split(',')[0:20])
+            env_prompt = ','.join(response["prompt"][0:20])
 
             # add environments_en
             env_prompt = ip_bible["scene"].get("environments_en", "") + ", " + ip_bible["scene"].get("prompt", "")+ "," +env_prompt
+            
+            # remove gender information
+            words_to_remove = {"girl", "girl's", "girls'","boy","boy's","boys'","male","males'","male's","female","females'","female's","man","man's","woman","woman's"}
+            words = env_prompt.split()
+            filtered_words = [word for word in words if word not in words_to_remove]
+            env_prompt = ' '.join(filtered_words)
+
             # TODO 新增判断逻辑，修改prompt的组成，增加用layout的信息
             # TODO 新增判断逻辑，修改prompt的组成，增加用layout的信息
             if ip_bible["num_person"] == 1:
@@ -185,12 +196,12 @@ class OpPromptGenerate(OpConstructRequest):
                 neg_prompts = base_neg_prompts
                     # object/scenery prompt
         if "object" in ip_bible["scene"]["subject_en"].keys():
-            sub_pos_prompts["object"] = "best quality, ultra_detailed, anime" + \
+            sub_pos_prompts["object"] = "best quality, ultra_detailed, anime," + \
                 "({}), (close_up), no people, ".format(ip_bible["scene"]["subject_en"]["object"]) + \
                 ip_bible["scene"].get("environments_en", "")
 
         if "scenery" in ip_bible["scene"]["subject_en"].keys():
-            sub_pos_prompts["scenery"] = "best quality, ultra_detailed, anime" + \
+            sub_pos_prompts["scenery"] = "best quality, ultra_detailed, anime," + \
                 "({}), (scenery), no people, ".format(ip_bible["scene"]["subject_en"]["scenery"]) + \
                 ip_bible["scene"].get("environments_en", "") + \
                     ip_bible["scene"].get("prompt", "")
