@@ -150,7 +150,9 @@ class OPIpBibleObtain(object):
                 #                                           load_scene_info["weather_en"]])
                 cur_scene["environments_en"] = ",".join([load_scene_info["weather_en"],
                                                         load_scene_info["location_en"]])
-
+                
+                #获取场景类型
+                cur_scene["scene_type"] = load_scene_info["scene_type"]
                 cur_scene["prompt"] = load_scene_info["prompt"]
                 cur_scene["caption_with_roles_en"] = load_scene_info.get("caption_with_roles_en", "")
 

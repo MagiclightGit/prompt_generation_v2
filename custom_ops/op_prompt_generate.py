@@ -40,7 +40,8 @@ class OpPromptGenerate(OpConstructRequest):
             base_neg_prompts = "nsfw, text, watermark, (easynegative:1.3), extra fingers,(bad feet:2.0), fewer fingers, low quality, worst quality, watermark,sketch, duplicate, ugly, huge eyes, text, logo, monochrome, worst face, (bad and mutated hands:1.3), (worst quality:2.0), (low quality:2.0), (blurry:2.0), (bad hands), (missing fingers), (multiple limbs:1.2), bad anatomy, (interlocked fingers:1.2), Ugly Fingers, (extra digit and hands and fingers and legs and arms:1.4), (deformed fingers:1.2), (long fingers:1.2),(bad-artist-anime)"
         else:
             base_neg_prompts = "nsfw, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry"
-        if ip_bible["num_person"] < 1:
+          
+        if ip_bible["num_person"] < 1 or ip_bible["scene"]["scene_type"] == "Setting Description":
             if "scene" in ip_bible:
                 env_prompt = "best quality, ultra detailed, anime, {}".format(ip_bible["scene"].get(
                     "prompt", ip_bible["scene"]["simple_caption_en_new"]))
