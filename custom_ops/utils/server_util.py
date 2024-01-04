@@ -213,9 +213,7 @@ def DownloadByUrl(ipbible_url, type_):
 
 def GetInputInfo(project_id, chid, para_id, flow_id, sql, roles_list=[]):
     # ipbible_url = "https://testdocsplitblobtrigger.blob.core.windows.net/layout-in/fiction_{}_{}_{}.json".format(fid, chid, flow_id)
-    ipbible_url = "https://testdocsplitblobtrigger.blob.core.windows.net/layout-in/fiction_{}_{}_{}.json".format(project_id, chid, flow_id)
-
-    try_cnt = 3
+    ipbible_url = f"https://testdocsplitblobtrigger.blob.core.windows.net/layout-in/fiction_{project_id}_{chid}_{flow_id}.json"
 
     #get para_id model info
     ipbible_download_res = DownloadByUrl(ipbible_url, 1)

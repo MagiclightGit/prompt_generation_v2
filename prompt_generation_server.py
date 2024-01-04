@@ -35,7 +35,11 @@ from custom_ops.op_get_fiction_info import OPIpBibleObtain
 import time
 
 pathlib.Path('./logs/').mkdir(exist_ok=True)
-logging.basicConfig(level= logging.INFO, filename='./logs/prompt_generate.log', filemode= 'a', format='%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s')
+logging.basicConfig(
+    level= logging.INFO,
+    filename='./logs/prompt_generate.log',
+    filemode= 'a',
+    format='%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s')
 
 
 def inject_os_envs_from_yaml_config(yaml_file):
