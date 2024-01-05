@@ -40,11 +40,18 @@ class OpPromptGenerate(OpConstructRequest):
             base_neg_prompts = "nsfw, text, watermark, (easynegative:1.3), extra fingers,(bad feet:2.0), fewer fingers, low quality, worst quality, watermark,sketch, duplicate, ugly, huge eyes, text, logo, monochrome, worst face, (bad and mutated hands:1.3), (worst quality:2.0), (low quality:2.0), (blurry:2.0), (bad hands), (missing fingers), (multiple limbs:1.2), bad anatomy, (interlocked fingers:1.2), Ugly Fingers, (extra digit and hands and fingers and legs and arms:1.4), (deformed fingers:1.2), (long fingers:1.2),(bad-artist-anime)"
         else:
             base_neg_prompts = "nsfw, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry"
-          
-        if ip_bible["num_person"] < 1 or ip_bible["scene"]["scene_type"] == "Setting Description":
+
+        #增加背景有无人的变量
+        people_or_not = "no people"
+        if ip_bible["scene"]["scene_type"] == "Establishing Scene": 
+            people_or_not = "(no people:1.4)"
+        elif ip_bible["scene"]["scene_type"] == "Background Actors":
+            people_or_not = "(crowds)"
+
+        if ip_bible["num_person"] < 1 or ip_bible["scene"]["scene_type"] == "Establishing Scene" or ip_bible["scene"]["scene_type"] == "Background Actors":
             if "scene" in ip_bible:
-                env_prompt = "best quality, ultra detailed, anime, {}".format(ip_bible["scene"].get(
-                    "prompt", ip_bible["scene"]["simple_caption_en_new"]))
+                env_prompt = "best quality, ultra detailed, anime, {},{}".format(ip_bible["scene"].get(
+                    "prompt", ip_bible["scene"]["simple_caption_en_new"]),people_or_not)
                 
             role_id = ""
             single_limit_words = ""
@@ -56,8 +63,8 @@ class OpPromptGenerate(OpConstructRequest):
             
             # 场景链路原文兜底图片
             if ip_bible["scene"]["caption_with_roles_en"] != "":
-                sub_pos_prompts["cwr-type"] = "best quality, ultra-detailed, (solo), {}, {}, {}".format(
-                    ip_bible["scene"]["caption_with_roles_en"], ip_bible["scene"].get("environments_en", "")+ip_bible["scene"].get("prompt", ""))
+                sub_pos_prompts["cwr-type"] = "best quality, ultra-detailed,{}, {}, {}, {}".format(
+                    people_or_not,ip_bible["scene"]["caption_with_roles_en"], ip_bible["scene"].get("environments_en", ""),ip_bible["scene"].get("prompt", ""))
             neg_prompts = base_neg_prompts
         else:
             # # 生成设定
@@ -197,12 +204,12 @@ class OpPromptGenerate(OpConstructRequest):
                     # object/scenery prompt
         if "object" in ip_bible["scene"]["subject_en"].keys():
             sub_pos_prompts["object"] = "best quality, ultra_detailed, anime," + \
-                "({}), (close_up), no people, ".format(ip_bible["scene"]["subject_en"]["object"]) + \
+                "({}), (close_up), {}, ".format(ip_bible["scene"]["subject_en"]["object"],people_or_not) + \
                 ip_bible["scene"].get("environments_en", "")
 
         if "scenery" in ip_bible["scene"]["subject_en"].keys():
             sub_pos_prompts["scenery"] = "best quality, ultra_detailed, anime," + \
-                "({}), (scenery), no people, ".format(ip_bible["scene"]["subject_en"]["scenery"]) + \
+                "({}), (scenery), {}, ".format(ip_bible["scene"]["subject_en"]["scenery"],people_or_not) + \
                 ip_bible["scene"].get("environments_en", "") + \
                     ip_bible["scene"].get("prompt", "")
         return [pos_prompts, neg_prompts, sub_pos_prompts] 
