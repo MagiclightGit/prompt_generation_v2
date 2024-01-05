@@ -213,4 +213,3 @@ class OpPromptGenerate(OpConstructRequest):
                 ip_bible["scene"].get("environments_en", "") + \
                     ip_bible["scene"].get("prompt", "")
         return [pos_prompts, neg_prompts, sub_pos_prompts] 
-    
