@@ -94,10 +94,10 @@ if __name__ == "__main__":
                 #{"project_id": "5484043911170", "flow_id": "5484043911169", "chapter_id": "1", "para_id": "0", "user_id": "43315623606272"}
 
                 project_id = input.get("project_id", "")
-                chapter_id = input.get("local_chapter_id", "")
-                para_id = input.get("local_para_id", "")
-                global_chapter_id = input.get("global_chapter_id", "")
-                global_para_id = input.get("global_para_id", "")
+                chapter_id = input.get("chapter_id", "")
+                para_id = input.get("para_id", "")
+                # global_chapter_id = input.get("global_chapter_id", "")
+                # global_para_id = input.get("global_para_id", "")
                 flow_id = input.get("flow_id", "")
                 if not task_id:
                     task_id = f"{chapter_id}_{para_id}"  
@@ -129,8 +129,6 @@ if __name__ == "__main__":
                     "project_id":  project_id,
                     "chapter_id": chapter_id,
                     "para_id": para_id,
-                    "global_chapter_id": global_chapter_id,
-                    "global_para_id": global_para_id,
                     "flow_id": flow_id,
                     "user_id": user_id,
                     "image_id": "",

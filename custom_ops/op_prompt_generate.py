@@ -48,6 +48,21 @@ class OpPromptGenerate(OpConstructRequest):
         elif ip_bible["scene"]["scene_type"] == "Background Actors":
             people_or_not = "(crowds)"
 
+        #增加ipbible传空值兜底
+        if ip_bible["scene"]["simple_caption_en_new"] == "" and ip_bible["scene"]["prompt"] == "":
+            if ip_bible["para_content_en"] != "":
+                ip_bible["scene"]["simple_caption_en_new"] = ip_bible["para_content_en"]
+                ip_bible["scene"]["prompt"] = ip_bible["para_content_en"]
+                sub_pos_prompts["cwr-type"] = "best quality, ultra-detailed," + ip_bible["para_content_en"]
+                sub_pos_prompts["object"] = "best quality, ultra-detailed," + ip_bible["para_content_en"]
+                sub_pos_prompts["scenery"] = "best quality, ultra-detailed," + ip_bible["para_content_en"]
+            else:
+                default_content  = translate_fromCh2Eng_raw(ip_bible["para_content"])
+                ip_bible["scene"]["simple_caption_en_new"] = default_content
+                ip_bible["scene"]["prompt"] = default_content
+                sub_pos_prompts["cwr-type"] = "best quality, ultra-detailed," + default_content
+                sub_pos_prompts["object"] = "best quality, ultra-detailed," + default_content
+                sub_pos_prompts["scenery"] = "best quality, ultra-detailed," + default_content
         if ip_bible["num_person"] < 1 or ip_bible["scene"]["scene_type"] == "Establishing Scene" or ip_bible["scene"]["scene_type"] == "Background Actors":
             if "scene" in ip_bible:
                 env_prompt = "best quality, ultra detailed, anime, {},{}".format(ip_bible["scene"].get(
@@ -127,8 +142,8 @@ class OpPromptGenerate(OpConstructRequest):
                     for info_key in need_info_keys:
                         info_list = cur_role_info[info_key]
                         if len(info_list) > 0:  
-                            info_prompts = [f"({info.lower()}:1.2)" for info in info_list]
-                            human_prompts +=  f"{', '.join(info_prompts)}, "
+                            info_prompts = [f"({info.lower()}:1.2)," for info in info_list if info != ""]
+                            human_prompts +=  f"{', '.join(info_prompts)} "
                 except Exception:
                     pass
 
