@@ -77,9 +77,9 @@ class OpPromptGenerate(OpConstructRequest):
             pos_prompts["env_prompt"] = env_prompt
             
             # 场景链路原文兜底图片
-            if ip_bible["scene"]["caption_with_roles_en"] != "":
+            if ip_bible["scene"]["simple_caption_en_new"] != "":
                 sub_pos_prompts["cwr-type"] = "best quality, ultra-detailed,{}, {}, {}, {}".format(
-                    people_or_not,ip_bible["scene"]["caption_with_roles_en"], ip_bible["scene"].get("environments_en", ""),ip_bible["scene"].get("prompt", ""))
+                    people_or_not,ip_bible["scene"]["simple_caption_en_new"], ip_bible["scene"].get("environments_en", ""),ip_bible["scene"].get("prompt", ""))
             neg_prompts = base_neg_prompts
         else:
             # # 生成设定
@@ -162,10 +162,10 @@ class OpPromptGenerate(OpConstructRequest):
                 pos_prompts['person_prompt'].append(person_prompt)
 
                 # 单人链路原文兜底图片
-                if ip_bible["scene"]["caption_with_roles_en"] != "":
+                if ip_bible["scene"]["simple_caption_en_new"] != "":
 
                     sub_pos_prompts["cwr-type"] = "best quality, ultra-detailed, (solo), {}, {}, {},{}".format(human_prompts,
-                            ip_bible["scene"]["caption_with_roles_en"], ip_bible["scene"].get("environments_en", ""),ip_bible["scene"].get("prompt", ""))
+                            ip_bible["scene"]["simple_caption_en_new"], ip_bible["scene"].get("environments_en", ""),ip_bible["scene"].get("prompt", ""))
                 
                 single_limit_words = "(2people:2.0), (duplicate:1.2), tiling, multiple people, multiple face"
                 # if self.neg_prompt_style == "bright":
@@ -209,9 +209,9 @@ class OpPromptGenerate(OpConstructRequest):
                 # pos_prompts['person_prompt'] = people_prmp
 
                 # 多人链路原文兜底图片
-                if ip_bible["scene"]["caption_with_roles_en"] != "":
+                if ip_bible["scene"]["simple_caption_en_new"] != "":
                     cwr_p_prompts = "best quality, ultra_detailed, 2people, {}, {}, {}".format(
-                        ip_bible["scene"]["caption_with_roles_en"], ip_bible["scene"].get("environments_en", ""),ip_bible["scene"].get("prompt", ""))
+                        ip_bible["scene"]["simple_caption_en_new"], ip_bible["scene"].get("environments_en", ""),ip_bible["scene"].get("prompt", ""))
                     
                     sub_pos_prompts["cwr-type"] = cwr_p_prompts
 
