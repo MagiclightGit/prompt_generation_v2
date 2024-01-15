@@ -21,7 +21,7 @@ class OpPromptGenerate(OpConstructRequest):
     def run(self, flow_id, project_id, chid, para_id, ip_bible, model_info) :
         human_prompts = ""
         env_prompt = ""
-        lora_info_dict = {}
+        # lora_info_dict = {}
         sub_pos_prompts = {}
         # person_prompt = {}
         pos_prompts = {}
@@ -42,11 +42,11 @@ class OpPromptGenerate(OpConstructRequest):
             base_neg_prompts = "nsfw, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry"
 
         #增加背景有无人的变量
-        people_or_not = "no people"
-        if ip_bible["scene"]["scene_type"] == "Establishing Scene": 
-            people_or_not = "(no people:1.4)"
-        elif ip_bible["scene"]["scene_type"] == "Background Actors":
-            people_or_not = "(crowds)"
+        # people_or_not = "no people"
+        # if ip_bible["scene"]["scene_type"] == "Establishing Scene": 
+        #     people_or_not = "(no people:1.4)"
+        # elif ip_bible["scene"]["scene_type"] == "Background Actors":
+        #     people_or_not = "(crowds)"
 
         #增加ipbible传空值兜底
         if ip_bible["scene"]["simple_caption_en_new"] == "" and ip_bible["scene"]["prompt"] == "":
@@ -63,23 +63,45 @@ class OpPromptGenerate(OpConstructRequest):
                 sub_pos_prompts["cwr-type"] = "best quality, ultra-detailed," + default_content
                 sub_pos_prompts["object"] = "best quality, ultra-detailed," + default_content
                 sub_pos_prompts["scenery"] = "best quality, ultra-detailed," + default_content
-        if ip_bible["num_person"] < 1 or ip_bible["scene"]["scene_type"] == "Establishing Scene" or ip_bible["scene"]["scene_type"] == "Background Actors":
+        #如果ipbible传来的prompt有中文则翻译
+        if self.contains_chinese(ip_bible["scene"]["prompt"]):
+                ip_bible["scene"]["prompt"] = translate_fromCh2Eng_raw(ip_bible["scene"]["prompt"])
+        
+        common_prompt = ""
+        if ip_bible["scene"]["style"] == "未来科幻":
+            common_prompt = "(Cyberpunk atmosphere:1.2), (futuristic style:1.2), fantasy sci-fi"
+        elif ip_bible["scene"]["style"] == "星际":
+            common_prompt = "(interstellar style:1.2),(futuristic style:1.2)"
+        elif ip_bible["scene"]["style"] == "末世悬疑":
+            common_prompt = "(dark style:1.4),(gloomy atmosphere:1.4)"
+        elif ip_bible["scene"]["style"] in ["写实Majicmix","写实XXMix","写实风"]:
+            common_prompt = "(realistic:1.2),(photorealistic:1.2)"
+        elif ip_bible["scene"]["style"] == "古风":
+            common_prompt = "(chinese style:1.2), (ancient chinese:1.2)"
+        else:
+            common_prompt = "(anime style:1.2)"
+        
+        if ip_bible["num_person"] < 1:
             if "scene" in ip_bible:
-                env_prompt = "best quality, ultra detailed, anime, {},{}".format(ip_bible["scene"].get(
-                    "prompt", ip_bible["scene"]["simple_caption_en_new"]),people_or_not)
-                
-            role_id = ""
-            single_limit_words = ""
-            if self.contains_chinese(env_prompt):
-                env_prompt = translate_fromCh2Eng_raw(env_prompt)
+                # env_prompt = "best quality, ultra detailed, anime, {},{}".format(ip_bible["scene"].get(
+                #     "prompt", ip_bible["scene"]["simple_caption_en_new"]),people_or_not)
+                env_prompt = "best quality, ultra detailed, {}, {}".format(common_prompt,ip_bible["scene"]["prompt"])
+
+            env_prompt = env_prompt.lower()
+            words_to_remove = ["girl's","girls'","girl","boy's","boys'","boy","males'","male's","male","females'","female's","female","man's","man","woman's","woman"]
+            for phrase in words_to_remove:
+                env_prompt = env_prompt.replace(phrase, '')
+            
             # add environments_en
-            env_prompt = env_prompt + ", " + ip_bible["scene"].get("environments_en", "")
+            # env_prompt = env_prompt + ", " + ip_bible["scene"].get("environments_en", "")
             pos_prompts["env_prompt"] = env_prompt
             
             # 场景链路原文兜底图片
+            # if ip_bible["scene"]["simple_caption_en_new"] != "":
+            #     sub_pos_prompts["cwr-type"] = "best quality, ultra-detailed,{}, {}, {}, {}".format(
+            #         people_or_not,ip_bible["scene"]["simple_caption_en_new"], ip_bible["scene"].get("environments_en", ""),ip_bible["scene"].get("prompt", ""))
             if ip_bible["scene"]["simple_caption_en_new"] != "":
-                sub_pos_prompts["cwr-type"] = "best quality, ultra-detailed,{}, {}, {}, {}".format(
-                    people_or_not,ip_bible["scene"]["simple_caption_en_new"], ip_bible["scene"].get("environments_en", ""),ip_bible["scene"].get("prompt", ""))
+                sub_pos_prompts["cwr-type"] = "best quality, ultra-detailed, {},{}".format(common_prompt,ip_bible["scene"]["prompt"])
             neg_prompts = base_neg_prompts
         else:
             # # 生成设定
@@ -89,30 +111,32 @@ class OpPromptGenerate(OpConstructRequest):
             #     layout = []
             
             # # make scene_prompts with ChatGPT
-            set_prompt = '根据以下设定回答问题："StableDiffusion是一款利用深度学习的文生图模型，支持通过使用提示词来产生新的图像，描述要包含或省略的元素。 我在这里引入StableDiffusion算法中的Prompt概念，又被称为提示符，每个提示符通常1个单词，有时2到3个单词。 下面的prompt是用来指导AI绘画模型创作图像的。它们包含了图像的各种细节，如人物的外观、背景、颜色和光线效果，以及图像的主题和风格。 以下是用prompt帮助AI模型生成图像的例子：cold , solo, 1girl, detailedeyes, shinegoldeneyes, longliverhair, expressionles, long sleeves, puffy sleeves, white wings, shinehalo, heavymetal, metaljewelry, cross-lacedfootwear, Whitedoves。"'
-            trigger_prompt = '问题如下：给出一套详细prompt描述场景"{}"。注意：每个提示符由1-2个单词组成，prompt至少有3个，至多有6个。直接开始给出prompt，不需要用自然语言描述。'.format(
-                ip_bible["scene"].get("simple_caption_en_new", ip_bible["para_content"]) + '\n 请采用以下json格式返回：{"prompt": [ "diminterior", "dampinterior", "oldhouse", "stormynight" ] }'
-            )
-            final_prompt = set_prompt + "/n" + trigger_prompt
-            chatgpt_try = 0
-            while chatgpt_try < 3:
-                s = time.time()
-                response = self.chatgpt_api_func.ask_question(final_prompt)
-                logging.info(f"response: {response}")
-                if response != '':
-                    break
-                else:
-                    chatgpt_try += 1
+            # set_prompt = '根据以下设定回答问题："StableDiffusion是一款利用深度学习的文生图模型，支持通过使用提示词来产生新的图像，描述要包含或省略的元素。 我在这里引入StableDiffusion算法中的Prompt概念，又被称为提示符，每个提示符通常1个单词，有时2到3个单词。 下面的prompt是用来指导AI绘画模型创作图像的。它们包含了图像的各种细节，如人物的外观、背景、颜色和光线效果，以及图像的主题和风格。 以下是用prompt帮助AI模型生成图像的例子：cold , solo, 1girl, detailedeyes, shinegoldeneyes, longliverhair, expressionles, long sleeves, puffy sleeves, white wings, shinehalo, heavymetal, metaljewelry, cross-lacedfootwear, Whitedoves。"'
+            # trigger_prompt = '问题如下：给出一套详细prompt描述场景"{}"。注意：每个提示符由1-2个单词组成，prompt至少有3个，至多有6个。直接开始给出prompt，不需要用自然语言描述。'.format(
+            #     ip_bible["scene"].get("simple_caption_en_new", ip_bible["para_content"]) + '\n 请采用以下json格式返回：{"prompt": [ "diminterior", "dampinterior", "oldhouse", "stormynight" ] }'
+            # )
+            # final_prompt = set_prompt + "/n" + trigger_prompt
+            # chatgpt_try = 0
+            # while chatgpt_try < 3:
+            #     s = time.time()
+            #     response = self.chatgpt_api_func.ask_question(final_prompt)
+            #     logging.info(f"response: {response}")
+            #     if response != '':
+            #         break
+            #     else:
+            #         chatgpt_try += 1
 
-            if response == '':
-                response = ip_bible["scene"].get("simple_caption_en_new", ip_bible["para_content"])
+            # if response == '':
+            #     response = ip_bible["scene"].get("simple_caption_en_new", ip_bible["para_content"])
 
-            if isinstance(response,dict):
-                env_prompt = ','.join(response.get("prompt",[])[0:20])
-            # add environments_en
-            if len(env_prompt) ==0:
-                logging.info(f"env_prompt is EMPTY")
-            env_prompt = ip_bible["scene"].get("environments_en", "") + ", " + ip_bible["scene"].get("prompt", "")+ "," +env_prompt
+            # if isinstance(response,dict):
+            #     env_prompt = ','.join(response.get("prompt",[])[0:20])
+            # # add environments_en
+            # if len(env_prompt) ==0:
+            #     logging.info(f"env_prompt is EMPTY")
+
+            # env_prompt = ip_bible["scene"].get("environments_en", "") + ", " + ip_bible["scene"].get("prompt", "")+ "," +env_prompt
+            env_prompt = ip_bible["scene"]["prompt"]
             env_prompt = env_prompt.lower()
             # remove gender information
             words_to_remove = ["girl's","girls'","girl","boy's","boys'","boy","males'","male's","male","females'","female's","female","man's","man","woman's","woman"]
@@ -152,7 +176,7 @@ class OpPromptGenerate(OpConstructRequest):
                 # base_prompt = "best quality, ultra_detailed, anime"
                 human_prompts = f"detailed_face, (solo:2.0), {human_prompts}"
 
-                pos_prompts['env_prompt'] = env_prompt
+                pos_prompts['env_prompt'] = "best quality, ultra detailed, {}, {}".format(common_prompt,env_prompt)
                 role_id = str(ip_bible["roles"][0]["id"])
                 person_prompt = {
                     "index": 0,
@@ -163,9 +187,7 @@ class OpPromptGenerate(OpConstructRequest):
 
                 # 单人链路原文兜底图片
                 if ip_bible["scene"]["simple_caption_en_new"] != "":
-
-                    sub_pos_prompts["cwr-type"] = "best quality, ultra-detailed, (solo), {}, {}, {},{}".format(human_prompts,
-                            ip_bible["scene"]["simple_caption_en_new"], ip_bible["scene"].get("environments_en", ""),ip_bible["scene"].get("prompt", ""))
+                    sub_pos_prompts["cwr-type"] = "best quality, ultra-detailed,{}, {}, {}".format(common_prompt,human_prompts,ip_bible["scene"]["prompt"])
                 
                 single_limit_words = "(2people:2.0), (duplicate:1.2), tiling, multiple people, multiple face"
                 # if self.neg_prompt_style == "bright":
@@ -204,14 +226,17 @@ class OpPromptGenerate(OpConstructRequest):
                     # lora_info_dict[role_id] = lora_info
 
                 # 拼接pos prompt
-                env_prompt = "best quality, ultra_detailed, 2people, {}, {}".format(lo_shoot, env_prompt)
+                # env_prompt = "best quality, ultra_detailed, 2people, {}, {}".format(lo_shoot, env_prompt)
+                env_prompt = "best quality, ultra_detailed, 2people,{}, {}".format(common_prompt,env_prompt)
                 pos_prompts['env_prompt'] = env_prompt
                 # pos_prompts['person_prompt'] = people_prmp
 
                 # 多人链路原文兜底图片
+                # if ip_bible["scene"]["simple_caption_en_new"] != "":
+                #     cwr_p_prompts = "best quality, ultra_detailed, 2people, {}, {}, {}".format(
+                #         ip_bible["scene"]["simple_caption_en_new"], ip_bible["scene"].get("environments_en", ""),ip_bible["scene"].get("prompt", ""))
                 if ip_bible["scene"]["simple_caption_en_new"] != "":
-                    cwr_p_prompts = "best quality, ultra_detailed, 2people, {}, {}, {}".format(
-                        ip_bible["scene"]["simple_caption_en_new"], ip_bible["scene"].get("environments_en", ""),ip_bible["scene"].get("prompt", ""))
+                    cwr_p_prompts = "best quality, ultra_detailed, 2people, {}, {}".format(common_prompt,ip_bible["scene"]["prompt"])
                     
                     sub_pos_prompts["cwr-type"] = cwr_p_prompts
 
@@ -219,12 +244,14 @@ class OpPromptGenerate(OpConstructRequest):
                     # object/scenery prompt
         if "object" in ip_bible["scene"]["subject_en"].keys():
             sub_pos_prompts["object"] = "best quality, ultra_detailed, anime," + \
-                "({}), (close_up), {}, ".format(ip_bible["scene"]["subject_en"]["object"],people_or_not) + \
+                "({}), (close_up), ".format(ip_bible["scene"]["subject_en"]["object"]) + \
                 ip_bible["scene"].get("environments_en", "")
 
+        # if "scenery" in ip_bible["scene"]["subject_en"].keys():
+        #     sub_pos_prompts["scenery"] = "best quality, ultra_detailed, anime," + \
+        #         "({}), (scenery), {}, ".format(ip_bible["scene"]["subject_en"]["scenery"],people_or_not) + \
+        #         ip_bible["scene"].get("environments_en", "") + \
+        #             ip_bible["scene"].get("prompt", "")
         if "scenery" in ip_bible["scene"]["subject_en"].keys():
-            sub_pos_prompts["scenery"] = "best quality, ultra_detailed, anime," + \
-                "({}), (scenery), {}, ".format(ip_bible["scene"]["subject_en"]["scenery"],people_or_not) + \
-                ip_bible["scene"].get("environments_en", "") + \
-                    ip_bible["scene"].get("prompt", "")
+            sub_pos_prompts["scenery"] = "best quality, ultra_detailed, (wide-shot), " + common_prompt + "," + ip_bible["scene"]["prompt"]
         return [pos_prompts, neg_prompts, sub_pos_prompts] 

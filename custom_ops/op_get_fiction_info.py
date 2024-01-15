@@ -155,6 +155,7 @@ class OPIpBibleObtain(object):
                 cur_scene["scene_type"] = load_scene_info["scene_type"]
                 cur_scene["prompt"] = load_scene_info["prompt"]
                 cur_scene["caption_with_roles_en"] = load_scene_info.get("caption_with_roles_en", "")
+                cur_scene["style"] = load_scene_info.get("style_cn","未知")
 
                 try:
                     cur_scene["subject_en"] = json.loads(load_scene_info["subject_en"])
@@ -201,12 +202,14 @@ class OPIpBibleObtain(object):
             scene = chapter_info["scenes"][scene_id]
             # prompts_data["style"] = scene.get("style_cn", "未知")
             # ipbible 风格映射
+            
             # if(prompts_data["style"]=="中国现代"):
             #     prompts_data["style"] = "现代"
             # if(prompts_data["style"]=="古代"):
             #     prompts_data["style"] = "中国古代"
             ipbible_style = scene.get("style_cn", "未知")
             prompts_data["style"] = self.style_map.get(ipbible_style,"现代")
+            
 
             
 
