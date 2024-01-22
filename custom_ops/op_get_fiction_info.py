@@ -74,6 +74,7 @@ class OPIpBibleObtain(object):
         with open(fiction_path, "r") as f:
             data = json.load(f)
         chapter_info = data["chapter_info"]
+        chapter_style = chapter_info.get("era_cn","")
         paras = chapter_info["paras"]
         for para in paras:
             # 查找对应段落id
@@ -83,6 +84,9 @@ class OPIpBibleObtain(object):
             # logging.info("para_id: {}, para: {}".format(para['para_id'], para))
 
             prompts_data["para_content_en"] = para["para_content_en"]
+            prompts_data["period"] = chapter_style
+            
+
 
             # # 查找场景id
             # scene_id = para["scene_id"]
