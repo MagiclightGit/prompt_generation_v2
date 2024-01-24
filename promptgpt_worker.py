@@ -1,5 +1,6 @@
 import os
 import sys
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0, os.path.join(dir_path, 'magic_common'))
 
@@ -9,10 +10,10 @@ import logging
 import requests
 
 import yaml
-from magic import config
+from magic.config import config
 from magic.task.base import TaskBase
-from magic.task.worker import Worker
-from magic.storage.s3 import default_s3_client as s3_client
+from magic.task.worker import MagicWorker
+from magic.utils.fuzzy_download import fuzzy_download_to_file
 from magic.utils.task import retry_submit_new_task
 
 from custom_ops.op_get_fiction_info import OPIpBibleObtain
@@ -42,10 +43,10 @@ def inject_os_envs_from_yaml_config(yaml_file):
         data = yaml.load(file, Loader=yaml.FullLoader)
     envs = data.get('envs')
     logging.info(f'Inject environment variable: {envs}')
-    os.environ.update(envs)
+    config.reload_from_envs()
 
 
-class PromptGPTTask(TaskBase):
+class PromptGenerateTask(TaskBase):
 
     TASK_TYPE = 'promptgpt'
 
@@ -59,29 +60,28 @@ class PromptGPTTask(TaskBase):
         self.task_id = body.get('task_id', '')
         self.force_add = body.get("force_add", "no")
         self.params = json.loads(body.get('param', '{}'))
-        self.chapter_id = self.params.get('local_chapter_id', '')
-        self.para_id = self.params.get("local_para_id", "")
-        self.global_chapter_id = self.params.get("global_chapter_id", "")
-        self.global_para_id = self.params.get("global_para_id", "")
+        self.chapter_id = self.params.get('chapter_id', '')
+        self.para_id = self.params.get("para_id", "")
         self.flow_id = self.params.get("flow_id", "")
         if not self.task_id:
             self.task_id = f"{self.chapter_id}_{self.para_id}"
 
     def _get_download_path(self, type_, filename):
         fic_path = None
-        if type_ == PromptGPTTask.TYPE_IPBIBLE:
+        if type_ == PromptGenerateTask.TYPE_IPBIBLE:
             fic_path = f"./tmp/ipbible_{filename}"
-        elif type_ == PromptGPTTask.TYPE_LAYOUT:
+        elif type_ == PromptGenerateTask.TYPE_LAYOUT:
             fic_path = f"./tmp/layout_{filename}"
         return fic_path
 
     def _download_fiction(self):
-        ipbible_output_bucket = os.environ.get('IPBIBLE_OUTPUT_BUCKET', '')
         filename = f"fiction_{self.project_id}_{self.chapter_id}_{self.flow_id}.json"
         file_key = f"ipbible/{filename}"
-        self.logger.info(f"Downloading s3://{ipbible_output_bucket}/{file_key}")
-        download_path = self._get_download_path(PromptGPTTask.TYPE_IPBIBLE, filename)
-        s3_client.download_to_file(file_key, download_path, bucket=ipbible_output_bucket)
+        # FIXME
+        s3_uri = f's3://{config.IPBIBLE_OUTPUT_BUCKET}/{file_key}'
+        self.logger.info(f"Downloading {s3_uri}")
+        download_path = self._get_download_path(PromptGenerateTask.TYPE_IPBIBLE, filename)
+        fuzzy_download_to_file(s3_uri, download_path)
         return download_path
 
     def _get_lora_id(self, project_id, entity_id):
@@ -163,8 +163,6 @@ class PromptGPTTask(TaskBase):
             'project_id': self.project_id,
             'chapter_id': self.chapter_id,
             'para_id': self.para_id,
-            "global_chapter_id": self.global_chapter_id,
-            "global_para_id": self.global_para_id,
             "flow_id": self.flow_id,
             "user_id": self.user_id,
             "image_id": "",
@@ -193,8 +191,8 @@ class PromptGPTTask(TaskBase):
 def run_worker():
     aws_region = os.environ.get('AWS_REGION')
     sqs_queue_url = os.environ.get('AWS_SQS_QUEUE_URL')
-    task_cls = PromptGPTTask
-    worker = Worker(task_cls, sqs_queue_url, region=aws_region)
+    task_cls = PromptGenerateTask
+    worker = MagicWorker(task_cls, sqs_queue_url, region=aws_region)
     logging.info(f'Worker started, listening {sqs_queue_url}')
     worker.loop_forever()
 
@@ -212,6 +210,5 @@ if __name__ == '__main__':
         print(f'file {yaml_file} not exist')
         exit(0)
     inject_os_envs_from_yaml_config(yaml_file)
-    config.reload_envs()
     ensure_folders()
     run_worker()
