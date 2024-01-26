@@ -66,12 +66,13 @@ class OpPromptGenerate(OpConstructRequest):
                 ip_bible["scene"]["prompt"] = translate_fromCh2Eng_raw(ip_bible["scene"]["prompt"])
 
         #表情动作映射：
-        emoji_map = {"happy": ",wide smile, raised cheeks, and crow's feet around the eyes,",
-                     "sad" :",downturned mouth, drooping eyelids, and furrowed brow,",
-                     "cry" :",downturned mouth, drooping eyelids, and furrowed brow,",
-                     "angry":",tightened jaw, squinted eyes, and raised eyebrows,",
-                     "surprised": ",wide-open eyes, a raised brow, and an open mouth,",
-                     "sleepy": ",drooping eyelids, half-closed eyes, and a slightly dazed expression,",
+        emoji_map = {"happy": ",(wide smile:1.6), (raised cheeks:1.6), and crow's feet around the eyes,",
+                     "sad" :",(downturned mouth:1.6), (drooping eyelids:1.6), (furrowed brow:1.6),",
+                     "cry" :",(downturned mouth:1.6), (drooping eyelids:1.6), (furrowed brow:1.6),",
+                     "angry":",(face flushed:1.6), (staring:1.6), (mouth closed:1.6),(raised eyebrows:1.6),",
+                     "surprised": ",(wide open eyes:1.6), a raised brow, (big mouth open:1.6),",
+                     "shocked": ",(wide open eyes:1.6), a raised brow, (big mouth open:1.6),",
+                     "sleepy": ",(drooping eyelids:1.6), half-closed eyes, and a slightly dazed expression,",
                      "annoyed": ",mouth turned down slightly, eyes narrowed, and a tense jaw,",
                      "fearful": ",wide-open eyes, a furrowed brow, and a slightly open mouth,"
                      }
@@ -97,13 +98,19 @@ class OpPromptGenerate(OpConstructRequest):
             common_prompt = "(chinese style:1.2), (ancient chinese:1.2),"
             common_neg_promt = "(text),(water mark:1.4),"
         elif ip_bible["scene"]["style"] == "SDXL-动漫":
-            common_prompt = "anime artwork,anime style,key visual,vibrant,studio anime,highly detailed,"
-            common_neg_promt = "photo, deformed, black and white, realism, disfigured, low contrast,"
+            base_neg_prompts = "nsfw,aidxlv05_neg, FastNegative,unaestheticXL2v10,lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, artist name"
+            common_prompt = "best quality,masterpiece,ultra detailed,comic art,comic,"
             if ip_bible["period"] in period_map:
                 common_prompt = common_prompt + period_map[ip_bible["period"]]
+        elif ip_bible["scene"]["style"] == "SDXL-动漫c":
+            base_neg_prompts = "nsfw,aidxlv05_neg, FastNegative,unaestheticXL2v10,lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, artist name"
+            common_prompt = "best quality, ultra_detailed, masterpiece, 8k,(anime style:1.2),"
         else:
             common_prompt = "(anime style:1.2),"
         #场景链路
+
+        #display_prompt
+        scene_display_prompt = ip_bible["scene"]["display_prompt"]
         if ip_bible["num_person"] < 1:
             if "scene" in ip_bible:
                 # env_prompt = "best quality, ultra detailed, anime, {},{}".format(ip_bible["scene"].get(
@@ -169,6 +176,7 @@ class OpPromptGenerate(OpConstructRequest):
             # TODO 新增判断逻辑，修改prompt的组成，增加用layout的信息
             # TODO 新增判断逻辑，修改prompt的组成，增加用layout的信息
             if ip_bible["num_person"] == 1:
+                display_prompt = ""
                 try:
                     cur_role_info = ip_bible["roles"][0]
 
@@ -199,7 +207,7 @@ class OpPromptGenerate(OpConstructRequest):
                         info_prompts = [f"({info.lower()}:1.2)," for info in action if info != ""]
                         human_prompts += f"{', '.join(info_prompts)} "
                         
-
+                    display_prompt = cur_role_info["display_prompt"]
                     # need_info_keys = ['emoji_en', 'actions_en']
                     # for info_key in need_info_keys:
                     #     info_list = cur_role_info[info_key]
@@ -220,7 +228,8 @@ class OpPromptGenerate(OpConstructRequest):
                 person_prompt = {
                     "index": 0,
                     "entity_id": role_id,
-                    "prompt": human_prompts
+                    "prompt": human_prompts,
+                    "display_prompt": display_prompt
                 }
                 pos_prompts['person_prompt'].append(person_prompt)
 
@@ -254,11 +263,13 @@ class OpPromptGenerate(OpConstructRequest):
                     # lora_info, lora_prompts = self.parse_lora_info(model_info[role_id])
                     lora_prompts = []
                     lora_prompts = self.add_action(lora_prompts, i_role)
-                    
+                    display_prompt = i_role["display_prompt"]
                     person_prompt = {
                         "index": i,
                         "entity_id": role_id,
-                        "prompt": lora_prompts
+                        "prompt": lora_prompts,
+                        "display_prompt" : display_prompt
+
                     }
                     pos_prompts['person_prompt'].append(person_prompt)
 
@@ -294,4 +305,4 @@ class OpPromptGenerate(OpConstructRequest):
         #             ip_bible["scene"].get("prompt", "")
         if "scenery" in ip_bible["scene"]["subject_en"].keys():
             sub_pos_prompts["scenery"] = people_or_not + "(wide-shot), " + common_prompt + ip_bible["scene"]["prompt"]
-        return [pos_prompts, neg_prompts, sub_pos_prompts] 
+        return [pos_prompts, neg_prompts, sub_pos_prompts,scene_display_prompt,common_prompt] 

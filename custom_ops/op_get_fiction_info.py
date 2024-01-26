@@ -117,6 +117,7 @@ class OPIpBibleObtain(object):
                 cur_role["emoji_en"] = self.load_list_field(role.get("emoji_en", []))
                 cur_role["caption_en"] = role.get("caption_en", "")
                 cur_role["gender_en"] = role.get("gender_en", "")
+                cur_role["display_prompt"] = role.get("display_prompt","")
                 
                 prompts_data["roles"].append(cur_role)
 
@@ -160,6 +161,7 @@ class OPIpBibleObtain(object):
                 cur_scene["prompt"] = load_scene_info["prompt"]
                 cur_scene["caption_with_roles_en"] = load_scene_info.get("caption_with_roles_en", "")
                 cur_scene["style"] = load_scene_info.get("style_cn","未知")
+                cur_scene["display_prompt"] = load_scene_info.get("display_prompt","")
 
                 try:
                     cur_scene["subject_en"] = json.loads(load_scene_info["subject_en"])

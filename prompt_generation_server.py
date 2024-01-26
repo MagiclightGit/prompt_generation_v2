@@ -120,8 +120,8 @@ if __name__ == "__main__":
 
                 op_prompt_generate = OpPromptGenerate()
                 op_prompt_generate.init()
-                pos_prompts, neg_prompts, sub_pos_prompts = op_prompt_generate.run(flow_id, project_id, chapter_id, para_id, ipbible, model_info)
-                logging.info(f"pos_prompts: {pos_prompts}\nneg_prompts: {neg_prompts}\nsub_pos_prompts: {sub_pos_prompts}")
+                pos_prompts, neg_prompts, sub_pos_prompts,display_prompt,common_style_prompt= op_prompt_generate.run(flow_id, project_id, chapter_id, para_id, ipbible, model_info)
+                logging.info(f"pos_prompts: {pos_prompts}\nneg_prompts: {neg_prompts}\nsub_pos_prompts: {sub_pos_prompts}\ndisplay_prompt:{display_prompt}\ncommon_style_prompt:{common_style_prompt}")
                 # res:
                 # {"project_id": "2158043", "flow_id": "db2udswkdtc", "fid": "0d5xjvdjyak", "chid": "1", "para_id": "0", "rtx": "_common", "prompt": ""}
 
@@ -133,9 +133,11 @@ if __name__ == "__main__":
                     "user_id": user_id,
                     "image_id": "",
                     "gpt_prompt": {
+                        "display_prompt": display_prompt,
                         "pos_prompts": pos_prompts,
                         "neg_prompts": neg_prompts,
-                        "sub_pos_prompts": sub_pos_prompts
+                        "sub_pos_prompts": sub_pos_prompts,
+                        "common_style_prompt":common_style_prompt
                     },
                     "layout_prompt": pompts_layout
                 }
