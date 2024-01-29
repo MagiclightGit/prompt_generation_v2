@@ -17,7 +17,10 @@ server_config:
 envs:
     AWS_REGION: "us-east-1"
     AWS_SQS_QUEUE_URL: "https://sqs.us-east-1.amazonaws.com/241764070795/PromptGPT-Deque-Normal"
+
+    MAGIC_WX_ERROR_URL: "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=0b3a5d9f-fec4-4796-b66d-12859d1ad401"
     MAGIC_TASK_REPORT_API_BASE: "https://3z56twwc4f.execute-api.us-east-1.amazonaws.com"
     MAGIC_API_HOST: "https://api.brmgo.com"
+
     LOG_PATH: "./logs/prompt_generate.log"
     IPBIBLE_OUTPUT_BUCKET: "magic-ipbible-outputs"
