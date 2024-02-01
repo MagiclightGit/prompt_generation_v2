@@ -70,7 +70,7 @@ class OpPromptGenerate(OpConstructRequest):
                      "sad" :",(downturned mouth:1.6), (drooping eyelids:1.6), (furrowed brow:1.6),",
                      "cry" :",(downturned mouth:1.6), (drooping eyelids:1.6), (furrowed brow:1.6),",
                      "angry":",(face flushed:1.6), (staring:1.6), (mouth closed:1.6),(raised eyebrows:1.6),",
-                     "surprised": ",(wide open eyes:1.6), a raised brow, (big mouth open:1.6),",
+                     "surprised": ",(wide open eyes:1.6), a raised brow, big mouth open,",
                      "shocked": ",(wide open eyes:1.6), a raised brow, (big mouth open:1.6),",
                      "sleepy": ",(drooping eyelids:1.6), half-closed eyes, and a slightly dazed expression,",
                      "annoyed": ",mouth turned down slightly, eyes narrowed, and a tense jaw,",
