@@ -83,11 +83,11 @@ class OpPromptGenerate(OpConstructRequest):
         #风格提示词：
         common_prompt = ""
         common_neg_promt = ""
-        if ip_bible["scene"]["style"] == "未来科幻":
+        if ip_bible["scene"]["style"] == "动漫未来":
             common_prompt = "best quality, ultra_detailed,(Cyberpunk atmosphere:1.2), (futuristic style:1.2),"
         elif ip_bible["scene"]["style"] == "星际":
             common_prompt = "best quality, ultra_detailed,(interstellar style:1.2),(futuristic style:1.2),"
-        elif ip_bible["scene"]["style"] == "末世悬疑":
+        elif ip_bible["scene"]["style"] == "动漫末世":
             common_prompt = "best quality, ultra_detailed,(dark style:1.4),(gloomy atmosphere:1.4),"
         elif ip_bible["scene"]["style"] in ["写实Majicmix","写实XXMix","写实风","SDXL-真人"]:
             common_prompt = "best quality, ultra_detailed,(realistic:1.2),(photorealistic:1.2),"
