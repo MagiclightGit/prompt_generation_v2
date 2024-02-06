@@ -226,6 +226,19 @@ class OpConstructRequest(object):
         lora_prompts = ", ".join(lora_prompts)
         return lora_prompts
 
+    def add_action_realistic(self, lora_prompts, i_role):
+        # 增加人物动作和表情
+        need_info_keys = ["emoji_en", "actions_en"]
+        for info_key in need_info_keys:
+            info_list = i_role[info_key]
+            if len(info_list) > 0:  
+                info_prompts = [f"{info.lower()}" for info in info_list if info != ""]
+                lora_prompts.extend(info_prompts)
+                
+        lora_prompts = ", ".join(lora_prompts)
+        return lora_prompts
+        
+
     def pprmp_rank(self, model_info, ip_roles_info, lo_prompt):
         people_prmp = {}
         lora_info_dict = {}

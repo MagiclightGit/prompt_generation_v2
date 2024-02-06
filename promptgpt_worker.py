@@ -157,8 +157,8 @@ class PromptGenerateTask(TaskBase):
 
         op_prompt_generate = OpPromptGenerate()
         op_prompt_generate.init()
-        pos_prompts, neg_prompts, sub_pos_prompts, display_prompt, common_style_prompt = op_prompt_generate.run(self.flow_id, self.project_id, self.chapter_id, self.para_id, ipbible, model_info)
-        self.logger.info(f"pos_prompts: {pos_prompts}\nneg_prompts: {neg_prompts}\nsub_pos_prompts: {sub_pos_prompts}\ndisplay_prompt:{display_prompt}\ncommon_style_prompt:{common_style_prompt}")
+        pos_prompts, neg_prompts, sub_pos_prompts, display_prompt, common_style_prompt,tags = op_prompt_generate.run(self.flow_id, self.project_id, self.chapter_id, self.para_id, ipbible, model_info)
+        self.logger.info(f"pos_prompts: {pos_prompts}\nneg_prompts: {neg_prompts}\nsub_pos_prompts: {sub_pos_prompts}\ndisplay_prompt:{display_prompt}\ncommon_style_prompt:{common_style_prompt}\ntags{tags}")
 
         next_params = {
             'project_id': self.project_id,
@@ -172,7 +172,8 @@ class PromptGenerateTask(TaskBase):
                 "pos_prompts": pos_prompts,
                 "neg_prompts": neg_prompts,
                 "sub_pos_prompts": sub_pos_prompts,
-                "common_style_prompt": common_style_prompt
+                "common_style_prompt": common_style_prompt,
+                "tags":tags
             },
             "layout_prompt": prompts_layout,
         }

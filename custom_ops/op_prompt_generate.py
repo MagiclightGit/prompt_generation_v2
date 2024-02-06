@@ -66,13 +66,13 @@ class OpPromptGenerate(OpConstructRequest):
         #         ip_bible["scene"]["prompt"] = translate_fromCh2Eng_raw(ip_bible["scene"]["prompt"])
 
         #表情动作映射：
-        emoji_map = {"happy": ",(wide smile:1.6), (raised cheeks:1.6), and crow's feet around the eyes,",
-                     "sad" :",(downturned mouth:1.6), (drooping eyelids:1.6), (furrowed brow:1.6),",
-                     "cry" :",(downturned mouth:1.6), (drooping eyelids:1.6), (furrowed brow:1.6),",
-                     "angry":",(face flushed:1.6), (staring:1.6), (mouth closed:1.6),(raised eyebrows:1.6),",
-                     "surprised": ",(wide open eyes:1.6), a raised brow, big mouth open,",
-                     "shocked": ",(wide open eyes:1.6), a raised brow, (big mouth open:1.6),",
-                     "sleepy": ",(drooping eyelids:1.6), half-closed eyes, and a slightly dazed expression,",
+        emoji_map = {"happy": ",(wide smile:1.2), (raised cheeks:1.2), and crow's feet around the eyes,",
+                     "sad" :",(downturned mouth:1.2), (drooping eyelids:1.2), (furrowed brow:1.2),",
+                     "cry" :",(downturned mouth:1.2), (drooping eyelids:1.2), (furrowed brow:1.2),",
+                     "angry":",face flushed, staring), mouth closed,raised eyebrows,",
+                     "surprised": ",wide open eyes, a raised brow, big mouth open,",
+                     "shocked": ",wide open eyes, a raised brow, big mouth open,",
+                     "sleepy": ",(drooping eyelids:1.2), half-closed eyes, and a slightly dazed expression,",
                      "annoyed": ",mouth turned down slightly, eyes narrowed, and a tense jaw,",
                      "fearful": ",wide-open eyes, a furrowed brow, and a slightly open mouth,"
                      }
@@ -105,7 +105,7 @@ class OpPromptGenerate(OpConstructRequest):
         elif ip_bible["scene"]["style"] == "SDXL-动漫c":
             base_neg_prompts = "nsfw,aidxlv05_neg, FastNegative,unaestheticXL2v10,lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, artist name"
             common_prompt = "best quality, ultra_detailed, masterpiece, 8k,(anime style:1.2),"
-        elif ip_bible["scene"]["style"] == "蜡笔风格":
+        elif ip_bible["scene"]["style"] == "手绘插画风":
             common_prompt = "best quality,masterpiece,ultra high res,delicate eyes,childpaiting,crayon drawing,"
             base_neg_prompts = "(negative_hand-neg:1.2),(((bad-hands-5))),EasyNegative,"
         else:
@@ -113,12 +113,15 @@ class OpPromptGenerate(OpConstructRequest):
         
         #display_prompt
         scene_display_prompt = ip_bible["scene"]["display_prompt"]
+        #tags
+        scene_tags = ip_bible["scene"]["tags"]
 
         #simple caption 直译的环境
         trans_env_prompt = ip_bible["scene"]["simple_caption_en"]
 
         #分析的环境
-        processed_env_prompt = ip_bible["scene"]["prompt"]
+        # processed_env_prompt = ip_bible["scene"]["prompt"]
+        processed_env_prompt = ip_bible["scene"]["simple_caption_en_new"]
         #场景链路
         if ip_bible["num_person"] < 1:
               # make scene_prompts with ChatGPT
@@ -234,22 +237,34 @@ class OpPromptGenerate(OpConstructRequest):
                     # human_prompts += f"{', '.join(lora_prompts)}, "
 
                     human_prompts = ""
-
                     # add some person descriptions from IP bible
                     # 表情description
-                    emoji = cur_role_info["emoji_en"][0]
-                    if emoji in emoji_map:
-                        human_prompts = emoji + emoji_map[emoji] + "(close up:1.2),"
-                    elif emoji == "":
-                        human_prompts = ""
+                    if ip_bible["scene"]["style"] in ["写实Majicmix","写实XXMix","写实风","SDXL-真人"]:
+                        emoji = cur_role_info["emoji_en"][0]
+                        if emoji in emoji_map:
+                            human_prompts = emoji + emoji_map[emoji] + "(close up:1.2),"
+                        elif emoji == "":
+                            human_prompts = ""
+                        else:
+                            human_prompts = f"{emoji},"
+                        action = cur_role_info['actions_en']
+                        if len(action) > 0:
+                            info_prompts = [f"{info.lower()}," for info in action if info != ""]
+                            human_prompts += f"{', '.join(info_prompts)} "
                     else:
-                        human_prompts = f"({emoji}:1.2),"
-                    #动作description
-                    action = cur_role_info['actions_en']
-                    if len(action) > 0:
-                        info_prompts = [f"({info.lower()}:1.2)," for info in action if info != ""]
-                        human_prompts += f"{', '.join(info_prompts)} "
-                        
+                        emoji = cur_role_info["emoji_en"][0]
+                        if emoji in emoji_map:
+                            human_prompts = emoji + emoji_map[emoji] + "(close up:1.2),"
+                        elif emoji == "":
+                            human_prompts = ""
+                        else:
+                            human_prompts = f"({emoji}:1.2),"
+                        #动作description
+                        action = cur_role_info['actions_en']
+                        if len(action) > 0:
+                            info_prompts = [f"({info.lower()}:1.2)," for info in action if info != ""]
+                            human_prompts += f"{', '.join(info_prompts)} "
+
                     display_prompt = cur_role_info["display_prompt"]
                     # need_info_keys = ['emoji_en', 'actions_en']
                     # for info_key in need_info_keys:
@@ -265,7 +280,7 @@ class OpPromptGenerate(OpConstructRequest):
                 # human_prompts = f"best quality, ultra_detailed, anime, detailed_face, (solo:2.0), {human_prompts}"
                 # base_prompt = "best quality, ultra_detailed, anime"
                 # human_prompts = f"detailed_face,{human_prompts}"
-                pos_prompts['env_prompt'] = env_prompt
+                pos_prompts['env_prompt'] = common_prompt + ip_bible["scene"]["prompt"]
                 role_id = str(ip_bible["roles"][0]["id"])
                 person_prompt = {
                     "index": 0,
@@ -278,7 +293,7 @@ class OpPromptGenerate(OpConstructRequest):
                 # 单人链路原文兜底图片
                 if ip_bible["scene"]["simple_caption_en_new"] != "":
                     # sub_pos_prompts["cwr-type"] = "{}{},{}".format(common_prompt,human_prompts,ip_bible["scene"]["prompt"])
-                    sub_pos_prompts["cwr-type"] = common_prompt + trans_env_prompt
+                    sub_pos_prompts["cwr-type"] = common_prompt + ip_bible["scene"]["prompt"]
                 
                 # single_limit_words = "(2people:2.0), (duplicate:1.2), tiling, multiple people, multiple face"
                 # if self.neg_prompt_style == "bright":
@@ -298,29 +313,43 @@ class OpPromptGenerate(OpConstructRequest):
                 # TODO layout shoot, look (个人的状态), rp_split_ratio DONE
                 # TODO 增加表情和动作 DONE
                 
-                lo_shoot = ""
-                people_prmp = {}
-                for i, i_role in enumerate(ip_bible["roles"]):
-                    role_id = i_role["id"]
-                    # 不读取lora信息
-                    # lora_info, lora_prompts = self.parse_lora_info(model_info[role_id])
-                    lora_prompts = []
-                    lora_prompts = self.add_action(lora_prompts, i_role)
-                    display_prompt = i_role["display_prompt"]
-                    person_prompt = {
-                        "index": i,
-                        "entity_id": role_id,
-                        "prompt": lora_prompts,
-                        "display_prompt" : display_prompt
+                # lo_shoot = ""
+                # people_prmp = {}
+                if ip_bible["scene"]["style"] in ["写实Majicmix","写实XXMix","写实风","SDXL-真人"]:
+                    for i, i_role in enumerate(ip_bible["roles"]):
+                        role_id = i_role["id"]
+                        lora_prompts = []
+                        lora_prompts = self.add_action_realistic(lora_prompts, i_role)
+                        display_prompt = i_role["display_prompt"]
+                        person_prompt = {
+                            "index": i,
+                            "entity_id": role_id,
+                            "prompt": lora_prompts,
+                            "display_prompt" : display_prompt
+                        }
+                        pos_prompts['person_prompt'].append(person_prompt)
+                else:
+                    for i, i_role in enumerate(ip_bible["roles"]):
+                        role_id = i_role["id"]
+                        # 不读取lora信息
+                        # lora_info, lora_prompts = self.parse_lora_info(model_info[role_id])
+                        lora_prompts = []
+                        lora_prompts = self.add_action(lora_prompts, i_role)
+                        display_prompt = i_role["display_prompt"]
+                        person_prompt = {
+                            "index": i,
+                            "entity_id": role_id,
+                            "prompt": lora_prompts,
+                            "display_prompt" : display_prompt
 
-                    }
-                    pos_prompts['person_prompt'].append(person_prompt)
-
+                        }
+                        pos_prompts['person_prompt'].append(person_prompt)
+                
                     # lora_info_dict[role_id] = lora_info
 
                 # 拼接pos prompt
                 # env_prompt = "best quality, ultra_detailed, 2people, {}, {}".format(lo_shoot, env_prompt)
-                pos_prompts['env_prompt'] = env_prompt
+                pos_prompts['env_prompt'] = common_prompt + ip_bible["scene"]["prompt"]
                 # pos_prompts['person_prompt'] = people_prmp
 
                 # 多人链路原文兜底图片
@@ -329,13 +358,10 @@ class OpPromptGenerate(OpConstructRequest):
                 #         ip_bible["scene"]["simple_caption_en_new"], ip_bible["scene"].get("environments_en", ""),ip_bible["scene"].get("prompt", ""))
                 if ip_bible["scene"]["simple_caption_en_new"] != "":
                     # cwr_p_prompts = "{}{}".format(common_prompt,ip_bible["scene"]["prompt"])
-                    cwr_p_prompts = common_prompt + trans_env_prompt
-                    
-                    sub_pos_prompts["cwr-type"] = cwr_p_prompts
-
+                    sub_pos_prompts["cwr-type"]  = common_prompt + ip_bible["scene"]["prompt"]                  
                 neg_prompts = common_neg_promt + base_neg_prompts
-                    # object/scenery prompt
-                
+
+                # object/scenery prompt
         # if "object" in ip_bible["scene"]["subject_en"].keys():
         #     sub_pos_prompts["object"] = "best quality, ultra_detailed, anime," + \
         #         "({}), (close_up), ".format(ip_bible["scene"]["subject_en"]["object"]) + \
@@ -352,4 +378,4 @@ class OpPromptGenerate(OpConstructRequest):
         if "scenery" in ip_bible["scene"]["subject_en"].keys():
             # sub_pos_prompts["scenery"] = "(wide-shot), " + common_prompt + ip_bible["scene"]["prompt"]
             sub_pos_prompts["scenery"] = "wide shot," + env_prompt
-        return [pos_prompts, neg_prompts, sub_pos_prompts,scene_display_prompt,common_prompt] 
+        return [pos_prompts, neg_prompts, sub_pos_prompts,scene_display_prompt,common_prompt,scene_tags] 
