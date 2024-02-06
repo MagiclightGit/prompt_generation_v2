@@ -138,7 +138,7 @@ if __name__ == "__main__":
                         "neg_prompts": neg_prompts,
                         "sub_pos_prompts": sub_pos_prompts,
                         "common_style_prompt":common_style_prompt,
-                        "tags":tags
+                        "template_tags":tags
                     },
                     "layout_prompt": pompts_layout
                 }

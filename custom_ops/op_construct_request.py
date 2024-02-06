@@ -237,7 +237,7 @@ class OpConstructRequest(object):
                 
         lora_prompts = ", ".join(lora_prompts)
         return lora_prompts
-        
+
 
     def pprmp_rank(self, model_info, ip_roles_info, lo_prompt):
         people_prmp = {}

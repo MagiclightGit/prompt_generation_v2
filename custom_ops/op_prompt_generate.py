@@ -270,7 +270,7 @@ class OpPromptGenerate(OpConstructRequest):
                     # for info_key in need_info_keys:
                     #     info_list = cur_role_info[info_key]
                     #     if len(info_list) > 0:  
-                    #         info_prompts = [f"({info.lower()}:1.2)," for info in info_list if info != ""]
+                    #         info_prompts = [f"({info.lower()}:1.2)," for info in info_list if info != ""]``
                     #         human_prompts +=  f"{', '.join(info_prompts)} "
                     
                 except Exception:
