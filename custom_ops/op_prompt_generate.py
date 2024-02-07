@@ -115,6 +115,10 @@ class OpPromptGenerate(OpConstructRequest):
         scene_display_prompt = ip_bible["scene"]["display_prompt"]
         #tags
         scene_tags = ip_bible["scene"]["tags"]
+        temp_prompt = ""
+        if scene_tags == "#AI角色拜年":
+            temp_prompt = "happy,(chinese new year:1.2),"
+        common_prompt = common_prompt + temp_prompt
 
         #simple caption 直译的环境
         trans_env_prompt = ip_bible["scene"]["simple_caption_en"]
