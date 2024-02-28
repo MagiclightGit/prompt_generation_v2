@@ -33,7 +33,8 @@ class OpPromptGenerate(OpConstructRequest):
         model_info = self.pares_model_info(model_info)
         if self.neg_prompt_style == "bright":
             # mengyang neg prompt；效果更加明亮
-            base_neg_prompts = "nsfw,easynegative, (same person: 2.0),(worst quality,low quality:2),(deformed iris:1.4),(deformed pupils:1.4),(poorly drawn face:1.21),(empty eyes:1.4),monochrome,ugly,disfigured,overexposure, watermark,text,bad anatomy,bad hand,extra hands,extra fingers, too many fingers,fused fingers,bad arm,distorted arm,(extra arms:2),fused arms,extra nipples, liquid hand,inverted hand,disembodied limb, oversized head"
+            base_neg_prompts = "nsfw,easynegative, (same person: 2.0),(worst quality,low quality:2),(deformed iris:1.4),(deformed pupils:1.4),(poorly drawn face:1.21),(empty eyes:1.4),monochrome,ugly,disfigured,overexposure, watermark,text,bad anatomy,(bad hand:1.2),extra hands,(extra fingers:1.6), (too many fingers:1.6),(fused fingers:1.6),bad arm,distorted arm,(extra arms:2),fused arms,extra nipples, liquid hand,inverted hand,disembodied limb, oversized head"
+            # base_neg_prompts = "nsfw,easynegative,worst quality,low quality,deformed iris,deformed pupils,poorly drawn face,empty eyes,monochrome,ugly,disfigured,overexposure, watermark,text,bad anatomy,bad hand,extra hands,extra fingers, too many fingers,fused fingers,bad arm,distorted arm,extra arms,fused arms,extra nipples, liquid hand,inverted hand,disembodied limb, oversized head"
         elif self.neg_prompt_style == "dark":
             base_neg_prompts = "nsfw, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry"
         elif self.neg_prompt_style == "test":
@@ -41,10 +42,7 @@ class OpPromptGenerate(OpConstructRequest):
         else:
             base_neg_prompts = "nsfw, lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry"
 
-        # 增加背景有无人的变量
-        people_or_not = ""
-        if ip_bible["scene"]["scene_type"] == "Background Actors":
-            people_or_not = "(many people:1.4),"
+        scene_type = ip_bible["scene"]["scene_type"]
 
         #增加ipbible传空值兜底
         if ip_bible["scene"]["simple_caption_en_new"] == "" and ip_bible["scene"]["prompt"] == "":
@@ -157,7 +155,8 @@ class OpPromptGenerate(OpConstructRequest):
             #     #     "prompt", ip_bible["scene"]["simple_caption_en_new"]),people_or_not)
             #     env_prompt = "{}{}".format(common_prompt,ip_bible["scene"]["prompt"])
                 
-            env_prompt = processed_env_prompt
+            # env_prompt = processed_env_prompt
+            env_prompt = trans_env_prompt
             env_prompt = env_prompt.lower()
             words_to_remove = ["girl's","girls'","girl","boy's","boys'","boy ","males'","male's","male ","females'","female's","female","man's","man ","woman's","woman "]
             for phrase in words_to_remove:
@@ -253,7 +252,7 @@ class OpPromptGenerate(OpConstructRequest):
                             human_prompts = f"{emoji},"
                         action = cur_role_info['actions_en']
                         if len(action) > 0:
-                            info_prompts = [f"{info.lower()}," for info in action if info != ""]
+                            info_prompts = [f"({info.lower()}:0.8)," for info in action if info != ""]
                             human_prompts += f"{', '.join(info_prompts)} "
                     else:
                         emoji = cur_role_info["emoji_en"][0]
@@ -376,10 +375,11 @@ class OpPromptGenerate(OpConstructRequest):
         #         "({}), (scenery), {}, ".format(ip_bible["scene"]["subject_en"]["scenery"],people_or_not) + \
         #         ip_bible["scene"].get("environments_en", "") + \
         #             ip_bible["scene"].get("prompt", "")
-        env_prompt = common_prompt + trans_env_prompt
+        # env_prompt = common_prompt + trans_env_prompt
+        env_prompt = common_prompt + processed_env_prompt
         if ip_bible["scene"]["style"] == "SDXL-动漫":
                     env_prompt = common_prompt + ip_bible["scene"]["location"]
         if "scenery" in ip_bible["scene"]["subject_en"].keys():
             # sub_pos_prompts["scenery"] = "(wide-shot), " + common_prompt + ip_bible["scene"]["prompt"]
             sub_pos_prompts["scenery"] = "wide shot," + env_prompt
-        return [pos_prompts, neg_prompts, sub_pos_prompts,scene_display_prompt,common_prompt,scene_tags] 
+        return [pos_prompts, neg_prompts, sub_pos_prompts,scene_display_prompt,common_prompt,scene_tags,scene_type] 

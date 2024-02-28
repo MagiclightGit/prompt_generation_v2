@@ -232,7 +232,7 @@ class OpConstructRequest(object):
         for info_key in need_info_keys:
             info_list = i_role[info_key]
             if len(info_list) > 0:  
-                info_prompts = [f"{info.lower()}" for info in info_list if info != ""]
+                info_prompts = [f"({info.lower()}:0.8)" for info in info_list if info != ""]
                 lora_prompts.extend(info_prompts)
                 
         lora_prompts = ", ".join(lora_prompts)
