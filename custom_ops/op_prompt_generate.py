@@ -245,7 +245,7 @@ class OpPromptGenerate(OpConstructRequest):
                     if ip_bible["scene"]["style"] in ["写实Majicmix","写实XXMix","写实风","SDXL-真人"]:
                         emoji = cur_role_info["emoji_en"][0]
                         if emoji in emoji_map:
-                            human_prompts = emoji + emoji_map[emoji] + "(close up:1.2),"
+                            human_prompts = emoji + emoji_map[emoji]
                         elif emoji == "":
                             human_prompts = ""
                         else:
@@ -257,7 +257,7 @@ class OpPromptGenerate(OpConstructRequest):
                     else:
                         emoji = cur_role_info["emoji_en"][0]
                         if emoji in emoji_map:
-                            human_prompts = emoji + emoji_map[emoji] + "(close up:1.2),"
+                            human_prompts = emoji + emoji_map[emoji]
                         elif emoji == "":
                             human_prompts = ""
                         else:
