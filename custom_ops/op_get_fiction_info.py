@@ -270,18 +270,19 @@ class OPIpBibleObtain(object):
             if len(para["roles"]) == 1 and subject == self.subject_map["11"]:
                 subject = self.subject_map["10"]
             # 构建谓宾
-            verb_object = ""
-            for role in para["roles"]:
-                actions_en = role.get("actions_en", "\"[]\"")
-                # role["actions_en"] is string not list
-                # para_content_highlight += (role["actions_en"][2:-2] + ", ")
-                # role["actions_en"]为空时索引不会溢出
-                verb_object += (actions_en[2:-2].lower())
-                break
+            # verb_object = ""
+            # for role in para["roles"]:
+            #     actions_en = role.get("actions_en", "\"[]\"")
+            #     # role["actions_en"] is string not list
+            #     # para_content_highlight += (role["actions_en"][2:-2] + ", ")
+            #     # role["actions_en"]为空时索引不会溢出
+            #     verb_object += (actions_en[2:-2].lower())
+            #     break
+            verb_object = para.get("group_actions", "")
             para_content_highlight = subject + " " + verb_object
             
             # 关键属性查找-场景
-            # para_content_highlight += scene["location_en"]
+            para_content_highlight += f", {scene.get('location_en', '')}"
             prompts_data["para_content"].append(para_content_highlight)
 
             # for minor_roles in para["minor_roles"]:
