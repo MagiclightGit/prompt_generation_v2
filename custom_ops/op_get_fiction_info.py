@@ -276,13 +276,14 @@ class OPIpBibleObtain(object):
                 # role["actions_en"] is string not list
                 # para_content_highlight += (role["actions_en"][2:-2] + ", ")
                 # role["actions_en"]为空时索引不会溢出
-                verb_object += f"{actions_en[2:-2].lower()},"
-            #     break
+                verb_object += f"{actions_en[2:-2].lower()}"
+                # @世伟优先把和描述相关的动作排在第一，故这里只取第一个动作
+                break
             # verb_object = para.get("group_actions", "")
             para_content_highlight = subject + " " + verb_object
             
             # 关键属性查找-场景
-            para_content_highlight += f"{scene.get('location_en', '')}"
+            # para_content_highlight += f"{scene.get('location_en', '')}"
             prompts_data["para_content"].append(para_content_highlight)
 
             # for minor_roles in para["minor_roles"]:
