@@ -63,6 +63,7 @@ class PromptGenerateTask(TaskBase):
         self.params = json.loads(body.get('param', '{}'))
         self.chapter_id = self.params.get('chapter_id', '')
         self.para_id = self.params.get("para_id", "")
+        self.scene_id = self.params.get("scene_id", "")
         self.flow_id = self.params.get("flow_id", "")
         if not self.task_id:
             self.task_id = f"{self.chapter_id}_{self.para_id}"
@@ -167,6 +168,7 @@ class PromptGenerateTask(TaskBase):
             "flow_id": self.flow_id,
             "user_id": self.user_id,
             "image_id": "",
+            "scene_id": self.scene_id,
             "gpt_prompt": {
                 "display_prompt": display_prompt,
                 "pos_prompts": pos_prompts,
