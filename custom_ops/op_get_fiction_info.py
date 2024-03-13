@@ -283,7 +283,7 @@ class OPIpBibleObtain(object):
             para_content_highlight = subject + " " + verb_object
             
             # 关键属性查找-场景
-            # para_content_highlight += f"{scene.get('location_en', '')}"
+            para_content_highlight += f",{scene.get('location_en', '')}"
             prompts_data["para_content"].append(para_content_highlight)
 
             # for minor_roles in para["minor_roles"]:
