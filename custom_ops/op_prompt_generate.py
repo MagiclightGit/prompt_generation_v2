@@ -106,11 +106,20 @@ class OpPromptGenerate(OpConstructRequest):
         elif ip_bible["scene"]["style"] == "手绘插画风":
             common_prompt = "best quality,masterpiece,ultra high res,delicate eyes,childpaiting,crayon drawing,"
             base_neg_prompts = "(negative_hand-neg:1.2),(((bad-hands-5))),EasyNegative,"
+        elif ip_bible["scene"]["style"] == "写实风Majicmix":
+            common_prompt = "(ultra-detailed,CG ,unity ,8k wallpaper),(masterpiece),(realistic),(photorealistic:1.2),"
+            base_neg_prompts = "ng_deepnegative_v1_75t, (badhandv4:1.2), (same person: 2.0), (worst quality:2), (low quality:2), (normal quality:2), lowres, bad anatomy, bad hands, ((monochrome)), ((grayscale)) watermark, moles"
+        elif ip_bible["scene"]["style"] == "写实juggernaut":
+            common_prompt = " (highly detailed),(HDR),intricately detailed,high contrast,highres,absurdres,hyper realistic,8K UHD DSLR,Fujifilm XT3,"
+            base_neg_prompts = "(worst quality, low quality, normal quality, lowres, low details, same person ,oversaturated, undersaturated, overexposed, underexposed, grayscale, bw, bad photo, bad photography, bad art)++++, (watermark, signature, text font, username, error, logo, words, letters, digits, autograph, trademark, name)+, (blur, blurry, grainy), morbid, ugly, asymmetrical, mutated malformed, mutilated, poorly lit, bad shadow, draft, cropped, out of frame, cut off, censored, jpeg artifacts, out of focus, glitch, duplicate, (airbrushed, cartoon, anime, semi-realistic, cgi, render, blender, digital art, manga, amateur)++, (3D ,3D Game, 3D Game Scene, 3D Character), (bad hands, bad anatomy, bad body, bad face, bad teeth, bad arms, bad legs, deformities)++"
         else:
             common_prompt = "best quality, ultra_detailed,(anime:1.2),"
         
         #display_prompt
         scene_display_prompt = ip_bible["scene"]["display_prompt"]
+        #extra_prompt
+        scene_extra_prompt = ip_bible["scene"]["extra_prompt"]
+        scene_extra_prompt_cn = ip_bible["scene"]["extra_prompt_cn"]
         #tags
         scene_tags = ip_bible["scene"]["tags"]
         temp_prompt = ""
@@ -382,4 +391,4 @@ class OpPromptGenerate(OpConstructRequest):
         if "scenery" in ip_bible["scene"]["subject_en"].keys():
             # sub_pos_prompts["scenery"] = "(wide-shot), " + common_prompt + ip_bible["scene"]["prompt"]
             sub_pos_prompts["scenery"] = "wide shot," + env_prompt
-        return [pos_prompts, neg_prompts, sub_pos_prompts,scene_display_prompt,common_prompt,scene_tags,scene_type] 
+        return [pos_prompts, neg_prompts, sub_pos_prompts,scene_display_prompt,common_prompt,scene_tags,scene_type,scene_extra_prompt,scene_extra_prompt_cn] 

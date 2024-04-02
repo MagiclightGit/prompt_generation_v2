@@ -158,6 +158,8 @@ class OPIpBibleObtain(object):
                 #获取场景类型
                 cur_scene["scene_type"] = load_scene_info["scene_type"]
                 cur_scene["prompt"] = load_scene_info["prompt"]
+                cur_scene["extra_prompt"] = load_scene_info["extra_prompt"]
+                cur_scene["extra_prompt_cn"] = load_scene_info["extra_prompt_cn"]
                 cur_scene["caption_with_roles_en"] = load_scene_info.get("caption_with_roles_en", "")
                 cur_scene["style"] = load_scene_info.get("style_cn","未知")
                 cur_scene["display_prompt"] = load_scene_info.get("display_prompt","")
