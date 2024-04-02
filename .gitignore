@@ -62,3 +62,7 @@ test.out
 /tmp
 /logs
 test_api.py
+
+.commit
+.tag
+*.zip
