@@ -64,52 +64,70 @@ class OpPromptGenerate(OpConstructRequest):
         #         ip_bible["scene"]["prompt"] = translate_fromCh2Eng_raw(ip_bible["scene"]["prompt"])
 
         #表情动作映射：
-        emoji_map = {"happy": ",(wide smile:1.2), (raised cheeks:1.2), and crow's feet around the eyes,",
-                     "sad" :",(downturned mouth:1.2), (drooping eyelids:1.2), (furrowed brow:1.2),",
-                     "cry" :",(downturned mouth:1.2), (drooping eyelids:1.2), (furrowed brow:1.2),",
-                     "angry":",face flushed, staring), mouth closed,raised eyebrows,",
+        emoji_map = {"happy": ",wide smile, raised cheeks, and crow's feet around the eyes,",
+                     "sad" :",downturned mouth, drooping eyelids, furrowed brow,",
+                     "cry" :",downturned mouth, drooping eyelids, furrowed brow,",
+                     "angry":",face flushed, staring, mouth closed,raised eyebrows,",
                      "surprised": ",wide open eyes, a raised brow, big mouth open,",
                      "shocked": ",wide open eyes, a raised brow, big mouth open,",
-                     "sleepy": ",(drooping eyelids:1.2), half-closed eyes, and a slightly dazed expression,",
+                     "sleepy": ",drooping eyelids, half-closed eyes, and a slightly dazed expression,",
                      "annoyed": ",mouth turned down slightly, eyes narrowed, and a tense jaw,",
                      "fearful": ",wide-open eyes, a furrowed brow, and a slightly open mouth,"
                      }
-        period_map = {"古代":",(ancient chinese:1.2),(ancient chinese clothes:1.2),",
-                      "现代":"",
-                      "赛博朋克":"(Cyberpunk atmosphere:1.2), (futuristic style:1.2),",
-                      "星际":"(interstellar style:1.2),(futuristic style:1.2),"}
+        # period_map = {"古代":",(ancient chinese:1.2),(ancient chinese clothes:1.2),",
+        #               "现代":"",
+        #               "赛博朋克":"(Cyberpunk atmosphere:1.2), (futuristic style:1.2),",
+        #               "星际":"(interstellar style:1.2),(futuristic style:1.2),"}
+
+        style_id = ip_bible["style_id"]
+
         #风格提示词：
         common_prompt = ""
         common_neg_promt = ""
-        if ip_bible["scene"]["style"] == "动漫未来":
+        #动漫未来
+        if style_id == "4":
             common_prompt = "best quality, ultra_detailed,(Cyberpunk atmosphere:1.2), (futuristic style:1.2),"
-        elif ip_bible["scene"]["style"] == "星际":
+        #动漫星际
+        elif style_id == "星际":
             common_prompt = "best quality, ultra_detailed,(interstellar style:1.2),(futuristic style:1.2),"
-        elif ip_bible["scene"]["style"] == "动漫末世":
+        #动漫末世
+        elif style_id == "1":
             common_prompt = "best quality, ultra_detailed,(dark style:1.4),(gloomy atmosphere:1.4),"
-        elif ip_bible["scene"]["style"] in ["写实Majicmix","写实XXMix","写实风","SDXL-真人"]:
+        #Magicmix
+        elif style_id == "6":
             common_prompt = "best quality, ultra_detailed,(realistic:1.2),(photorealistic:1.2),"
             common_neg_promt = "anime,comic,"
             # if ip_bible["period"] in period_map:
             #     common_prompt = common_prompt + period_map[ip_bible["period"]]
-        elif ip_bible["scene"]["style"] == "古风":
+        #古风
+        elif style_id == "8":
             common_prompt = "best quality, ultra_detailed,(chinese style:1.2), (ancient chinese:1.2),"
             common_neg_promt = "(text),(water mark:1.4),"
-        elif ip_bible["scene"]["style"] == "SDXL-动漫":
+        #SDXL动漫
+        elif style_id == "10":
             base_neg_prompts = "nsfw,aidxlv05_neg, FastNegative,unaestheticXL2v10,lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, artist name"
             common_prompt = "best quality, ultra_detailed,comic,line art style,simple background,"
             # if ip_bible["period"] in period_map:
             #     common_prompt = common_prompt + period_map[ip_bible["period"]]
-        elif ip_bible["scene"]["style"] == "SDXL-动漫c":
+        #SDXL动漫c
+        elif style_id == "11":
             base_neg_prompts = "nsfw,aidxlv05_neg, FastNegative,unaestheticXL2v10,lowres, bad anatomy, bad hands, text, error, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, artist name"
             common_prompt = "best quality, ultra_detailed, masterpiece, 8k,(anime style:1.2),"
-        elif ip_bible["scene"]["style"] == "手绘插画风":
+        #SDXL写实
+        elif style_id == "12":
+            base_neg_prompts = "noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            # common_prompt = "f1.8, cinematic lighting, realistic style,"
+            common_prompt = "f1.8, realistic style,"
+        #手绘插画风
+        elif style_id == "21":
             common_prompt = "best quality,masterpiece,ultra high res,delicate eyes,childpaiting,crayon drawing,"
             base_neg_prompts = "(negative_hand-neg:1.2),(((bad-hands-5))),EasyNegative,"
-        elif ip_bible["scene"]["style"] == "写实风Majicmix":
+        #Magicmix2
+        elif style_id == "13":
             common_prompt = "(ultra-detailed,CG ,unity ,8k wallpaper),(masterpiece),(realistic),(photorealistic:1.2),"
             base_neg_prompts = "ng_deepnegative_v1_75t, (badhandv4:1.2), (same person: 2.0), (worst quality:2), (low quality:2), (normal quality:2), lowres, bad anatomy, bad hands, ((monochrome)), ((grayscale)) watermark, moles"
-        elif ip_bible["scene"]["style"] == "写实juggernaut":
+        #写实juggernaut
+        elif style_id == "7":
             common_prompt = " (highly detailed),(HDR),intricately detailed,high contrast,highres,absurdres,hyper realistic,8K UHD DSLR,Fujifilm XT3,"
             base_neg_prompts = "(worst quality, low quality, normal quality, lowres, low details, same person ,oversaturated, undersaturated, overexposed, underexposed, grayscale, bw, bad photo, bad photography, bad art)++++, (watermark, signature, text font, username, error, logo, words, letters, digits, autograph, trademark, name)+, (blur, blurry, grainy), morbid, ugly, asymmetrical, mutated malformed, mutilated, poorly lit, bad shadow, draft, cropped, out of frame, cut off, censored, jpeg artifacts, out of focus, glitch, duplicate, (airbrushed, cartoon, anime, semi-realistic, cgi, render, blender, digital art, manga, amateur)++, (3D ,3D Game, 3D Game Scene, 3D Character), (bad hands, bad anatomy, bad body, bad face, bad teeth, bad arms, bad legs, deformities)++"
         else:
@@ -171,14 +189,15 @@ class OpPromptGenerate(OpConstructRequest):
             for phrase in words_to_remove:
                 env_prompt = env_prompt.replace(phrase, '')
 
-            if ip_bible["scene"]["style"] == "SDXL-动漫":
-                env_prompt = ip_bible["scene"]["location"]
+            
 
             env_prompt = common_prompt + env_prompt
-
+            if style_id == "12":
+                env_prompt = ip_bible["scene"]["prompt"]
             # add environments_en
             # env_prompt = env_prompt + ", " + ip_bible["scene"].get("environments_en", "")
             pos_prompts["env_prompt"] = env_prompt
+            
             
             # 场景链路原文兜底图片
             # if ip_bible["scene"]["simple_caption_en_new"] != "":
@@ -221,8 +240,7 @@ class OpPromptGenerate(OpConstructRequest):
 
             # env_prompt = ip_bible["scene"].get("environments_en", "") + ", " + ip_bible["scene"].get("prompt", "")+ "," +env_prompt
             env_prompt = processed_env_prompt
-            if ip_bible["scene"]["style"] == "SDXL-动漫":
-                    env_prompt = ip_bible["scene"]["location"]
+            
             
             env_prompt = env_prompt.lower()
             # remove gender information
@@ -230,7 +248,8 @@ class OpPromptGenerate(OpConstructRequest):
             for phrase in words_to_remove:
                 env_prompt = env_prompt.replace(phrase, '')
             env_prompt = common_prompt + env_prompt
-
+            if style_id == "12":
+                    env_prompt = ip_bible["scene"]["prompt"]
             # TODO 新增判断逻辑，修改prompt的组成，增加用layout的信息
             # TODO 新增判断逻辑，修改prompt的组成，增加用layout的信息
             if ip_bible["num_person"] == 1:
@@ -251,7 +270,7 @@ class OpPromptGenerate(OpConstructRequest):
                     human_prompts = ""
                     # add some person descriptions from IP bible
                     # 表情description
-                    if ip_bible["scene"]["style"] in ["写实Majicmix","写实XXMix","写实风","SDXL-真人"]:
+                    if style_id in ["6","12","7","13"]:
                         emoji = cur_role_info["emoji_en"][0]
                         if emoji in emoji_map:
                             human_prompts = emoji + emoji_map[emoji]
@@ -261,7 +280,7 @@ class OpPromptGenerate(OpConstructRequest):
                             human_prompts = f"{emoji},"
                         action = cur_role_info['actions_en']
                         if len(action) > 0:
-                            info_prompts = [f"({info.lower()}:0.8)," for info in action if info != ""]
+                            info_prompts = [f"{info.lower()}," for info in action if info != ""]
                             human_prompts += f"{', '.join(info_prompts)} "
                     else:
                         emoji = cur_role_info["emoji_en"][0]
@@ -293,6 +312,8 @@ class OpPromptGenerate(OpConstructRequest):
                 # base_prompt = "best quality, ultra_detailed, anime"
                 # human_prompts = f"detailed_face,{human_prompts}"
                 pos_prompts['env_prompt'] = common_prompt + ip_bible["scene"]["prompt"]
+                if style_id == "12":
+                    pos_prompts['env_prompt'] = ip_bible["scene"]["prompt"]
                 role_id = str(ip_bible["roles"][0]["id"])
                 person_prompt = {
                     "index": 0,
@@ -307,6 +328,8 @@ class OpPromptGenerate(OpConstructRequest):
                     # sub_pos_prompts["cwr-type"] = "{}{},{}".format(common_prompt,human_prompts,ip_bible["scene"]["prompt"])
                     sub_pos_prompts["cwr-type"] = common_prompt + ip_bible["scene"]["prompt"]
                 
+                if style_id == "12":
+                    sub_pos_prompts["cwr-type"] = ip_bible["scene"]["prompt"]
                 # single_limit_words = "(2people:2.0), (duplicate:1.2), tiling, multiple people, multiple face"
                 # if self.neg_prompt_style == "bright":
                 #     # mengyang neg prompt；效果更加明亮
@@ -327,7 +350,7 @@ class OpPromptGenerate(OpConstructRequest):
                 
                 # lo_shoot = ""
                 # people_prmp = {}
-                if ip_bible["scene"]["style"] in ["写实Majicmix","写实XXMix","写实风","SDXL-真人"]:
+                if style_id in ["6","12","7","13"]:
                     for i, i_role in enumerate(ip_bible["roles"]):
                         role_id = i_role["id"]
                         lora_prompts = []
@@ -363,14 +386,17 @@ class OpPromptGenerate(OpConstructRequest):
                 # env_prompt = "best quality, ultra_detailed, 2people, {}, {}".format(lo_shoot, env_prompt)
                 pos_prompts['env_prompt'] = common_prompt + ip_bible["scene"]["prompt"]
                 # pos_prompts['person_prompt'] = people_prmp
-
+                if style_id == "12":
+                    pos_prompts['env_prompt'] = ip_bible["scene"]["prompt"]
                 # 多人链路原文兜底图片
                 # if ip_bible["scene"]["simple_caption_en_new"] != "":
                 #     cwr_p_prompts = "best quality, ultra_detailed, 2people, {}, {}, {}".format(
                 #         ip_bible["scene"]["simple_caption_en_new"], ip_bible["scene"].get("environments_en", ""),ip_bible["scene"].get("prompt", ""))
                 if ip_bible["scene"]["simple_caption_en_new"] != "":
                     # cwr_p_prompts = "{}{}".format(common_prompt,ip_bible["scene"]["prompt"])
-                    sub_pos_prompts["cwr-type"]  = common_prompt + ip_bible["scene"]["prompt"]                  
+                    sub_pos_prompts["cwr-type"]  = common_prompt + ip_bible["scene"]["prompt"]   
+                if style_id == "12":
+                    sub_pos_prompts["cwr-type"] = ip_bible["scene"]["prompt"]
                 neg_prompts = common_neg_promt + base_neg_prompts
 
                 # object/scenery prompt
@@ -386,9 +412,11 @@ class OpPromptGenerate(OpConstructRequest):
         #             ip_bible["scene"].get("prompt", "")
         # env_prompt = common_prompt + trans_env_prompt
         env_prompt = common_prompt + processed_env_prompt
-        if ip_bible["scene"]["style"] == "SDXL-动漫":
-                    env_prompt = common_prompt + ip_bible["scene"]["location"]
+        # if style_id == "12":
+        #     env_prompt = ip_bible["scene"]["prompt"]
         if "scenery" in ip_bible["scene"]["subject_en"].keys():
             # sub_pos_prompts["scenery"] = "(wide-shot), " + common_prompt + ip_bible["scene"]["prompt"]
             sub_pos_prompts["scenery"] = "wide shot," + env_prompt
+        if style_id == "12":
+            sub_pos_prompts["scenery"] = ip_bible["scene"]["prompt"]
         return [pos_prompts, neg_prompts, sub_pos_prompts,scene_display_prompt,common_prompt,scene_tags,scene_type,scene_extra_prompt,scene_extra_prompt_cn] 
