@@ -4,7 +4,7 @@ envs:
 
     MAGIC_TASK_REPORT_API_BASE: "https://s48xjwf523.execute-api.us-east-1.amazonaws.com"
     MAGIC_WX_ERROR_URL: "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=e1647f6a-998b-4d71-8e45-21e611689e15"
-    MAGIC_API_HOST: "https://api.test.brmgo.com"
+    MAGIC_API_HOST: "https://api.test.brmgo.cn"
 
     LOG_PATH: "./logs/prompt_generate.log"
     IPBIBLE_OUTPUT_BUCKET: "magic-ipbible-outputs-test"
