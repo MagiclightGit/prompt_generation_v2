@@ -20,12 +20,19 @@ from custom_ops.op_get_fiction_info import OPIpBibleObtain
 from custom_ops.op_prompt_generate import OpPromptGenerate
 
 
-logging.basicConfig(
-    level= logging.INFO,
-    filename='./logs/prompt_generate.log',
-    filemode= 'a',
-    format='%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s'
-)
+def setup_logging_config(log_file=None):
+    if log_file is not None:
+        logging.basicConfig(
+            level= logging.INFO,
+            filename=log_file,
+            filemode= 'a',
+            format='%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s'
+        )
+    else:
+        logging.basicConfig(
+            level= logging.INFO,
+            format='%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s'
+        )
 
 
 def get_api_url(path):
@@ -209,15 +216,22 @@ def run_worker():
 def parse_option():
     parser = argparse.ArgumentParser('prompt generation server', add_help=False)
     parser.add_argument("--yaml_config", type=str, default="server_config.yaml", help="yaml config")
+    parser.add_argument("--log-to-stdout", action='store_true')
     return parser.parse_args()
 
 
 if __name__ == '__main__':
     args = parse_option()
+    if args.log_to_stdout:
+        setup_logging_config(None)
+    else:
+        setup_logging_config('./logs/prompt_generate.log')
+
     yaml_file = args.yaml_config
     if not os.path.isfile(yaml_file):
         print(f'file {yaml_file} not exist')
         exit(0)
+
     inject_os_envs_from_yaml_config(yaml_file)
     ensure_folders()
     run_worker()

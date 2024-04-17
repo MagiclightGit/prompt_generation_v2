@@ -1,9 +1,6 @@
-import os
-import time
-import json
-import mysql.connector
-from mysql.connector import errorcode
 import logging
+
+import mysql.connector
 
 class SQLOperator(object):
     def __init__(self, 

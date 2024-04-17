@@ -3,29 +3,16 @@ Author: guojianyuan
 Date: 2023-11-15 16:23:15
 Description: 
 """
-import time
-import traceback
 import json
-import tempfile
-import secrets
-import tarfile
-import re
 import os
 import yaml
 import random
 import string
 import copy
-import requests
-from typing import Dict, NoReturn
-from urllib.request import urlretrieve, urlopen
-from pathlib import Path
 import logging
 
-from tqdm import tqdm
 from custom_ops.utils.openai_chatgpt import TruboOpenaiGptClient
-#from custom_ops.utils.mysql import MysqlDB
-from custom_ops.utils.sql_operator import SQLOperator
-# import custom_ops.op_prompt_generate 
+# from custom_ops.utils.sql_operator import SQLOperator
 
 
 class OpConstructRequest(object):
@@ -104,7 +91,7 @@ class OpConstructRequest(object):
         password = "dreambigger234"
         db_name = "prototype"
 
-        self.mdb = SQLOperator(host, user, password, db_name)
+        # self.mdb = SQLOperator(host, user, password, db_name)
 
         self.diffuser_server_url = df_server_url
         self.timeout = timeout
