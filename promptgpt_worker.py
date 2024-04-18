@@ -210,6 +210,7 @@ def run_worker():
     task_cls = PromptGenerateTask
     worker = MagicWorker(task_cls, sqs_queue_url, region=aws_region)
     logging.info(f'Worker started, listening {sqs_queue_url}')
+    worker.set_task_concurrency(5)
     worker.loop_forever()
 
 
