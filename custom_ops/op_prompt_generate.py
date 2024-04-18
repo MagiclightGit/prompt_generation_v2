@@ -218,7 +218,7 @@ class OpPromptGenerate(OpConstructRequest):
             
             if style_id == "23":
                 pos_prompts["env_prompt"] = env_prompt
-                pos_prompts_xl["env_prompt"] = ip_bible["scene"]["prompt"]
+                pos_prompts_xl["env_prompt"] = ip_bible["scene"]["location_en"]
 
             # 场景链路原文兜底图片
             # if ip_bible["scene"]["simple_caption_en_new"] != "":
@@ -227,7 +227,7 @@ class OpPromptGenerate(OpConstructRequest):
             if ip_bible["scene"]["simple_caption_en_new"] != "":
                 sub_pos_prompts["cwr-type"] =env_prompt
                 if style_id == "23":
-                    sub_pos_prompts_xl["cwr-type"] =ip_bible["scene"]["prompt"]
+                    sub_pos_prompts_xl["cwr-type"] =ip_bible["scene"]["location_en"]
             neg_prompts = common_neg_promt + base_neg_prompts
             neg_prompts_xl = base_neg_prompts_xl
         else:
@@ -275,7 +275,7 @@ class OpPromptGenerate(OpConstructRequest):
             if style_id == "12":
                     env_prompt = ip_bible["scene"]["prompt"]
             if style_id == "23":
-                env_prompt_xl = ip_bible["scene"]["prompt"]
+                env_prompt_xl = ip_bible["scene"]["location_en"]
             # TODO 新增判断逻辑，修改prompt的组成，增加用layout的信息
             # TODO 新增判断逻辑，修改prompt的组成，增加用layout的信息
             if ip_bible["num_person"] == 1:
@@ -463,5 +463,5 @@ class OpPromptGenerate(OpConstructRequest):
             sub_pos_prompts["scenery"] = ip_bible["scene"]["prompt"]
         if style_id == "23":
             sub_pos_prompts["scenery"] = common_prompt + ip_bible["scene"]["prompt"]
-            sub_pos_prompts_xl["scenery"] =ip_bible["scene"]["prompt"]
+            sub_pos_prompts_xl["scenery"] =ip_bible["scene"]["location_en"]
         return [pos_prompts, neg_prompts, sub_pos_prompts, scene_display_prompt, common_prompt, scene_tags, scene_type, scene_extra_prompt, scene_extra_prompt_cn, pos_prompts_xl, neg_prompts_xl, sub_pos_prompts_xl, scene_display_prompt_xl, common_prompt_xl, scene_type_xl, scene_extra_prompt_xl, scene_extra_prompt_cn_xl]
