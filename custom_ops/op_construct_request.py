@@ -223,6 +223,7 @@ class OpConstructRequest(object):
                 lora_prompts.extend(info_prompts)
                 
         lora_prompts = ", ".join(lora_prompts)
+        # lora_prompts = ""
         return lora_prompts
 
 
