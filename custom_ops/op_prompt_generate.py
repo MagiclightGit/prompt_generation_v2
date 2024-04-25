@@ -141,11 +141,39 @@ class OpPromptGenerate(OpConstructRequest):
         elif style_id == "7":
             common_prompt = " (highly detailed),(HDR),intricately detailed,high contrast,highres,absurdres,hyper realistic,8K UHD DSLR,Fujifilm XT3,"
             base_neg_prompts = "(worst quality, low quality, normal quality, lowres, low details, same person ,oversaturated, undersaturated, overexposed, underexposed, grayscale, bw, bad photo, bad photography, bad art)++++, (watermark, signature, text font, username, error, logo, words, letters, digits, autograph, trademark, name)+, (blur, blurry, grainy), morbid, ugly, asymmetrical, mutated malformed, mutilated, poorly lit, bad shadow, draft, cropped, out of frame, cut off, censored, jpeg artifacts, out of focus, glitch, duplicate, (airbrushed, cartoon, anime, semi-realistic, cgi, render, blender, digital art, manga, amateur)++, (3D ,3D Game, 3D Game Scene, 3D Character), (bad hands, bad anatomy, bad body, bad face, bad teeth, bad arms, bad legs, deformities)++"
+        #写实XL
         elif style_id == "23":
-            common_prompt_xl = "f1.8, realistic style,"
+            common_prompt_xl = ""
             base_neg_prompts_xl = "noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
             common_prompt = "best quality, ultra_detailed,(realistic:1.2),(photorealistic:1.2),"
             common_neg_promt = "anime,comic,"
+            if ip_bible["period"] == "星际":
+                common_prompt_xl = "Cyberpunk atmosphere, futuristic style,"
+        #迪士尼XL
+        elif style_id == "24":
+            common_prompt_xl = "f1.8, pixar style,"
+            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            common_prompt = "best quality, ultra_detailed, pixar style, masterpiece,"
+        #动漫现代XL
+        elif style_id == "25":
+            common_prompt = "best quality, ultra_detailed,anime,"
+            common_prompt_xl = "f1.8, anime style,"
+            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+        #日式动漫XL
+        elif style_id == "26":
+            common_prompt = "best quality, ultra_detailed,anime,"
+            common_prompt_xl = "f1.8, anime style,"
+            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+        #动漫未来XL
+        elif style_id == "27":
+            common_prompt = "best quality, ultra_detailed,(Cyberpunk atmosphere:1.2),(interstellar style:1.2),(futuristic style:1.2),"
+            common_prompt_xl = "f1.8, anime style,"
+            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+        #动漫末世XL
+        elif style_id == "28":
+            common_prompt = "best quality, ultra_detailed,anime,(dark style:1.4),(gloomy atmosphere:1.4),"
+            common_prompt_xl = "f1.8, anime style,"
+            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
         else:
             common_prompt = "best quality, ultra_detailed,(anime:1.2),"
         
@@ -209,16 +237,16 @@ class OpPromptGenerate(OpConstructRequest):
                 env_prompt = env_prompt.replace(phrase, '')
             
 
-            env_prompt = common_prompt + env_prompt
             if style_id == "12":
                 env_prompt = ip_bible["scene"]["prompt"]
             # add environments_en
             # env_prompt = env_prompt + ", " + ip_bible["scene"].get("environments_en", "")
             pos_prompts["env_prompt"] = env_prompt
             
-            if style_id == "23":
+            if style_id in ["23","24","25","26","27","28"]:
                 pos_prompts["env_prompt"] = env_prompt
-                pos_prompts_xl["env_prompt"] = ip_bible["scene"]["location_en"]
+                # pos_prompts_xl["env_prompt"] = ip_bible["scene"]["location_en"]
+                pos_prompts_xl["env_prompt"] = ip_bible["scene"]["prompt"]
 
             # 场景链路原文兜底图片
             # if ip_bible["scene"]["simple_caption_en_new"] != "":
@@ -226,8 +254,9 @@ class OpPromptGenerate(OpConstructRequest):
             #         people_or_not,ip_bible["scene"]["simple_caption_en_new"], ip_bible["scene"].get("environments_en", ""),ip_bible["scene"].get("prompt", ""))
             if ip_bible["scene"]["simple_caption_en_new"] != "":
                 sub_pos_prompts["cwr-type"] =env_prompt
-                if style_id == "23":
-                    sub_pos_prompts_xl["cwr-type"] =ip_bible["scene"]["location_en"]
+                if style_id in ["23","24","25","26","27","28"]:
+                    # sub_pos_prompts_xl["cwr-type"] =ip_bible["scene"]["location_en"]
+                    sub_pos_prompts_xl["cwr-type"] =ip_bible["scene"]["prompt"]
             neg_prompts = common_neg_promt + base_neg_prompts
             neg_prompts_xl = base_neg_prompts_xl
         else:
@@ -271,11 +300,12 @@ class OpPromptGenerate(OpConstructRequest):
             words_to_remove = ["girl's","girls'","girl","boy's","boys'","boy","males'","male's","male","females'","female's","female","man's","man","woman's","woman"]
             for phrase in words_to_remove:
                 env_prompt = env_prompt.replace(phrase, '')
-            env_prompt = common_prompt + env_prompt
+
             if style_id == "12":
                     env_prompt = ip_bible["scene"]["prompt"]
-            if style_id == "23":
-                env_prompt_xl = ip_bible["scene"]["location_en"]
+            if style_id in ["23","24","25","26","27","28"]:
+                # env_prompt_xl = ip_bible["scene"]["location_en"]
+                env_prompt_xl = ip_bible["scene"]["prompt"]
             # TODO 新增判断逻辑，修改prompt的组成，增加用layout的信息
             # TODO 新增判断逻辑，修改prompt的组成，增加用layout的信息
             if ip_bible["num_person"] == 1:
@@ -338,10 +368,10 @@ class OpPromptGenerate(OpConstructRequest):
                 # human_prompts = f"best quality, ultra_detailed, anime, detailed_face, (solo:2.0), {human_prompts}"
                 # base_prompt = "best quality, ultra_detailed, anime"
                 # human_prompts = f"detailed_face,{human_prompts}"
-                pos_prompts['env_prompt'] = common_prompt + ip_bible["scene"]["prompt"]
+                pos_prompts['env_prompt'] =ip_bible["scene"]["prompt"]
                 if style_id == "12":
                     pos_prompts['env_prompt'] = ip_bible["scene"]["prompt"]
-                if style_id == "23":
+                if style_id in ["23","24","25","26","27","28"]:
                     pos_prompts['env_prompt'] = env_prompt
                     pos_prompts_xl['env_prompt'] = env_prompt_xl
                 role_id = str(ip_bible["roles"][0]["id"])
@@ -352,17 +382,17 @@ class OpPromptGenerate(OpConstructRequest):
                     "display_prompt": display_prompt
                 }
                 pos_prompts['person_prompt'].append(person_prompt)
-                if style_id == "23":
+                if style_id in ["23","24","25","26","27","28"]:
                     pos_prompts_xl['person_prompt'] = 'person_prompt'
 
                 # 单人链路原文兜底图片
                 if ip_bible["scene"]["simple_caption_en_new"] != "":
                     # sub_pos_prompts["cwr-type"] = "{}{},{}".format(common_prompt,human_prompts,ip_bible["scene"]["prompt"])
-                    sub_pos_prompts["cwr-type"] = common_prompt + ip_bible["scene"]["prompt"]
+                    sub_pos_prompts["cwr-type"] =ip_bible["scene"]["prompt"]
                 
                 if style_id == "12":
                     sub_pos_prompts["cwr-type"] = ip_bible["scene"]["prompt"]
-                if style_id == "23":
+                if style_id in ["23","24","25","26","27","28"]:
                     sub_pos_prompts["cwr-type"] = env_prompt
                     sub_pos_prompts_xl["cwr-type"] = env_prompt_xl
                 # single_limit_words = "(2people:2.0), (duplicate:1.2), tiling, multiple people, multiple face"
@@ -414,17 +444,17 @@ class OpPromptGenerate(OpConstructRequest):
 
                         }
                         pos_prompts['person_prompt'].append(person_prompt)
-                if style_id == "23":
+                if style_id in ["23","24","25","26","27","28"]:
                     pos_prompts_xl['person_prompt'] = pos_prompts['person_prompt']
                     # lora_info_dict[role_id] = lora_info
 
                 # 拼接pos prompt
                 # env_prompt = "best quality, ultra_detailed, 2people, {}, {}".format(lo_shoot, env_prompt)
-                pos_prompts['env_prompt'] = common_prompt + ip_bible["scene"]["prompt"]
+                pos_prompts['env_prompt'] = ip_bible["scene"]["prompt"]
                 # pos_prompts['person_prompt'] = people_prmp
                 if style_id == "12":
                     pos_prompts['env_prompt'] = ip_bible["scene"]["prompt"]
-                if style_id == "23":
+                if style_id in ["23","24","25","26","27","28"]:
                     pos_prompts['env_prompt'] = env_prompt
                     pos_prompts_xl['env_prompt'] = env_prompt_xl
                 # 多人链路原文兜底图片
@@ -433,10 +463,10 @@ class OpPromptGenerate(OpConstructRequest):
                 #         ip_bible["scene"]["simple_caption_en_new"], ip_bible["scene"].get("environments_en", ""),ip_bible["scene"].get("prompt", ""))
                 if ip_bible["scene"]["simple_caption_en_new"] != "":
                     # cwr_p_prompts = "{}{}".format(common_prompt,ip_bible["scene"]["prompt"])
-                    sub_pos_prompts["cwr-type"]  = common_prompt + ip_bible["scene"]["prompt"]   
+                    sub_pos_prompts["cwr-type"]  =ip_bible["scene"]["prompt"]   
                 if style_id == "12":
                     sub_pos_prompts["cwr-type"] = ip_bible["scene"]["prompt"]
-                if style_id == "23":
+                if style_id in ["23","24","25","26","27","28"]:
                     sub_pos_prompts["cwr-type"] = env_prompt
                     sub_pos_prompts_xl["cwr-type"] = env_prompt_xl
                 neg_prompts = common_neg_promt + base_neg_prompts
@@ -453,7 +483,7 @@ class OpPromptGenerate(OpConstructRequest):
         #         ip_bible["scene"].get("environments_en", "") + \
         #             ip_bible["scene"].get("prompt", "")
         # env_prompt = common_prompt + trans_env_prompt
-        env_prompt = common_prompt + processed_env_prompt
+        env_prompt = processed_env_prompt
         # if style_id == "12":
         #     env_prompt = ip_bible["scene"]["prompt"]
         if "scenery" in ip_bible["scene"]["subject_en"].keys():
@@ -461,7 +491,8 @@ class OpPromptGenerate(OpConstructRequest):
             sub_pos_prompts["scenery"] = "wide shot," + env_prompt
         if style_id == "12":
             sub_pos_prompts["scenery"] = ip_bible["scene"]["prompt"]
-        if style_id == "23":
-            sub_pos_prompts["scenery"] = common_prompt + ip_bible["scene"]["prompt"]
-            sub_pos_prompts_xl["scenery"] =ip_bible["scene"]["location_en"]
+        if style_id in ["23","24","25","26","27","28"]:
+            sub_pos_prompts["scenery"] =ip_bible["scene"]["prompt"]
+            # sub_pos_prompts_xl["scenery"] =ip_bible["scene"]["location_en"]
+            sub_pos_prompts_xl["scenery"] =ip_bible["scene"]["prompt"]
         return [pos_prompts, neg_prompts, sub_pos_prompts, scene_display_prompt, common_prompt, scene_tags, scene_type, scene_extra_prompt, scene_extra_prompt_cn, pos_prompts_xl, neg_prompts_xl, sub_pos_prompts_xl, scene_display_prompt_xl, common_prompt_xl, scene_type_xl, scene_extra_prompt_xl, scene_extra_prompt_cn_xl]
