@@ -47,6 +47,10 @@ class OPIpBibleObtain(object):
             "10": "a man",
             "01": "a woman"
         }
+        self.subject_map_ = {
+            1: "one person",
+            2: "two people",
+        }
         self.style_map = {
             '现代都市': "现代",
             '末世悬疑': "现代",
@@ -218,12 +222,7 @@ class OPIpBibleObtain(object):
             # if(prompts_data["style"]=="古代"):
             #     prompts_data["style"] = "中国古代"
             ipbible_style = scene.get("style_cn", "未知")
-            prompts_data["style"] = self.style_map.get(ipbible_style,"现代")
-            
-
-            
-
-                
+            prompts_data["style"] = self.style_map.get(ipbible_style,"现代")          
             prompts_data["location"] = scene.get("interior_exterior_cn", "室外")
 
             # 查找人物数量
@@ -270,9 +269,10 @@ class OPIpBibleObtain(object):
             # 关键属性查找-动作
             
             # 构建主语
-            subject = self.subject_map.get(str(prompts_data["gender"]["male"]) + str(prompts_data["gender"]["female"]), "")
-            if len(para["roles"]) == 1 and subject == self.subject_map["11"]:
-                subject = self.subject_map["10"]
+            # subject = self.subject_map.get(str(prompts_data["gender"]["male"]) + str(prompts_data["gender"]["female"]), "")
+            # if len(para["roles"]) == 1 and subject == self.subject_map["11"]:
+            #     subject = self.subject_map["10"]
+            subject  = self.subject_map_.get(num_person, "")
             # 构建谓宾
             verb_object = ""
             for role in para["roles"]:
