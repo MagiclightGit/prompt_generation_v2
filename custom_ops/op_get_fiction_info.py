@@ -91,6 +91,7 @@ class OPIpBibleObtain(object):
             prompts_data["para_content_en"] = para["para_content_en"]
             prompts_data["period"] = chapter_style
             prompts_data["style_id"] = style_id
+            prompts_data["action"] = para.get("para_action","")
             
 
         
