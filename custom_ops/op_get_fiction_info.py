@@ -170,6 +170,7 @@ class OPIpBibleObtain(object):
                 cur_scene["caption_with_roles_en"] = load_scene_info.get("caption_with_roles_en", "")
                 cur_scene["style"] = load_scene_info.get("style_cn","未知")
                 cur_scene["display_prompt"] = load_scene_info.get("display_prompt","")
+                cur_scene["role_display_prompt"] = load_scene_info.get("role_display_prompt","")
                 cur_scene["tags"] = load_scene_info.get("tags","")
 
                 try:
