@@ -119,7 +119,7 @@ class OPIpBibleObtain(object):
                 role_id = role["id"]
                 cur_role["id"] = role_id
                 cur_role["name_list"] = [chapter_info["roles"][role_id]["name"]]
-                cur_role["name_list"].extend(self.load_list_field(chapter_info["roles"][role_id]["other_names"]))
+                cur_role["name_list"].extend(self.load_list_field(chapter_info["roles"][role_id].get("other_names","")))
                 cur_role["actions_en"] = self.load_list_field(role.get("actions_en", []))
                 cur_role["emoji_en"] = self.load_list_field(role.get("emoji_en", []))
                 cur_role["caption_en"] = role.get("caption_en", "")
@@ -134,7 +134,7 @@ class OPIpBibleObtain(object):
             #     if role["actions"]:
             #         prompts_data["pose"].append(role["actions"])
             # for minor_roles in para["minor_roles"]:
-            #     if minor_roles["actions"]:
+            #     if minor_roles["actions"]:simple_caption_en_new
             #         prompts_data["pose"].append(minor_roles["actions"])
 
             # 获取场景id，并且加载场景配置
@@ -145,11 +145,11 @@ class OPIpBibleObtain(object):
                 cur_scene['location_en'] = load_scene_info['location_en']
                 cur_scene['weather_en'] = load_scene_info['weather_en']
                 cur_scene['style_en'] = load_scene_info['style_en']
-                cur_scene['simple_caption_en'] = load_scene_info['simple_caption_en']
+                cur_scene['simple_caption_en'] = load_scene_info.get('simple_caption_en',"")
                 if 'detail_caption_cn_new' in load_scene_info:
-                    cur_scene['detail_caption_cn_new'] = load_scene_info['detail_caption_cn_new']
+                    cur_scene['detail_caption_cn_new'] = load_scene_info.get('detail_caption_cn_new',"")
                 if 'simple_caption_en_new' in load_scene_info:
-                    cur_scene['simple_caption_en_new'] = load_scene_info['simple_caption_en_new']
+                    cur_scene['simple_caption_en_new'] = load_scene_info.get('simple_caption_en_new',"")
                 cur_scene["environments_cn"] = ", ".join([load_scene_info["location_cn"],
                                                           load_scene_info["interior_exterior_cn"],
                                                           load_scene_info["time_cn"],
@@ -165,19 +165,19 @@ class OPIpBibleObtain(object):
                 #获取场景类型
                 cur_scene["scene_type"] = load_scene_info["scene_type"]
                 cur_scene["prompt"] = load_scene_info["prompt"]
-                cur_scene["extra_prompt"] = load_scene_info["extra_prompt"]
-                cur_scene["extra_prompt_cn"] = load_scene_info["extra_prompt_cn"]
+                cur_scene["extra_prompt"] = load_scene_info.get("extra_prompt","")
+                cur_scene["extra_prompt_cn"] = load_scene_info.get("extra_prompt_cn","")
                 cur_scene["caption_with_roles_en"] = load_scene_info.get("caption_with_roles_en", "")
                 cur_scene["style"] = load_scene_info.get("style_cn","未知")
                 cur_scene["display_prompt"] = load_scene_info.get("display_prompt","")
                 cur_scene["role_display_prompt"] = load_scene_info.get("role_display_prompt","")
                 cur_scene["tags"] = load_scene_info.get("tags","")
 
-                try:
-                    cur_scene["subject_en"] = json.loads(load_scene_info["subject_en"])
-                except Exception as e:
-                    logging.info("Parse 'subject_en' ERROR: {}".format(e))
-                    cur_scene["subject_en"] = {}
+                # try:
+                #     cur_scene["subject_en"] = json.loads(load_scene_info.get("subject_en",{}))
+                # except Exception as e:
+                #     logging.info("Parse 'subject_en' ERROR: {}".format(e))
+                cur_scene["subject_en"] = {}
 
                 prompts_data["scene"] = cur_scene
             
