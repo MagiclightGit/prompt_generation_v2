@@ -145,7 +145,7 @@ class OpPromptGenerate(OpConstructRequest):
         #写实XL
         elif style_id == "23":
             common_prompt_xl = "f1.8,relistic,cinematic style,"
-            base_neg_prompts_xl = "noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "(nsfw:1.5),(nude:1.5),noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands, text,error, missing fngers,extra digt,fewer digits"
             common_prompt = "best quality, ultra_detailed,(realistic:1.2),(photorealistic:1.2),"
             common_neg_promt = "anime,comic,"
             if ip_bible["period"] == "星际":
@@ -153,73 +153,73 @@ class OpPromptGenerate(OpConstructRequest):
         #迪士尼XL
         elif style_id == "24":
             common_prompt_xl = "f1.8, pixar style,"
-            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "(nsfw:1.5),(nude:1.5),realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands, text,error, missing fngers,extra digt,fewer digits"
             common_prompt = "best quality, ultra_detailed, pixar style, masterpiece,"
         #动漫现代XL
         elif style_id == "25":
             common_prompt = "best quality, ultra_detailed,anime,"
             common_prompt_xl = "f1.8, anime style,"
-            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "(nsfw:1.5),(nude:1.5),realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
         #日式动漫XL
         elif style_id == "26":
             common_prompt = "best quality, ultra_detailed,"
             common_prompt_xl = "f1.8, Japanese Anime Style,"
-            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "(nsfw:1.5),(nude:1.5),realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands, text,error, missing fngers,extra digt,fewer digits"
         #动漫未来XL
         elif style_id == "27":
             common_prompt = "best quality, ultra_detailed,(Cyberpunk atmosphere:1.2),(interstellar style:1.2),(futuristic style:1.2),"
             common_prompt_xl = "f1.8, anime style,"
             # base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
-            base_neg_prompts_xl = "ugly, realism, photorealistic, historical, medieval,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "(nsfw:1.5),(nude:1.5),ugly, realism, photorealistic, historical, medieval,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands, text,error, missing fngers,extra digt,fewer digits"
         #动漫末世XL
         elif style_id == "28":
             common_prompt = "best quality, ultra_detailed,anime,(dark style:1.4),(gloomy atmosphere:1.4),"
             common_prompt_xl = "f1.8, anime style,"
-            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "(nsfw:1.5),(nude:1.5),realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands, text,error, missing fngers,extra digt,fewer digits"
         #美漫风XL
         elif style_id == "29":
             common_prompt = "best quality, ultra_detailed, comic art,"
             common_prompt_xl = "f1.8, comic,"
-            base_neg_prompts_xl = "photograph,realistic, stock photo,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "(nsfw:1.5),(nude:1.5),photograph,realistic, stock photo,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
         #古风XL
         elif style_id == "30":
             common_prompt = "best quality, ultra_detailed,(chinese style:1.2), (ancient chinese:1.2),"
             common_prompt_xl = "f1.8, anime,chinese style,chinese ancient,"
-            base_neg_prompts_xl = "photograph,realistic, stock photo,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "(nsfw:1.5),(nude:1.5),photograph,realistic, stock photo,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands, text,error, missing fngers,extra digt,fewer digits"
         #简约XL
         elif style_id == "2":
             common_prompt = "best quality, ultra_detailed,(chinese style:1.2), (ancient chinese:1.2),"
             common_prompt_xl = "f1.8, anime,chinese style,chinese ancient,"
-            base_neg_prompts_xl = "realistic, stock photo,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands, text,error, missing fngers,extra digt,fewer digits"
+            base_neg_prompts_xl = "(nsfw:1.5),(nude:1.5),realistic,stock photo,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands, text,error, missing fngers,extra digt,fewer digits"
         elif style_id == "31":
             common_prompt = "best quality, ultra_detailed,"
             common_prompt_xl = "f1.8, Tiktok Comic Style,"
-            base_neg_prompts_xl = "photograph,realistic, stock photo,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "photograph,realistic, stock photo,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands, text,error, missing fngers,extra digt,fewer digits"
         #粘土风
         elif style_id == "32" or style_id == "36":
             common_prompt = "best quality, ultra_detailed,"
             common_prompt_xl = "f1.8, Clay Style,"
-            base_neg_prompts_xl = "photograph,realistic, stock photo,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "(nsfw:1.5),(nude:1.5),photograph,realistic, stock photo,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands, text,error, missing fngers,extra digt,fewer digits"
         elif style_id == "33":
             common_prompt = "best quality, ultra_detailed,"
             common_prompt_xl = "f1.8, Colorful Line Drawing Style,"
-            base_neg_prompts_xl = "photograph,realistic, stock photo,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "photograph,realistic, stock photo,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands, text,error, missing fngers,extra digt,fewer digits"
         elif style_id == "34":
             common_prompt = "best quality, ultra_detailed,"
             common_prompt_xl = "f1.8, Edgerunner Style,"
             # base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
-            base_neg_prompts_xl = "ugly,photograph,realistic, stock photo,,historical, medieval,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"    
+            base_neg_prompts_xl = "(nsfw:1.5),(nude:1.5),ugly,photograph,realistic, stock photo,,historical, medieval,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands, text,error, missing fngers,extra digt,fewer digits"    
         elif style_id == "37":
             common_prompt_xl = "f1.8, pixar style,"
             base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
             common_prompt = "best quality, ultra_detailed,"
         elif style_id == "39":
             common_prompt_xl = "f1.8, Chinese Horror Comic Style,"
-            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "(nsfw:1.5),(nude:1.5),realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands, text,error, missing fngers,extra digt,fewer digits"
             common_prompt = "best quality, ultra_detailed,"
         elif style_id == "40":
             common_prompt_xl = "f1.8,magiclight animee style,"
-            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "(nsfw:1.5),(nude:1.5),realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands, text,error, missing fngers,extra digt,fewer digits"
             common_prompt = "best quality, ultra_detailed,"
         elif style_id == "41":
             common_prompt_xl = "f1.8,relistic,cinematic style,Dune movie style"
