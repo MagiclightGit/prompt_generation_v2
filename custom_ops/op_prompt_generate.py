@@ -187,6 +187,10 @@ class OpPromptGenerate(OpConstructRequest):
             common_prompt_xl = "f1.8, anime,chinese style,chinese ancient,"
             base_neg_prompts_xl = "photograph,realistic, stock photo,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
         #简约XL
+        elif style_id == "2":
+            common_prompt = "best quality, ultra_detailed,(chinese style:1.2), (ancient chinese:1.2),"
+            common_prompt_xl = "f1.8, anime,chinese style,chinese ancient,"
+            base_neg_prompts_xl = "realistic, stock photo,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands, text,error, missing fngers,extra digt,fewer digits"
         elif style_id == "31":
             common_prompt = "best quality, ultra_detailed,"
             common_prompt_xl = "f1.8, Tiktok Comic Style,"
@@ -306,9 +310,9 @@ class OpPromptGenerate(OpConstructRequest):
             # env_prompt = processed_env_prompt
             env_prompt = trans_env_prompt
             env_prompt = env_prompt.lower()
-            words_to_remove = ["girl's","girls'","girl","boy's","boys'","boy ","males'","male's","male ","females'","female's","female","man's","man ","woman's","woman "]
-            for phrase in words_to_remove:
-                env_prompt = env_prompt.replace(phrase, '')
+            # words_to_remove = ["girl's","girls'","girl","boy's","boys'","boy ","males'","male's","male ","females'","female's","female","man's","man ","woman's","woman "]
+            # for phrase in words_to_remove:
+            #     env_prompt = env_prompt.replace(phrase, '')
             
 
             if style_id == "12":
@@ -376,9 +380,9 @@ class OpPromptGenerate(OpConstructRequest):
             
             env_prompt = env_prompt.lower()
             # remove gender information
-            words_to_remove = ["girl's","girls'","girl","boy's","boys'","boy","males'","male's","male","females'","female's","female","man's","man","woman's","woman"]
-            for phrase in words_to_remove:
-                env_prompt = env_prompt.replace(phrase, '')
+            # words_to_remove = ["girl's","girls'","girl","boy's","boys'","boy","males'","male's","male","females'","female's","female","man's","man","woman's","woman"]
+            # for phrase in words_to_remove:
+            #     env_prompt = env_prompt.replace(phrase, '')
 
             if style_id == "12":
                     env_prompt = ip_bible["scene"]["prompt"]
