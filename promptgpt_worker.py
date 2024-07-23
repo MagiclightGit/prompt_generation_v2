@@ -199,6 +199,7 @@ class PromptGenerateTask(TaskBase):
                 "role_display_prompt": role_display_prompt
             },
             "layout_prompt": prompts_layout,
+            "prompts_data": prompts_layout,
         }
         retry_submit_new_task({
             'type': 'layout',
