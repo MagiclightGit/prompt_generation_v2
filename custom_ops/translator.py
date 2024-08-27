@@ -1,54 +1,54 @@
 import logging
 from copy import deepcopy
 
-import pinyin
+# import pinyin
 import boto3
 
 
-def translate_fromCh2Pinyin(chn_text):
-    """
-    description: 中文to pinyin，每个字拼音首字母大写，中间无空格
-    return {*}
-    """
-    pinyin_text = pinyin.get(chn_text, format="strip", delimiter=" ")
-    # 每个字拼音首字母大写，中间无空格
-    words = pinyin_text.split(" ")
-    for idx in range(len(words)):
-        word = words[idx]
-        words[idx] = word[0].upper() + word[1:]
-    pinyin_final_text = "".join(words)
-    return pinyin_final_text
-'''
-def translate_fromCh2Eng_raw(chn_text):
-    translate_cn_req_data={
-        'query_cn': chn_text
-    }
-    invalid_word= {'无': 'None', '未知': 'Unknow'}
-    if chn_text not in invalid_word:
-        try:
-            url = 'http://0.0.0.0:7002/translate_ch2en'
-            resp = requests.post(url, data = translate_cn_req_data, timeout= 60)
-            en_text = resp.text
-        except Exception as err:
-            en_text = ''
-            logging.error("translate_fromCh2Eng_raw error: {}, req: {}".format(str(err), chn_text))
-    else:
-        en_text = invalid_word[chn_text]
-    return en_text
-
-def translate_fromEng2Ch_raw(eng_text):
-    translate_en_req_data={
-        'query_en': eng_text
-    }
-    try:
-        url = 'http://0.0.0.0:7002/translate_en2ch'
-        resp = requests.post(url, data = translate_en_req_data, timeout= 60)
-        chn_text = resp.text
-    except Exception as err:
-        chn_text = ''
-        logging.error("translate_fromEng2Ch_raw error: {}, req: {}".format(str(err), eng_text))
-    return chn_text
-'''
+# def translate_fromCh2Pinyin(chn_text):
+#     """
+#     description: 中文to pinyin，每个字拼音首字母大写，中间无空格
+#     return {*}
+#     """
+#     pinyin_text = pinyin.get(chn_text, format="strip", delimiter=" ")
+#     # 每个字拼音首字母大写，中间无空格
+#     words = pinyin_text.split(" ")
+#     for idx in range(len(words)):
+#         word = words[idx]
+#         words[idx] = word[0].upper() + word[1:]
+#     pinyin_final_text = "".join(words)
+#     return pinyin_final_text
+# '''
+# def translate_fromCh2Eng_raw(chn_text):
+#     translate_cn_req_data={
+#         'query_cn': chn_text
+#     }
+#     invalid_word= {'无': 'None', '未知': 'Unknow'}
+#     if chn_text not in invalid_word:
+#         try:
+#             url = 'http://0.0.0.0:7002/translate_ch2en'
+#             resp = requests.post(url, data = translate_cn_req_data, timeout= 60)
+#             en_text = resp.text
+#         except Exception as err:
+#             en_text = ''
+#             logging.error("translate_fromCh2Eng_raw error: {}, req: {}".format(str(err), chn_text))
+#     else:
+#         en_text = invalid_word[chn_text]
+#     return en_text
+#
+# def translate_fromEng2Ch_raw(eng_text):
+#     translate_en_req_data={
+#         'query_en': eng_text
+#     }
+#     try:
+#         url = 'http://0.0.0.0:7002/translate_en2ch'
+#         resp = requests.post(url, data = translate_en_req_data, timeout= 60)
+#         chn_text = resp.text
+#     except Exception as err:
+#         chn_text = ''
+#         logging.error("translate_fromEng2Ch_raw error: {}, req: {}".format(str(err), eng_text))
+#     return chn_text
+# '''
 
 
 def translate_fromCh2Eng_raw(chn_text):
