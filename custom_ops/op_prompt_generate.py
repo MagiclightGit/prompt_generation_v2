@@ -274,6 +274,10 @@ class OpPromptGenerate(OpConstructRequest):
             common_prompt_xl = "A playful cartoon-style,"
             base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
             common_prompt = "best quality, ultra_detailed,"
+        elif style_id == "56":
+            common_prompt_xl = "magic animee style,western style,"
+            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            common_prompt = "best quality, ultra_detailed,"
         else:
             common_prompt = "best quality, ultra_detailed,(anime:1.2),"
 
@@ -301,7 +305,7 @@ class OpPromptGenerate(OpConstructRequest):
         # processed_env_prompt = ip_bible["scene"]["prompt"]
         processed_env_prompt = ip_bible["scene"]["prompt"]
         #场景链路
-        xl_style_id = ["23","24","25","26","27","28","29","30","31","32","33","34","36","37","39","40","41","42","43","44","45","46","47","50","51","52","53","54","55"]
+        xl_style_id = ["23","24","25","26","27","28","29","30","31","32","33","34","36","37","39","40","41","42","43","44","45","46","47","50","51","52","53","54","55","56"]
         if ip_bible["num_person"] < 1:
               # make scene_prompts with ChatGPT
             # set_prompt = '根据以下设定回答问题："StableDiffusion是一款利用深度学习的文生图模型，支持通过使用提示词来产生新的图像，描述要包含或省略的元素。 我在这里引入StableDiffusion算法中的Prompt概念，又被称为提示符，每个提示符通常1个单词，有时2到3个单词。 下面的prompt是用来指导AI绘画模型创作图像的。它们包含了图像的各种细节，如人物的外观、背景、颜色和光线效果，以及图像的主题和风格。 以下是用prompt帮助AI模型生成图像的例子：cold , solo, 1girl, detailed eyes, shine golden eyes, long liver hair, expressionles, long sleeves, puffy sleeves, white wings, shinehalo, heavymetal, metaljewelry, cross-lacedfootwear, Whitedoves。"'
