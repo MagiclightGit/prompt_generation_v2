@@ -1,0 +1,8 @@
+envs:
+  AWS_REGION: "us-east-1"
+  AWS_SQS_QUEUE_URL: "https://sqs.us-east-1.amazonaws.com/241764070795/PromptGPT-Intl-Deque-Normal_TEST"
+  LOG_PATH: "./logs/prompt_generate.log"
+  MAGIC_API_HOST: "https://api.test.brmgo.com"
+  MAGIC_TASK_REPORT_API_BASE: https://ff6aqkm5jc.execute-api.us-east-1.amazonaws.com
+
+  IPBIBLE_OUTPUT_BUCKET: "magic-ipbible-intl-outputs"
