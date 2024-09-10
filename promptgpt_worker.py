@@ -1,16 +1,16 @@
 import os
 import sys
-
-dir_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.insert(0, os.path.join(dir_path, 'magic_common'))
-
 import argparse
 import json
 import logging
 import requests
 
+dir_path = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(0, os.path.join(dir_path, 'magic_common'))
+
 import yaml
 from magic.config import config
+from magic.logger.magic_logger import setup_basic_logging_config
 from magic.task.base import TaskBase
 from magic.task.worker import MagicWorker
 from magic.utils.fuzzy_download import fuzzy_download_to_file
@@ -18,21 +18,6 @@ from magic.utils.task import retry_submit_new_task
 
 from custom_ops.op_get_fiction_info import OPIpBibleObtain
 from custom_ops.op_prompt_generate import OpPromptGenerate
-
-
-def setup_logging_config(log_file=None):
-    if log_file is not None:
-        logging.basicConfig(
-            level= logging.INFO,
-            filename=log_file,
-            filemode= 'a',
-            format='%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s'
-        )
-    else:
-        logging.basicConfig(
-            level= logging.INFO,
-            format='%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s'
-        )
 
 
 def get_api_url(path):
@@ -236,9 +221,9 @@ def parse_option():
 if __name__ == '__main__':
     args = parse_option()
     if args.log_to_stdout:
-        setup_logging_config(None)
+        setup_basic_logging_config()
     else:
-        setup_logging_config('./logs/prompt_generate.log')
+        setup_basic_logging_config('./logs/prompt_generate.log')
 
     yaml_file = args.yaml_config
     if not os.path.isfile(yaml_file):
