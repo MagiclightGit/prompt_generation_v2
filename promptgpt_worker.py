@@ -150,8 +150,8 @@ class PromptGenerateTask(TaskBase):
 
         op_prompt_generate = OpPromptGenerate()
         op_prompt_generate.init()
-        pos_prompts, neg_prompts, sub_pos_prompts, display_prompt, common_style_prompt, tags,scene_type, extra_prompt, extra_prompt_cn, pos_prompts_xl, neg_prompts_xl, sub_pos_prompts_xl, scene_display_prompt_xl, common_prompt_xl, scene_type_xl, scene_extra_prompt_xl, scene_extra_prompt_cn_xl,para_action,style_id,role_display_prompt= op_prompt_generate.run(self.flow_id, self.project_id, self.chapter_id, self.para_id, ipbible, model_info)
-        self.logger.info(f"pos_prompts: {pos_prompts}\nneg_prompt: {neg_prompts}\nsub_prompt: {sub_pos_prompts}\ndisplay_prompt:{display_prompt}\ncommon_style_prompt:{common_style_prompt}\ntemplate_tags:{tags}\nscene_type:{scene_type}\nextra_prompt:{extra_prompt}\nextra_prompt_cn:{extra_prompt_cn}\npos_prompts_xl: {pos_prompts_xl}\nneg_prompts_xl: {neg_prompts_xl}\nsub_pos_prompts_xl: {sub_pos_prompts_xl}\ndisplay_prompt_xl:{scene_display_prompt_xl}\ncommon_style_prompt_xl:{common_prompt_xl}\nscene_type_xl:{scene_type_xl}\nextra_prompt_xl:{scene_extra_prompt_xl}\nextra_prompt_cn_xl:{scene_extra_prompt_cn_xl}\npara_action:{para_action}\nstyle_id:{style_id}\nrole_display_prompt:{role_display_prompt}\n")
+        pos_prompts, neg_prompts, sub_pos_prompts, display_prompt, common_style_prompt, tags,scene_type, extra_prompt, extra_prompt_cn, pos_prompts_xl, neg_prompts_xl, sub_pos_prompts_xl, scene_display_prompt_xl, common_prompt_xl, scene_type_xl, scene_extra_prompt_xl, scene_extra_prompt_cn_xl,para_action,style_id,role_display_prompt,ratio= op_prompt_generate.run(self.flow_id, self.project_id, self.chapter_id, self.para_id, ipbible, model_info)
+        self.logger.info(f"pos_prompts: {pos_prompts}\nneg_prompt: {neg_prompts}\nsub_prompt: {sub_pos_prompts}\ndisplay_prompt:{display_prompt}\ncommon_style_prompt:{common_style_prompt}\ntemplate_tags:{tags}\nscene_type:{scene_type}\nextra_prompt:{extra_prompt}\nextra_prompt_cn:{extra_prompt_cn}\npos_prompts_xl: {pos_prompts_xl}\nneg_prompts_xl: {neg_prompts_xl}\nsub_pos_prompts_xl: {sub_pos_prompts_xl}\ndisplay_prompt_xl:{scene_display_prompt_xl}\ncommon_style_prompt_xl:{common_prompt_xl}\nscene_type_xl:{scene_type_xl}\nextra_prompt_xl:{scene_extra_prompt_xl}\nextra_prompt_cn_xl:{scene_extra_prompt_cn_xl}\npara_action:{para_action}\nstyle_id:{style_id}\nrole_display_prompt:{role_display_prompt}\nratio:{ratio}\n")
 
         next_params = {
             'project_id': self.project_id,
@@ -162,6 +162,7 @@ class PromptGenerateTask(TaskBase):
             "image_id": "",
             "scene_id": self.scene_id,
             "style_id": style_id,
+            "ratio" : ratio,
             "gpt_prompt": {
                 "display_prompt": display_prompt,
                 "pos_prompts": pos_prompts,

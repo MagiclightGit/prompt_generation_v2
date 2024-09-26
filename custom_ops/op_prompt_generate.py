@@ -89,13 +89,14 @@ class OpPromptGenerate(OpConstructRequest):
         #               "星际":"(interstellar style:1.2),(futuristic style:1.2),"}
 
         style_id = ip_bible["style_id"]
+        ratio = ip_bible["ratio"]
         scene_type = ip_bible["scene"]["scene_type"]
         para_action = ip_bible["action"]
 
         #风格提示词：
         common_prompt = ""
         common_neg_promt = ""
-        base_neg_prompts_xl = ""
+        base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
         #动漫未来
         if style_id == "4":
             common_prompt = "best quality, ultra_detailed,(Cyberpunk atmosphere:1.2), (futuristic style:1.2),"
@@ -223,60 +224,68 @@ class OpPromptGenerate(OpConstructRequest):
             common_prompt = "best quality, ultra_detailed,"
         elif style_id == "41":
             common_prompt_xl = "f1.8,relistic,cinematic style,Dune movie style"
-            base_neg_prompts_xl = "noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
             common_prompt = "best quality, ultra_detailed,"
             common_neg_promt = "anime,comic,"
         elif style_id == "42":
             common_prompt_xl = "f1.8,Shan Hai Style,"
-            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
             common_prompt = "best quality, ultra_detailed,"
         elif style_id == "43":
             common_prompt_xl = "f1.8,Genshin Style,"
-            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
             common_prompt = "best quality, ultra_detailed,"
         elif style_id == "44":
             common_prompt_xl = "f1.8,league of legends style,"
-            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
             common_prompt = "best quality, ultra_detailed,"
         elif style_id == "45":
             common_prompt_xl = "f1.8,ku18 comic style,"
-            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
             common_prompt = "best quality, ultra_detailed,"
         elif style_id == "46":
             common_prompt_xl = "f1.8,Dream Comic style,"
-            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
             common_prompt = "best quality, ultra_detailed,"
         elif style_id == "47":
             common_prompt_xl = "f1.8,rick and morty style,"
-            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
             common_prompt = "best quality, ultra_detailed,"
         elif style_id == "50":
             common_prompt_xl = "f1.8,magiclight animee style,"
-            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy"
+            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
             common_prompt = "best quality, ultra_detailed,"
         elif style_id == "51":
             common_prompt_xl = "American Comic Style,"
-            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
             common_prompt = "best quality, ultra_detailed,"
         elif style_id == "52":
             common_prompt_xl = "on parchment,"
-            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
             common_prompt = "best quality, ultra_detailed,"
         elif style_id == "53":
             common_prompt_xl = "lineart, LineAniAF,"
-            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
             common_prompt = "best quality, ultra_detailed,"
         elif style_id == "54":
             common_prompt_xl = "comic book,"
-            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
             common_prompt = "best quality, ultra_detailed,"
         elif style_id == "55":
             common_prompt_xl = "A playful cartoon-style,"
-            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
             common_prompt = "best quality, ultra_detailed,"
         elif style_id == "56":
             common_prompt_xl = "magic animee style,western style,"
-            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+            common_prompt = "best quality, ultra_detailed,"
+        elif style_id == "58":
+            common_prompt_xl = "f1.8,relistic,cinematic style,"
+            base_neg_prompts_xl = "noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+            common_prompt = "best quality, ultra_detailed,(realistic:1.2),(photorealistic:1.2),"
+        elif style_id == "59":
+            common_prompt_xl = "animee style,"
+            base_neg_prompts_xl = "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
             common_prompt = "best quality, ultra_detailed,"
         else:
             common_prompt = "best quality, ultra_detailed,(anime:1.2),"
@@ -305,7 +314,7 @@ class OpPromptGenerate(OpConstructRequest):
         # processed_env_prompt = ip_bible["scene"]["prompt"]
         processed_env_prompt = ip_bible["scene"]["prompt"]
         #场景链路
-        xl_style_id = ["23","24","25","26","27","28","29","30","31","32","33","34","36","37","39","40","41","42","43","44","45","46","47","50","51","52","53","54","55","56"]
+        xl_style_id = ["23","24","25","26","27","28","29","30","31","32","33","34","36","37","39","40","41","42","43","44","45","46","47","50","51","52","53","54","55","56","58","59"]
         if ip_bible["num_person"] < 1:
               # make scene_prompts with ChatGPT
             # set_prompt = '根据以下设定回答问题："StableDiffusion是一款利用深度学习的文生图模型，支持通过使用提示词来产生新的图像，描述要包含或省略的元素。 我在这里引入StableDiffusion算法中的Prompt概念，又被称为提示符，每个提示符通常1个单词，有时2到3个单词。 下面的prompt是用来指导AI绘画模型创作图像的。它们包含了图像的各种细节，如人物的外观、背景、颜色和光线效果，以及图像的主题和风格。 以下是用prompt帮助AI模型生成图像的例子：cold , solo, 1girl, detailed eyes, shine golden eyes, long liver hair, expressionles, long sleeves, puffy sleeves, white wings, shinehalo, heavymetal, metaljewelry, cross-lacedfootwear, Whitedoves。"'
@@ -495,7 +504,7 @@ class OpPromptGenerate(OpConstructRequest):
                 }
                 pos_prompts['person_prompt'].append(person_prompt)
                 if style_id in xl_style_id:
-                    pos_prompts_xl['person_prompt'] = 'person_prompt'
+                    pos_prompts_xl['person_prompt'] =pos_prompts['person_prompt']
 
                 # 单人链路原文兜底图片
                 # if ip_bible["scene"]["simple_caption_en_new"] != "":
@@ -611,4 +620,4 @@ class OpPromptGenerate(OpConstructRequest):
             sub_pos_prompts["scenery"] =ip_bible["scene"]["prompt"]
             # sub_pos_prompts_xl["scenery"] =ip_bible["scene"]["location_en"]
             sub_pos_prompts_xl["scenery"] =ip_bible["scene"]["prompt"]
-        return [pos_prompts, neg_prompts, sub_pos_prompts, scene_display_prompt, common_prompt, scene_tags, scene_type, scene_extra_prompt, scene_extra_prompt_cn, pos_prompts_xl, neg_prompts_xl, sub_pos_prompts_xl, scene_display_prompt_xl, common_prompt_xl, scene_type_xl, scene_extra_prompt_xl, scene_extra_prompt_cn_xl,para_action,style_id,role_display_prompt]
+        return [pos_prompts, neg_prompts, sub_pos_prompts, scene_display_prompt, common_prompt, scene_tags, scene_type, scene_extra_prompt, scene_extra_prompt_cn, pos_prompts_xl, neg_prompts_xl, sub_pos_prompts_xl, scene_display_prompt_xl, common_prompt_xl, scene_type_xl, scene_extra_prompt_xl, scene_extra_prompt_cn_xl,para_action,style_id,role_display_prompt,ratio]

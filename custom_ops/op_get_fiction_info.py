@@ -79,7 +79,8 @@ class OPIpBibleObtain(object):
             data = json.load(f)
         chapter_info = data["chapter_info"]
         chapter_style = chapter_info.get("era_cn","")
-        style_id = chapter_info.get("style_id","1")
+        style_id = chapter_info.get("style_id","23")
+        ratio = chapter_info.get('ratio','2')
         paras = chapter_info["paras"]
         for para in paras:
             # 查找对应段落id
@@ -92,6 +93,7 @@ class OPIpBibleObtain(object):
             prompts_data["period"] = chapter_style
             prompts_data["style_id"] = style_id
             prompts_data["action"] = para.get("para_action","")
+            prompts_data["ratio"] = ratio
             
 
         
