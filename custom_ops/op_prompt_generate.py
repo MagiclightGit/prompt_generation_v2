@@ -447,32 +447,33 @@ class OpPromptGenerate(OpConstructRequest):
                     human_prompts = ""
                     # add some person descriptions from IP bible
                     # 表情description
-                    if style_id in ["6","12","7","13","23"]:
-                        emoji = cur_role_info["emoji_en"][0]
-                        if emoji in emoji_map:
-                            human_prompts = emoji + emoji_map[emoji]
-                        elif emoji == "":
-                            human_prompts = ""
-                        else:
-                            human_prompts = f"{emoji},"
-                        action = cur_role_info['actions_en']
-                        if len(action) > 0:
-                            info_prompts = [f"{info.lower()}," for info in action if info != ""]
-                            human_prompts += f"{', '.join(info_prompts)} "
+                    emoji = cur_role_info.get("emoji_en",[])[0]
+                    # if style_id in ["6","12","7","13","23"]:
+                    #     emoji = cur_role_info["emoji_en"][0]
+                    #     if emoji in emoji_map:
+                    #         human_prompts = emoji + emoji_map[emoji]
+                    #     elif emoji == "":
+                    #         human_prompts = ""
+                    #     else:
+                    #         human_prompts = f"{emoji},"
+                    action = cur_role_info['actions_en']
+                    # if len(action) > 0:
+                    #     info_prompts = [f"{info.lower()}," for info in action if info != ""]
+                    #     human_prompts += f"{', '.join(info_prompts)} "
                             # human_prompts = ""
-                    else:
-                        emoji = cur_role_info["emoji_en"][0]
-                        if emoji in emoji_map:
-                            human_prompts = emoji + emoji_map[emoji]
-                        elif emoji == "":
-                            human_prompts = ""
-                        else:
-                            human_prompts = f"({emoji}:1.2),"
+                    # else:
+                    #     emoji = cur_role_info["emoji_en"][0]
+                    #     if emoji in emoji_map:
+                    #         human_prompts = emoji + emoji_map[emoji]
+                    #     elif emoji == "":
+                    #         human_prompts = ""
+                    #     else:
+                    #         human_prompts = f"({emoji}:1.2),"
                         #动作description
-                        action = cur_role_info['actions_en']
-                        if len(action) > 0:
-                            info_prompts = [f"({info.lower()}:1.2)," for info in action if info != ""]
-                            human_prompts += f"{', '.join(info_prompts)} "
+                    # action = cur_role_info['actions_en']
+                    # if len(action) > 0:
+                    #     info_prompts = [f"({info.lower()}:1.2)," for info in action if info != ""]
+                    #     human_prompts += f"{', '.join(info_prompts)} "
 
                     display_prompt = cur_role_info["display_prompt"]
                     # need_info_keys = ['emoji_en', 'actions_en']
@@ -499,8 +500,9 @@ class OpPromptGenerate(OpConstructRequest):
                 person_prompt = {
                     "index": 0,
                     "entity_id": role_id,
-                    "prompt": human_prompts,
-                    "display_prompt": display_prompt
+                    "prompt": action,
+                    "display_prompt": display_prompt,
+                    "emoji": emoji
                 }
                 pos_prompts['person_prompt'].append(person_prompt)
                 if style_id in xl_style_id:
@@ -536,35 +538,38 @@ class OpPromptGenerate(OpConstructRequest):
                 
                 # lo_shoot = ""
                 # people_prmp = {}
-                if style_id in ["6","12","7","13","23"]:
-                    for i, i_role in enumerate(ip_bible["roles"]):
-                        role_id = i_role["id"]
-                        lora_prompts = []
-                        lora_prompts = self.add_action_realistic(lora_prompts, i_role)
-                        display_prompt = i_role["display_prompt"]
-                        person_prompt = {
-                            "index": i,
-                            "entity_id": role_id,
-                            "prompt": lora_prompts,
-                            "display_prompt" : display_prompt
-                        }
-                        pos_prompts['person_prompt'].append(person_prompt)
-                else:
-                    for i, i_role in enumerate(ip_bible["roles"]):
-                        role_id = i_role["id"]
-                        # 不读取lora信息
-                        # lora_info, lora_prompts = self.parse_lora_info(model_info[role_id])
-                        lora_prompts = []
-                        lora_prompts = self.add_action(lora_prompts, i_role)
-                        display_prompt = i_role["display_prompt"]
-                        person_prompt = {
-                            "index": i,
-                            "entity_id": role_id,
-                            "prompt": lora_prompts,
-                            "display_prompt" : display_prompt
+                # if style_id in ["6","12","7","13","23"]:
+                for i, i_role in enumerate(ip_bible["roles"]):
+                    role_id = i_role["id"]
+                    lora_prompts = []
+                    emoji = i_role.get("emoji_en",[])
+                    # lora_prompts = self.add_action_realistic(lora_prompts, i_role)
+                    action = i_role.get("actions_en")
+                    display_prompt = i_role["display_prompt"]
+                    person_prompt = {
+                        "index": i,
+                        "entity_id": role_id,
+                        "prompt": action,
+                        "display_prompt" : display_prompt,
+                        "emoji":emoji
+                    }
+                    pos_prompts['person_prompt'].append(person_prompt)
+                # else:
+                #     for i, i_role in enumerate(ip_bible["roles"]):
+                #         role_id = i_role["id"]
+                #         # 不读取lora信息
+                #         # lora_info, lora_prompts = self.parse_lora_info(model_info[role_id])
+                #         lora_prompts = []
+                #         lora_prompts = self.add_action(lora_prompts, i_role)
+                #         display_prompt = i_role["display_prompt"]
+                #         person_prompt = {
+                #             "index": i,
+                #             "entity_id": role_id,
+                #             "prompt": lora_prompts,
+                #             "display_prompt" : display_prompt
 
-                        }
-                        pos_prompts['person_prompt'].append(person_prompt)
+                #         }
+                    # pos_prompts['person_prompt'].append(person_prompt)
                 if style_id in xl_style_id:
                     pos_prompts_xl['person_prompt'] = pos_prompts['person_prompt']
                     # lora_info_dict[role_id] = lora_info
