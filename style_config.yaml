@@ -1,0 +1,95 @@
+"23":
+  base_neg_prompts_xl : "noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+  common_neg_promt: "anime,comic,"
+#迪士尼XL
+"24":
+  base_neg_prompts_xl: "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+#动漫现代XL
+"25":
+  base_neg_prompts_xl: "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+#日式动漫XL
+"26":
+  base_neg_prompts_xl: "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+#动漫未来XL
+"27":
+  base_neg_prompts_xl: "ugly, realism, photorealistic, historical, medieval,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+#动漫末世XL
+"28":
+  base_neg_prompts_xl: "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+#美漫风XL
+"29":
+  base_neg_prompts_xl: "photograph,realistic, stock photo,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+#旧版国风XL
+"30":
+  common_prompt: "best quality, ultra_detailed,(chinese style:1.2), (ancient chinese:1.2),"
+  base_neg_prompts_xl: "photograph,realistic, stock photo,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+#新国风XL
+"2":
+  common_prompt: "best quality, ultra_detailed,(chinese style:1.2), (ancient chinese:1.2),"
+  base_neg_prompts_xl: "realistic,stock photo,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+"31":
+  base_neg_prompts_xl: "photograph,realistic, stock photo,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+#粘土风
+"32":
+  base_neg_prompts_xl: "photograph,realistic, stock photo,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+#粘土风
+"36":
+  base_neg_prompts_xl: "photograph,realistic, stock photo,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+"33":
+  base_neg_prompts_xl: "photograph,realistic, stock photo,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+"34":
+  base_neg_prompts_xl: "ugly,photograph,realistic, stock photo,,historical, medieval,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"    
+"37":
+  base_neg_prompts_xl: "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed"
+#鬼故事
+"39":
+  base_neg_prompts_xl: "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+#动漫厚涂
+"40":
+  base_neg_prompts_xl: "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+"41":
+  base_neg_prompts_xl: "noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+"42":
+  base_neg_prompts_xl: "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+"43":
+  base_neg_prompts_xl: "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+#LOL
+"44":
+  base_neg_prompts_xl: "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+"45":
+  base_neg_prompts_xl: "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+"46":
+  base_neg_prompts_xl: "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+"47":
+  base_neg_prompts_xl: "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+#动物城
+"50":
+  base_neg_prompts_xl: "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+#美漫风
+"51":
+  base_neg_prompts_xl: "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+"52":
+  base_neg_prompts_xl: "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+"53":
+  base_neg_prompts_xl: "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+"54":
+  base_neg_prompts_xl: "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+"55":
+  base_neg_prompts_xl: "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+"56":
+  base_neg_prompts_xl: "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+#写实flux
+"58":
+  base_neg_prompts_xl: "noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+#都市言情
+"59":
+  base_neg_prompts_xl: "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+#可爱动物
+"60":
+  base_neg_prompts_xl: "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+#动漫厚土flux
+"62":
+  base_neg_prompts_xl: "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"
+#恐怖悬疑
+"63":
+  base_neg_prompts_xl: "realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits"

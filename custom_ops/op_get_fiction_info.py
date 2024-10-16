@@ -22,7 +22,7 @@ import datetime
 import traceback
 from typing import Dict, NoReturn
 import logging
-
+import yaml
 from shlex import quote
 
 
@@ -62,7 +62,8 @@ class OPIpBibleObtain(object):
             "现代":"现代",
             "科幻&未来":"科幻&未来"
         }
-
+        with open("./style_config.yaml", "r") as f:
+            self.style_config = yaml.load(f, Loader=yaml.FullLoader)
     def load_list_field(self, field):
         if type(field) == list:
             return field
@@ -84,110 +85,66 @@ class OPIpBibleObtain(object):
         paras = chapter_info["paras"]
         for para in paras:
             # 查找对应段落id
-            if para["para_id"] != self.para_id:
-                continue
+            try:
+                if para["para_id"] != self.para_id:
+                    continue
 
-            # logging.info("para_id: {}, para: {}".format(para['para_id'], para))
-
-            prompts_data["para_content_en"] = para["para_content_en"]
-            prompts_data["period"] = chapter_style
-            prompts_data["style_id"] = style_id
-            prompts_data["action"] = para.get("para_action","")
-            prompts_data["ratio"] = ratio
-            
-
-        
-            # # 查找场景id
-            # scene_id = para["scene_id"]
-            # scene = chapter_info["scenes"][scene_id]
-            # prompts_data["scene_id"] = scene_id
-            # prompts_data["style"] = scene["style"]
-            # prompts_data["interior_exterior"] = scene["interior_exterior"]
-            # prompts_data["detail_caption_en"] = scene["detail_caption_en"]
-            # prompts_data["simple_caption_en"] = scene["simple_caption_en"]
-
-            # 查找人物数量
-            num_person = len(para["roles"]) # + len(para["minor_roles"])
-            
-            max_num_person = 2  # 设定每段中的最大人数
-            # logging.info(f"max_num_person: {max_num_person}, {num_person}")
-
-            prompts_data["num_person"] = min(max_num_person, num_person)
-
-            # 加载需要的人物信息
-            prompts_data["roles"] = []
-            for role in para["roles"]:
-                cur_role = {}
-                role_id = role["id"]
-                cur_role["id"] = role_id
-                cur_role["name_list"] = [chapter_info["roles"][role_id]["name"]]
-                cur_role["name_list"].extend(self.load_list_field(chapter_info["roles"][role_id].get("other_names","")))
-                cur_role["actions_en"] = self.load_list_field(role.get("actions_en", []))
-                cur_role["emoji_en"] = self.load_list_field(role.get("emoji_en", []))
-                cur_role["caption_en"] = role.get("caption_en", "")
-                cur_role["gender_en"] = role.get("gender_en", "")
-                cur_role["display_prompt"] = role.get("display_prompt","")
+                # logging.info("para_id: {}, para: {}".format(para['para_id'], para))
                 
-                prompts_data["roles"].append(cur_role)
-
-            # 获取姿态
-            # prompts_data["pose"] = []
-            # for role in para["roles"]:
-            #     if role["actions"]:
-            #         prompts_data["pose"].append(role["actions"])
-            # for minor_roles in para["minor_roles"]:
-            #     if minor_roles["actions"]:simple_caption_en_new
-            #         prompts_data["pose"].append(minor_roles["actions"])
-
-            # 获取场景id，并且加载场景配置
-            scene_id = para["scene_id"]
-            if scene_id in chapter_info['scenes']:
-                load_scene_info = chapter_info['scenes'][scene_id]
-                cur_scene = {}
-                cur_scene['location_en'] = load_scene_info['location_en']
-                cur_scene['weather_en'] = load_scene_info['weather_en']
-                cur_scene['style_en'] = load_scene_info['style_en']
-                cur_scene['simple_caption_en'] = load_scene_info.get('simple_caption_en',"")
-                if 'detail_caption_cn_new' in load_scene_info:
-                    cur_scene['detail_caption_cn_new'] = load_scene_info.get('detail_caption_cn_new',"")
-                if 'simple_caption_en_new' in load_scene_info:
-                    cur_scene['simple_caption_en_new'] = load_scene_info.get('simple_caption_en_new',"")
-                cur_scene["environments_cn"] = ", ".join([load_scene_info["location_cn"],
-                                                          load_scene_info["interior_exterior_cn"],
-                                                          load_scene_info["time_cn"],
-                                                          load_scene_info["style_cn"],
-                                                          load_scene_info["weather_cn"]])
-                # cur_scene["environments_en"] = ", ".join([load_scene_info["location_en"],
-                #                                           load_scene_info["interior_exterior_en"],
-                #                                           load_scene_info["time_en"],
-                #                                           load_scene_info["style_en"],
-                #                                           load_scene_info["weather_en"]])
-                cur_scene["location"] =load_scene_info["location_en"]
+                prompts_data["para_content_en"] = para["para_content_en"]
+                prompts_data["period"] = chapter_style
+                prompts_data["style_id"] = style_id
+                prompts_data["action"] = para.get("para_action","")
+                prompts_data["ratio"] = ratio
                 
-                #获取场景类型
-                cur_scene["scene_type"] = load_scene_info["scene_type"]
-                cur_scene["prompt"] = load_scene_info["prompt"]
-                cur_scene["extra_prompt"] = load_scene_info.get("extra_prompt","")
-                cur_scene["extra_prompt_cn"] = load_scene_info.get("extra_prompt_cn","")
-                cur_scene["caption_with_roles_en"] = load_scene_info.get("caption_with_roles_en", "")
-                cur_scene["style"] = load_scene_info.get("style_cn","未知")
-                cur_scene["display_prompt"] = load_scene_info.get("display_prompt","")
-                cur_scene["role_display_prompt"] = load_scene_info.get("role_display_prompt","")
-                cur_scene["tags"] = load_scene_info.get("tags","")
 
-                # try:
-                #     cur_scene["subject_en"] = json.loads(load_scene_info.get("subject_en",{}))
-                # except Exception as e:
-                #     logging.info("Parse 'subject_en' ERROR: {}".format(e))
-                cur_scene["subject_en"] = {}
 
-                prompts_data["scene"] = cur_scene
-            
-            # add caption
-            prompts_data["para_content"] = para["para_content_cn"]
+                # 查找人物数量
+                num_person = len(para["roles"]) # + len(para["minor_roles"])
+                
+                max_num_person = 2  # 设定每段中的最大人数
+                # logging.info(f"max_num_person: {max_num_person}, {num_person}")
 
-        # logging.info("Parsed ip_bible is {}".format(prompts_data))
-        
+                prompts_data["num_person"] = min(max_num_person, num_person)
+
+                # 加载需要的人物信息
+                prompts_data["roles"] = []
+                for role in para["roles"]:
+                    cur_role = {}
+                    role_id = role["id"]
+                    cur_role["id"] = role_id
+                    cur_role["actions_en"] = self.load_list_field(role.get("actions_en", []))
+                    cur_role["emoji_en"] = self.load_list_field(role.get("emoji_en", []))
+                    cur_role["display_prompt"] = role.get("display_prompt","")
+                    
+                    prompts_data["roles"].append(cur_role)
+
+                # 获取场景id，并且加载场景配置
+                scene_id = para["scene_id"]
+                if scene_id in chapter_info['scenes']:
+                    load_scene_info = chapter_info['scenes'][scene_id]
+                    cur_scene = {}
+
+                    
+                    #获取场景类型
+                    cur_scene["scene_type"] = load_scene_info["scene_type"]
+                    cur_scene["prompt"] = load_scene_info["prompt"]
+                    cur_scene["extra_prompt"] = load_scene_info.get("extra_prompt","")
+                    cur_scene["extra_prompt_cn"] = load_scene_info.get("extra_prompt_cn","")
+                    cur_scene["display_prompt"] = load_scene_info.get("display_prompt","")
+                    cur_scene["role_display_prompt"] = load_scene_info.get("role_display_prompt","")
+                    cur_scene["tags"] = load_scene_info.get("tags","")
+
+                    prompts_data["scene"] = cur_scene
+                
+                # add caption
+                prompts_data["para_content"] = para["para_content_cn"]
+            except Exception as err:
+                err_info = "fiction parser failed! err: {}".format(str(err)) 
+                trace_info = traceback.format_exc()
+                error = err_info + "\n" + trace_info
+                
+                logging.error(error)
         return prompts_data
 
     def parse_fiction_info_for_layout(self, fiction_path, project_id, chid, para_id):
@@ -242,7 +199,7 @@ class OPIpBibleObtain(object):
                 }
                 # raise ValueError(f"no roles in fid {fid}, chid {chid}, para_id {para_id}")
                 logging.info(f"{ret_msg}")
-                return prompts_data, ret_msg
+                return prompts_data
 
             # 获取主角人物id
             prompts_data["person_id"] = []
@@ -300,19 +257,131 @@ class OPIpBibleObtain(object):
 
             ret_msg = {"ret": 0, "num_person": num_person, "msg": "success"}
 
-        return prompts_data, ret_msg
+        return prompts_data
+    def parse_prompt(self,ip_bible):
+        human_prompts = ""
+        env_prompt = ""
 
+        pos_prompts = {}
+        pos_prompts["person_prompt"] = []
+        pos_prompts_xl = {}
+        pos_prompts_xl["person_prompt"] = []
+        neg_prompts_xl = ""
+
+        style_id = ip_bible["style_id"]
+        ratio = ip_bible["ratio"]
+        scene_type = ip_bible["scene"]["scene_type"]
+        para_action = ip_bible["action"]
+        neg_prompts = "nsfw,easynegative,bad-hands-5,negative_hand-neg, (same person: 2.0),(worst quality,low quality:2),(deformed iris:1.4),(deformed pupils:1.4),(poorly drawn face:1.21),(empty eyes:1.4),monochrome,ugly,disfigured,overexposure, watermark,text,bad anatomy,(extra hands:2),(extra fingers:1.6), (too many fingers:1.6),(fused fingers:1.6),bad arm,distorted arm,(extra arms:2),fused arms,extra legs,deformed legs,extra nipples, liquid hand,inverted hand,disembodied limb, oversized head"
+
+        #风格提示词：
+        base_neg_prompts_xl = ""
+        style_config = self.style_config.get(style_id, {})
+        logging.info(f"{style_config}")
+        # print(style_config)
+        common_prompt = style_config.get("common_prompt","")
+        # print(common_prompt)
+        base_neg_prompts_xl = style_config.get("base_neg_prompts_xl","realistic,noise, grit, dull, washed out, low contrast, blurry, deep-fried, hazy, malformed, warped, deformed,bad anatomy, bad hands,error, missing fingers,extra digt,fewer digits")
+        neg_prompts_xl = "(nsfw:1.5),(nude:1.5),text,watermark," + base_neg_prompts_xl
+        #display_prompt
+        scene_display_prompt = ip_bible["scene"]["display_prompt"]
+        role_display_prompt = ip_bible["scene"]["role_display_prompt"]
+        #extra_prompt
+        scene_extra_prompt = ip_bible["scene"]["extra_prompt"]
+        #tags
+        scene_tags = ip_bible["scene"]["tags"]
+        temp_prompt = ""
+        if scene_tags == "#AI角色拜年":
+            temp_prompt = "happy,(chinese new year:1.2),"
+        common_prompt = common_prompt + temp_prompt
+
+        #simple caption 直译的环境
+        env_prompt = ip_bible["scene"]["prompt"].lower()
+
+        #场景链路
+        if ip_bible["num_person"] < 1:
+            pos_prompts["env_prompt"] = env_prompt
+            pos_prompts_xl["env_prompt"] = env_prompt
+        else:
+            if ip_bible["num_person"] == 1:
+                display_prompt = ""
+                try:
+                    #表情&动作
+                    cur_role_info = ip_bible["roles"][0]
+                    emoji = cur_role_info.get("emoji_en",[])[0]
+                    action = cur_role_info['actions_en']
+                    if len(action) > 0:
+                        info_prompts = [f"{info.lower()}" for info in action if info != ""]
+                        human_prompts += f"{', '.join(info_prompts)} "
+                            # human_prompts = ""
+                    if style_id not in [23,"23","58",58]:
+                        human_prompts = ""
+                        emoji = f"({emoji}:1.2)"
+                        if len(action) > 0:
+                            info_prompts = [f"({info.lower()}:1.2)" for info in action if info != ""]
+                            human_prompts += f"{', '.join(info_prompts)} "
+  
+                    display_prompt = cur_role_info["display_prompt"]
+                except Exception:
+                    pass
+
+                pos_prompts['env_prompt'] =env_prompt
+                role_id = str(ip_bible["roles"][0]["id"])
+                person_prompt = {
+                    "index": 0,
+                    "entity_id": role_id,
+                    "prompt": human_prompts,
+                    "display_prompt": display_prompt,
+                    "emoji": emoji
+                }
+                pos_prompts['person_prompt'].append(person_prompt)
+            if ip_bible["num_person"] == 2:
+            
+                for i, i_role in enumerate(ip_bible["roles"]):
+                    role_id = i_role["id"]
+                    # lora_prompts = []
+                    emoji = i_role.get("emoji_en",[])[0]
+                    # lora_prompts = self.add_action_realistic(lora_prompts, i_role)
+                    action = i_role.get("actions_en",[])
+                    human_prompts = ""
+                    if len(action) > 0:
+                        info_prompts = [f"{info.lower()}" for info in action if info != ""]
+                        human_prompts += f"{', '.join(info_prompts)} "
+                    if style_id not in [23,"23","58",58]:
+                        emoji = f"({emoji}:1.2)"
+                        human_prompts = ""
+                        if len(action) > 0:
+                            info_prompts = [f"({info.lower()}:1.2)" for info in action if info != ""]
+                            human_prompts += f"{', '.join(info_prompts)} "
+                    display_prompt = i_role["display_prompt"]
+                    person_prompt = {
+                        "index": i,
+                        "entity_id": role_id,
+                        "prompt": human_prompts,
+                        "display_prompt" : display_prompt,
+                        "emoji":emoji
+                    }
+                    pos_prompts['person_prompt'].append(person_prompt)
+
+                pos_prompts['env_prompt'] =env_prompt
+
+        return [pos_prompts, neg_prompts,scene_display_prompt, scene_tags, scene_type, scene_extra_prompt, neg_prompts_xl,para_action,style_id,role_display_prompt,ratio,common_prompt]
     def run(self, inputs):
-        fiction_info_path, project_id, chid, para_id, flow_id = inputs
-        ret_msg = {"ret": 0, "msg": "succ"}
+        fiction_info_path, project_id, chid, para_id, flow_id= inputs
+        # ret_msg = {"ret": 0, "msg": "succ"}
         prompts_data = {}
         layout_data = {}
-        try:
-            prompts_data = self.parse_fiction_info(fiction_info_path)
-            layout_data, _ = self.parse_fiction_info_for_layout(fiction_info_path, project_id, chid, para_id)
-        except Exception as err:
-            ret_msg["ret"] = 1
-            err_info = "fiction parser failed! err: {}".format(str(err)) 
-            ret_msg["msg"] = err_info
-            logging.error(err_info)
-        return [prompts_data, layout_data, ret_msg]
+        get_prompts_data = []
+        # try:
+        prompts_data = self.parse_fiction_info(fiction_info_path)
+        layout_data = self.parse_fiction_info_for_layout(fiction_info_path, project_id, chid, para_id)
+        # except Exception as err:
+            # ret_msg["ret"] = 1
+            # err_info = "fiction parser failed! err: {}".format(str(err)) 
+            # trace_info = traceback.format_exc()
+            # ret_msg["msg"] = err_info + "\n" + trace_info
+            # logging.error(ret_msg["msg"])
+            # ret_msg["msg"] = err_info
+            # logging.error(err_info)
+        get_prompts_data = self.parse_prompt(prompts_data)
+        return [get_prompts_data, layout_data]
